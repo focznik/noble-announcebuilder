@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -323,6 +323,7 @@ textarea{
     <div class="lang-box">
       <label data-i18n="language">Język strony</label>
       <select id="language" onchange="changeLanguage()">
+        <option value="en">🇬🇧 English</option>
         <option value="pl">🇵🇱 Polski</option>
         <option value="it">🇮🇹 Italiano</option>
         <option value="de">🇩🇪 Deutsch</option>
@@ -408,6 +409,33 @@ let lastReg = 0;
 let lastGame = 0;
 
 const translations = {
+  en:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Select a server, lobby and time — the announcement generates automatically. Then just copy it.",
+    language:"Page Language",
+    servers:"Servers",
+    setup:"Setup",
+    registrationOpens:"Registration Opens",
+    hostOfSession:"Host Of Session",
+    coHostOfSession:"Co-Host Of Session",
+    sessionNumber:"24/7 Session Number",
+    useCurrentTime:"Use Current Time",
+    quickHours:"Quick Hours",
+    lobbyType:"Lobby / Type",
+    generatedMessage:"Generated Message",
+    copyAnnouncement:"Copy Announcement",
+    copyRegTimestamp:"Copy Reg Timestamp",
+    copyGameTimestamp:"Copy Game Timestamp",
+    firstGame:"First Game",
+    firstLobby:"First Lobby",
+    secondLobby:"Second Lobby",
+    thirdLobby:"Third Lobby",
+    powerWeekend:"Power Weekend",
+    copied:"Copied",
+    announcementCopied:"Announcement copied",
+    regCopied:"Registration timestamp copied",
+    gameCopied:"First game timestamp copied"
+  },
   pl:{
     title:"⚡ Noble Announcement Builder",
     subtitle:"Wybierz serwer, lobby i godzinę — wiadomość generuje się automatycznie. Potem tylko kopiujesz.",
@@ -518,10 +546,10 @@ const translations = {
   }
 };
 
-let currentLanguage = localStorage.getItem("noble_language") || "pl";
+let currentLanguage = localStorage.getItem("noble_language") || "en";
 
 function t(key){
-  return (translations[currentLanguage] && translations[currentLanguage][key]) || translations.pl[key] || key;
+  return (translations[currentLanguage] && translations[currentLanguage][key]) || translations.en[key] || key;
 }
 
 function getLobbyName(lobby){
