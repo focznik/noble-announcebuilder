@@ -210,7 +210,7 @@ input:focus{
 
 .lobby-grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(3,1fr);
   gap:8px;
 }
 
@@ -223,6 +223,17 @@ input:focus{
   background:#172033;
   border-color:var(--green);
   box-shadow:inset 0 -3px 0 var(--green);
+}
+
+.lobby-btn.reload{
+  border-color:#6d4ccf;
+  background:#120f24;
+}
+
+.lobby-btn.reload.active{
+  border-color:#a78bfa;
+  background:#251a46;
+  box-shadow:inset 0 -3px 0 #a78bfa;
 }
 
 .help-row{
@@ -317,11 +328,11 @@ textarea{
   <div class="header">
     <div>
       <h1 data-i18n="title">⚡ Noble Announcement Builder</h1>
-      <p data-i18n="subtitle">Wybierz serwer, lobby i godzinę — wiadomość generuje się automatycznie. Potem tylko kopiujesz.</p>
+      <p data-i18n="subtitle">Select a server, lobby and time — the announcement generates automatically. Then just copy it.</p>
     </div>
 
     <div class="lang-box">
-      <label data-i18n="language">Język strony</label>
+      <label data-i18n="language">Page Language</label>
       <select id="language" onchange="changeLanguage()">
         <option value="en">🇬🇧 English</option>
         <option value="pl">🇵🇱 Polski</option>
@@ -430,6 +441,9 @@ const translations = {
     firstLobby:"First Lobby",
     secondLobby:"Second Lobby",
     thirdLobby:"Third Lobby",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2nd Lobby",
+    reloadThirdLobby:"Reload 3rd Lobby",
     powerWeekend:"Power Weekend",
     copied:"Copied",
     announcementCopied:"Announcement copied",
@@ -457,6 +471,9 @@ const translations = {
     firstLobby:"First Lobby",
     secondLobby:"Second Lobby",
     thirdLobby:"Third Lobby",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2nd Lobby",
+    reloadThirdLobby:"Reload 3rd Lobby",
     powerWeekend:"Power Weekend",
     copied:"Skopiowano",
     announcementCopied:"Announcement skopiowany",
@@ -484,6 +501,9 @@ const translations = {
     firstLobby:"Prima lobby",
     secondLobby:"Seconda lobby",
     thirdLobby:"Terza lobby",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2nd Lobby",
+    reloadThirdLobby:"Reload 3rd Lobby",
     powerWeekend:"Power Weekend",
     copied:"Copiato",
     announcementCopied:"Announcement copiato",
@@ -511,6 +531,9 @@ const translations = {
     firstLobby:"Erste Lobby",
     secondLobby:"Zweite Lobby",
     thirdLobby:"Dritte Lobby",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2nd Lobby",
+    reloadThirdLobby:"Reload 3rd Lobby",
     powerWeekend:"Power Weekend",
     copied:"Kopiert",
     announcementCopied:"Announcement kopiert",
@@ -538,6 +561,9 @@ const translations = {
     firstLobby:"Первое лобби",
     secondLobby:"Второе лобби",
     thirdLobby:"Третье лобби",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2nd Lobby",
+    reloadThirdLobby:"Reload 3rd Lobby",
     powerWeekend:"Power Weekend",
     copied:"Скопировано",
     announcementCopied:"Announcement скопирован",
@@ -557,6 +583,9 @@ function getLobbyName(lobby){
     "1":"firstLobby",
     "2":"secondLobby",
     "3":"thirdLobby",
+    "reload1":"reloadLobby",
+    "reload2":"reloadSecondLobby",
+    "reload3":"reloadThirdLobby",
     "power":"powerWeekend"
   };
   return t(names[lobby]);
@@ -653,16 +682,29 @@ function getLobbyOffset(){
     return 0;
   }
 
-  if(currentLobby === "2") return 5;
-  if(currentLobby === "3") return 10;
+  if(currentLobby === "2" || currentLobby === "reload2") return 5;
+  if(currentLobby === "3" || currentLobby === "reload3") return 10;
   return 0;
+}
+
+function isReloadLobby(){
+  return currentLobby === "reload1" || currentLobby === "reload2" || currentLobby === "reload3";
+}
+
+function reloadLobbyTitle(){
+  if(currentLobby === "reload2") return "Second Lobby";
+  if(currentLobby === "reload3") return "Third Lobby";
+  return "";
 }
 
 function selectServer(server){
   currentServer = server;
   localStorage.setItem("noble_server", server);
 
+  const availableReload = (server === "div0" || server === "div3");
   if(server !== "solos" && currentLobby === "power") currentLobby = "1";
+  if(!availableReload && isReloadLobby()) currentLobby = "1";
+
   localStorage.setItem("noble_lobby", currentLobby);
 
   document.querySelectorAll(".server-btn").forEach(btn=>{
@@ -700,15 +742,48 @@ function renderLobby(){
   grid.innerHTML = "";
 
   let options = ["1","2","3"];
-  if(currentServer === "solos") options.push("power");
+
+  if(currentServer === "div0" || currentServer === "div3"){
+    options = ["1","2","3","reload1","reload2","reload3"];
+  }
+
+  if(currentServer === "solos"){
+    options = ["1","2","3","power"];
+  }
+
+  if(!options.includes(currentLobby)){
+    currentLobby = options[0];
+    localStorage.setItem("noble_lobby", currentLobby);
+  }
 
   options.forEach(lobby=>{
     const btn = document.createElement("button");
-    btn.className = "lobby-btn" + (currentLobby === lobby ? " active" : "");
+    const reloadClass = lobby.startsWith("reload") ? " reload" : "";
+    btn.className = "lobby-btn" + reloadClass + (currentLobby === lobby ? " active" : "");
     btn.textContent = getLobbyName(lobby);
     btn.onclick = () => selectLobby(lobby);
     grid.appendChild(btn);
   });
+}
+
+function generateReloadMessage(title, reg, firstGame, hostMention){
+  const lobbyTitle = reloadLobbyTitle();
+  const lobbyBlock = lobbyTitle ? `\n**${lobbyTitle}**\n` : "";
+
+  return `@everyone 
+
+**${title}**${lobbyBlock}
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#902656971801493545>, <#902656971801493547> & <#1383042801754968135> before the games.
+
+Required at least **25+ Reacts** (1 per duo)
+**50+ Reacts** for a second lobby ^`;
 }
 
 function generate(){
@@ -728,7 +803,15 @@ function generate(){
   let msg="";
   const lobby = currentLobby;
 
-  if(currentServer==="div0"){
+  if(currentServer==="div0" && isReloadLobby()){
+    msg = generateReloadMessage("Noble Division 0 Practice Session (Reload)", reg, firstGame, hostMention);
+  }
+
+  else if(currentServer==="div3" && isReloadLobby()){
+    msg = generateReloadMessage("Noble Division 3 Practice Session (Reload)", reg, firstGame, hostMention);
+  }
+
+  else if(currentServer==="div0"){
     title="Noble Division 0 Practice Session";
     if(lobby==="1") msg=`@everyone 
 
@@ -772,7 +855,7 @@ Required at least **55+ Reacts** (1 per duo).`;
 Required at least **55+ Reacts** (1 per duo).`;
   }
 
-  if(currentServer==="div2"){
+  else if(currentServer==="div2"){
     title="Noble Division 2 Practice Session";
     if(lobby==="1") msg=`@everyone 
 
@@ -816,7 +899,7 @@ Required at least **55+ Reacts** (1 per duo).`;
 Required at least **55+ Reacts** (1 per duo).`;
   }
 
-  if(currentServer==="div3"){
+  else if(currentServer==="div3"){
     title="Noble Division 3 Practice Session";
     if(lobby==="1") msg=`@everyone 
 
@@ -863,7 +946,7 @@ Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a third lobby ^`;
   }
 
-  if(currentServer==="247"){
+  else if(currentServer==="247"){
     title=`Noble 24/7 Session ${sessionNumber}`;
     if(lobby==="1") msg=`@everyone 
 
@@ -904,7 +987,7 @@ The host for this session is: ${hostMention}, if you need any help.
 3 Games, Required at least 55+ Reacts (1 per Duo).`;
   }
 
-  if(currentServer==="solos"){
+  else if(currentServer==="solos"){
     title="Noble Solos Practice Session (3 Games)";
     if(lobby==="1") msg=`@everyone 
 
@@ -976,7 +1059,7 @@ The host for this session is ${hostMention}. Direct message them if you need hel
 Required at least 110+ reacts`;
   }
 
-  if(currentServer==="solosclosed"){
+  else if(currentServer==="solosclosed"){
     title="Noble Solos Closed Practice Session";
     msg=`@everyone 
 
