@@ -236,6 +236,17 @@ input:focus{
   box-shadow:inset 0 -3px 0 #a78bfa;
 }
 
+.lobby-btn.ladder{
+  border-color:#f59e0b;
+  background:#241704;
+}
+
+.lobby-btn.ladder.active{
+  border-color:#fbbf24;
+  background:#3a2507;
+  box-shadow:inset 0 -3px 0 #fbbf24;
+}
+
 .help-row{
   display:flex;
   gap:8px;
@@ -444,6 +455,7 @@ const translations = {
     reloadLobby:"Reload",
     reloadSecondLobby:"Reload 2nd Lobby",
     reloadThirdLobby:"Reload 3rd Lobby",
+    ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
     copied:"Copied",
     announcementCopied:"Announcement copied",
@@ -474,6 +486,7 @@ const translations = {
     reloadLobby:"Reload",
     reloadSecondLobby:"Reload 2nd Lobby",
     reloadThirdLobby:"Reload 3rd Lobby",
+    ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
     copied:"Skopiowano",
     announcementCopied:"Announcement skopiowany",
@@ -504,6 +517,7 @@ const translations = {
     reloadLobby:"Reload",
     reloadSecondLobby:"Reload 2nd Lobby",
     reloadThirdLobby:"Reload 3rd Lobby",
+    ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
     copied:"Copiato",
     announcementCopied:"Announcement copiato",
@@ -534,6 +548,7 @@ const translations = {
     reloadLobby:"Reload",
     reloadSecondLobby:"Reload 2nd Lobby",
     reloadThirdLobby:"Reload 3rd Lobby",
+    ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
     copied:"Kopiert",
     announcementCopied:"Announcement kopiert",
@@ -564,6 +579,7 @@ const translations = {
     reloadLobby:"Reload",
     reloadSecondLobby:"Reload 2nd Lobby",
     reloadThirdLobby:"Reload 3rd Lobby",
+    ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
     copied:"Скопировано",
     announcementCopied:"Announcement скопирован",
@@ -586,6 +602,7 @@ function getLobbyName(lobby){
     "reload1":"reloadLobby",
     "reload2":"reloadSecondLobby",
     "reload3":"reloadThirdLobby",
+    "ladder":"ladderLobby",
     "power":"powerWeekend"
   };
   return t(names[lobby]);
@@ -702,8 +719,10 @@ function selectServer(server){
   localStorage.setItem("noble_server", server);
 
   const availableReload = (server === "div0" || server === "div3");
+  const availableLadder = (server === "div3");
   if(server !== "solos" && currentLobby === "power") currentLobby = "1";
   if(!availableReload && isReloadLobby()) currentLobby = "1";
+  if(!availableLadder && currentLobby === "ladder") currentLobby = "1";
 
   localStorage.setItem("noble_lobby", currentLobby);
 
@@ -743,8 +762,12 @@ function renderLobby(){
 
   let options = ["1","2","3"];
 
-  if(currentServer === "div0" || currentServer === "div3"){
+  if(currentServer === "div0"){
     options = ["1","2","3","reload1","reload2","reload3"];
+  }
+
+  if(currentServer === "div3"){
+    options = ["1","2","3","reload1","reload2","reload3","ladder"];
   }
 
   if(currentServer === "solos"){
@@ -759,7 +782,8 @@ function renderLobby(){
   options.forEach(lobby=>{
     const btn = document.createElement("button");
     const reloadClass = lobby.startsWith("reload") ? " reload" : "";
-    btn.className = "lobby-btn" + reloadClass + (currentLobby === lobby ? " active" : "");
+    const ladderClass = lobby === "ladder" ? " ladder" : "";
+    btn.className = "lobby-btn" + reloadClass + ladderClass + (currentLobby === lobby ? " active" : "");
     btn.textContent = getLobbyName(lobby);
     btn.onclick = () => selectLobby(lobby);
     grid.appendChild(btn);
@@ -768,27 +792,11 @@ function renderLobby(){
 
 function generateReloadMessage(title, reg, firstGame, hostMention){
   const lobbyTitle = reloadLobbyTitle();
-
-  if(currentLobby === "reload2" || currentLobby === "reload3"){
-    return `@everyone 
-
-**${title}**
-
-**${lobbyTitle}**
-
-:ArrowRight: Registration opens @ <t:${reg}:t>
-
-:ArrowRight: First Game Commences @ <t:${firstGame}:t>
-
-The host for this session is: ${hostMention}, Direct Message them for help.
-
-Required at least **25+ Reacts** (1 per duo)`;
-  }
+  const lobbyBlock = lobbyTitle ? `\n**${lobbyTitle}**\n` : "";
 
   return `@everyone 
 
-**${title}**
-
+**${title}**${lobbyBlock}
 :ArrowRight: Registration opens @ <t:${reg}:t>
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
@@ -821,6 +829,24 @@ function generate(){
 
   if(currentServer==="div0" && isReloadLobby()){
     msg = generateReloadMessage("Noble Division 0 Practice Session (Reload)", reg, firstGame, hostMention);
+  }
+
+  else if(currentServer==="div3" && currentLobby==="ladder"){
+    msg=`@everyone 
+
+**Noble Division 3 Practice Session (5 Games)**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• **Session lasts 5 Games. -> Miss a single game and you will be banned.**
+• **Top 2 will get access to Division 2.** (Only the registered players)
+• Make sure to read <#902656971801493545>, <#902656971801493547> & <#1383042801754968135> before the games.
+
+Required at least **55+ Reacts** (1 per duo)`;
   }
 
   else if(currentServer==="div3" && isReloadLobby()){
