@@ -157,15 +157,34 @@ select:focus{
   filter:drop-shadow(0 0 10px rgba(56,189,248,.55));
 }
 
-/* White calendar icon only inside the datetime input */
-#time::-webkit-calendar-picker-indicator{
-  filter: invert(1) brightness(2);
-  opacity: 1;
-  cursor: pointer;
-}
-
+/* Custom white calendar icon only inside the Registration Opens datetime input */
 #time{
   color-scheme: dark;
+  padding-right:42px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 7H5v10h14V9z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 13px center;
+  background-size:18px;
+}
+
+#time::-webkit-calendar-picker-indicator{
+  opacity:0 !important;
+  width:42px;
+  height:100%;
+  cursor:pointer;
+  position:absolute;
+  right:0;
+}
+
+#time::-webkit-datetime-edit,
+#time::-webkit-datetime-edit-fields-wrapper,
+#time::-webkit-datetime-edit-text,
+#time::-webkit-datetime-edit-month-field,
+#time::-webkit-datetime-edit-day-field,
+#time::-webkit-datetime-edit-year-field,
+#time::-webkit-datetime-edit-hour-field,
+#time::-webkit-datetime-edit-minute-field{
+  color:white;
 }
 
 .server-btn span{
@@ -365,9 +384,147 @@ textarea{
   .lang-box{width:100%}
   .header h1{font-size:22px}
 }
+
+/* Dynamic server theme colors */
+body[data-theme="div0"]{
+  --theme:#d946ef;
+  --theme2:#a21caf;
+  --theme-soft:rgba(217,70,239,.16);
+  --theme-border:rgba(217,70,239,.75);
+}
+
+body[data-theme="div3"]{
+  --theme:#3b82f6;
+  --theme2:#1d4ed8;
+  --theme-soft:rgba(59,130,246,.16);
+  --theme-border:rgba(59,130,246,.75);
+}
+
+body[data-theme="div2"]{
+  --theme:#22c55e;
+  --theme2:#15803d;
+  --theme-soft:rgba(34,197,94,.16);
+  --theme-border:rgba(34,197,94,.75);
+}
+
+body[data-theme="247"]{
+  --theme:#facc15;
+  --theme2:#ca8a04;
+  --theme-soft:rgba(250,204,21,.16);
+  --theme-border:rgba(250,204,21,.75);
+}
+
+body[data-theme="solos"]{
+  --theme:#fb923c;
+  --theme2:#ea580c;
+  --theme-soft:rgba(251,146,60,.16);
+  --theme-border:rgba(251,146,60,.75);
+}
+
+body[data-theme="solosclosed"]{
+  --theme:#fb7185;
+  --theme2:#e11d48;
+  --theme-soft:rgba(251,113,133,.16);
+  --theme-border:rgba(251,113,133,.75);
+}
+
+body{
+  background:
+    radial-gradient(circle at top left, var(--theme-soft), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(255,255,255,.03), transparent 28%),
+    var(--bg);
+}
+
+.header{
+  border-color:var(--theme-border);
+  box-shadow:0 0 34px var(--theme-soft);
+}
+
+.header h1{
+  color:var(--text);
+}
+
+.header h1::first-letter{
+  color:var(--theme);
+}
+
+.panel{
+  border-color:rgba(255,255,255,.08);
+  box-shadow:0 0 26px rgba(0,0,0,.25);
+}
+
+.panel-title{
+  color:var(--theme);
+}
+
+.server-btn:hover,
+.time-btn:hover,
+.lobby-btn:hover,
+.copy-btn:hover,
+.small-btn:hover{
+  border-color:var(--theme);
+  background:linear-gradient(90deg,var(--theme-soft),#101a2a);
+}
+
+.server-btn.active{
+  background:linear-gradient(90deg,var(--theme-soft),#0a101a);
+  border-color:var(--theme);
+  box-shadow:inset 4px 0 0 var(--theme), 0 0 18px var(--theme-soft);
+}
+
+.server-btn.active .server-icon{
+  filter:drop-shadow(0 0 12px var(--theme));
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--theme);
+  box-shadow:0 0 0 2px var(--theme-soft);
+}
+
+.time-btn.active{
+  background:var(--theme-soft);
+  border-color:var(--theme);
+  color:#ffffff;
+  box-shadow:inset 0 -3px 0 var(--theme);
+}
+
+.lobby-btn.active{
+  background:var(--theme-soft);
+  border-color:var(--theme);
+  box-shadow:inset 0 -3px 0 var(--theme);
+}
+
+.copy-btn.main{
+  background:linear-gradient(90deg,var(--theme-soft),rgba(20,184,166,.12));
+  border-color:var(--theme);
+  color:#ffffff;
+}
+
+.badge{
+  border-color:var(--theme-border);
+  color:#ffffff;
+  background:var(--theme-soft);
+}
+
+.toast{
+  background:#09111d;
+  border-color:var(--theme);
+  box-shadow:0 0 22px var(--theme-soft);
+}
+
+#output{
+  border-color:rgba(255,255,255,.12);
+}
+
+#output:focus{
+  border-color:var(--theme);
+}
+
 </style>
 </head>
-<body>
+<body data-theme="div0">
 <div class="app">
   <div class="header">
     <div>
@@ -749,6 +906,7 @@ function reloadLobbyTitle(){
 
 function selectServer(server){
   currentServer = server;
+  document.body.setAttribute("data-theme", server);
   localStorage.setItem("noble_server", server);
 
   const availableReload = (server === "div0" || server === "div3");
