@@ -5,89 +5,41 @@
 <title>Noble Announcement Builder</title>
 
 <style>
-body{
-  background:#0f172a;
-  color:white;
-  font-family:Arial,sans-serif;
-  padding:30px;
-}
-.container{
-  max-width:1000px;
-  margin:auto;
-  background:#111827;
-  padding:25px;
-  border-radius:18px;
-  border:1px solid #334155;
-}
+body{background:#0f172a;color:white;font-family:Arial,sans-serif;padding:30px}
+.container{max-width:1000px;margin:auto;background:#111827;padding:25px;border-radius:18px;border:1px solid #334155}
 h1{margin-top:0}
 label{font-weight:bold;margin-top:15px;display:block}
-input,select,textarea,button{
-  width:100%;
-  padding:12px;
-  margin-top:8px;
-  border-radius:10px;
-  border:1px solid #475569;
-  background:#020617;
-  color:white;
-  font-size:15px;
-  box-sizing:border-box;
-}
-button{
-  background:#7c3aed;
-  cursor:pointer;
-  font-weight:bold;
-}
-textarea{
-  height:430px;
-  font-family:Consolas,monospace;
-}
-.row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
-}
-.quick-times{
-  display:grid;
-  grid-template-columns:repeat(6, 1fr);
-  gap:8px;
-  margin-top:10px;
-}
-.quick-times button{
-  background:#020617;
-  border:1px solid #475569;
-}
-.quick-times button:hover{
-  background:#1e293b;
-}
-.hidden{
-  display:none;
-}
+input,select,textarea,button{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:1px solid #475569;background:#020617;color:white;font-size:15px;box-sizing:border-box}
+button{background:#7c3aed;cursor:pointer;font-weight:bold}
+textarea{height:430px;font-family:Consolas,monospace}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.quick-times{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}
+.quick-times button{background:#020617;border:1px solid #475569}
+.quick-times button:hover{background:#1e293b}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 <h1>👑 Noble Announcement Builder</h1>
 
 <div class="row">
   <div>
     <label>Server</label>
-    <select id="server" onchange="toggleSessionNumber()">
+    <select id="server" onchange="updateOptions()">
       <option value="div0">Noble Division 0</option>
       <option value="div2">Noble Division 2</option>
       <option value="div3">Noble Division 3</option>
       <option value="247">Noble 24/7</option>
+      <option value="solos">Noble Solos</option>
+      <option value="solosclosed">Noble Solos Closed</option>
     </select>
   </div>
 
   <div>
-    <label>Lobby</label>
-    <select id="lobby">
-      <option value="1">First Lobby</option>
-      <option value="2">Second Lobby</option>
-      <option value="3">Third Lobby</option>
-    </select>
+    <label>Lobby / Type</label>
+    <select id="lobby"></select>
   </div>
 </div>
 
@@ -123,77 +75,75 @@ textarea{
 </div>
 
 <script>
-function pad(n){
-  return String(n).padStart(2, "0");
-}
+function pad(n){return String(n).padStart(2,"0")}
 
 function setCurrentDateTime(){
-  const now = new Date();
-  const value =
-    now.getFullYear() + "-" +
-    pad(now.getMonth() + 1) + "-" +
-    pad(now.getDate()) + "T" +
-    pad(now.getHours()) + ":" +
-    pad(now.getMinutes());
-
-  document.getElementById("time").value = value;
+  const now=new Date();
+  document.getElementById("time").value=
+    now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate())+"T"+pad(now.getHours())+":"+pad(now.getMinutes());
 }
 
 function setHour(hour){
-  const now = new Date();
-  const value =
-    now.getFullYear() + "-" +
-    pad(now.getMonth() + 1) + "-" +
-    pad(now.getDate()) + "T" +
-    pad(hour) + ":00";
-
-  document.getElementById("time").value = value;
+  const now=new Date();
+  document.getElementById("time").value=
+    now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate())+"T"+pad(hour)+":00";
 }
 
-function unix(date){
-  return Math.floor(new Date(date).getTime() / 1000);
-}
+function unix(date){return Math.floor(new Date(date).getTime()/1000)}
 
-function toggleSessionNumber(){
-  const server = document.getElementById("server").value;
-  const box = document.getElementById("sessionBox");
+function updateOptions(){
+  const server=document.getElementById("server").value;
+  const lobby=document.getElementById("lobby");
+  const sessionBox=document.getElementById("sessionBox");
 
-  if(server === "247"){
-    box.classList.remove("hidden");
+  lobby.innerHTML="";
+
+  if(server==="solos"){
+    lobby.innerHTML=`
+      <option value="1">First Lobby</option>
+      <option value="2">Second Lobby</option>
+      <option value="3">Third Lobby</option>
+      <option value="power">Power Weekend</option>
+    `;
   }else{
-    box.classList.add("hidden");
+    lobby.innerHTML=`
+      <option value="1">First Lobby</option>
+      <option value="2">Second Lobby</option>
+      <option value="3">Third Lobby</option>
+    `;
+  }
+
+  if(server==="247"){
+    sessionBox.classList.remove("hidden");
+  }else{
+    sessionBox.classList.add("hidden");
   }
 }
 
 function generate(){
-  const server = document.getElementById("server").value;
-  const lobby = document.getElementById("lobby").value;
-  const time = document.getElementById("time").value;
-  const user = document.getElementById("userid").value;
-  const sessionNumber = document.getElementById("sessionNumber").value;
+  const server=document.getElementById("server").value;
+  const lobby=document.getElementById("lobby").value;
+  const time=document.getElementById("time").value;
+  const user=document.getElementById("userid").value;
+  const sessionNumber=document.getElementById("sessionNumber").value;
 
-  if(!time){
-    alert("Wybierz datę i godzinę");
-    return;
+  if(!time){alert("Wybierz datę i godzinę");return}
+
+  const reg=unix(time);
+  let delay=15;
+
+  if(server==="247" || server==="solos" || server==="solosclosed"){
+    delay=20;
   }
 
-  const reg = unix(time);
+  const firstGame=reg+delay*60;
+  let title="";
+  let msg="";
 
-  let delay = 15;
-  if(server === "247"){
-    delay = 20;
-  }
+  if(server==="div0"){
+    title="Noble Division 0 Practice Session";
 
-  const firstGame = reg + delay * 60;
-
-  let title = "";
-  let msg = "";
-
-  if(server === "div0"){
-    title = "Noble Division 0 Practice Session";
-
-    if(lobby === "1"){
-      msg = `@everyone 
+    if(lobby==="1") msg=`@everyone 
 
 **${title}**
 
@@ -207,10 +157,8 @@ The host for this session is: <@${user}>, Direct Message them for help.
 • Make sure to read <#1282840995846950962>, <#1282841044521717761> & <#1282841572336996372> before the games.
 
 Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
-    }
 
-    if(lobby === "2"){
-      msg = `@everyone 
+    if(lobby==="2") msg=`@everyone 
 
 **${title}**
 
@@ -223,10 +171,8 @@ Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby
 • The host for this session is: <@${user}>, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
-    }
 
-    if(lobby === "3"){
-      msg = `@everyone 
+    if(lobby==="3") msg=`@everyone 
 
 **${title}**
 
@@ -239,14 +185,12 @@ Required at least **55+ Reacts** (1 per duo).`;
 • The host for this session is: <@${user}>, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
-    }
   }
 
-  if(server === "div2"){
-    title = "Noble Division 2 Practice Session";
+  if(server==="div2"){
+    title="Noble Division 2 Practice Session";
 
-    if(lobby === "1"){
-      msg = `@everyone 
+    if(lobby==="1") msg=`@everyone 
 
 **${title}**
 
@@ -260,10 +204,8 @@ The host for this session is: <@${user}>, Direct Message them for help.
 • Make sure to read <#757574098359550082>, <#860622870563520513> & <#912669854543269888> before the games.
 
 Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
-    }
 
-    if(lobby === "2"){
-      msg = `@everyone 
+    if(lobby==="2") msg=`@everyone 
 
 **${title}**
 
@@ -276,10 +218,8 @@ Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby
 • The host for this session is: <@${user}>, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
-    }
 
-    if(lobby === "3"){
-      msg = `@everyone 
+    if(lobby==="3") msg=`@everyone 
 
 **${title}**
 
@@ -292,14 +232,12 @@ Required at least **55+ Reacts** (1 per duo).`;
 • The host for this session is: <@${user}>, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
-    }
   }
 
-  if(server === "div3"){
-    title = "Noble Division 3 Practice Session";
+  if(server==="div3"){
+    title="Noble Division 3 Practice Session";
 
-    if(lobby === "1"){
-      msg = `@everyone 
+    if(lobby==="1") msg=`@everyone 
 
 **${title}**
 
@@ -314,10 +252,8 @@ The host for this session is: <@${user}>, Direct Message them for help.
 
 Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a second lobby ^`;
-    }
 
-    if(lobby === "2"){
-      msg = `@everyone 
+    if(lobby==="2") msg=`@everyone 
 
 **${title}**
 
@@ -331,10 +267,8 @@ Required at least **55+ Reacts** (1 per duo)
 
 Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a third lobby ^`;
-    }
 
-    if(lobby === "3"){
-      msg = `@everyone 
+    if(lobby==="3") msg=`@everyone 
 
 **${title}**
 
@@ -348,14 +282,12 @@ Required at least **55+ Reacts** (1 per duo)
 
 Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a third lobby ^`;
-    }
   }
 
-  if(server === "247"){
-    title = `Noble 24/7 Session ${sessionNumber}`;
+  if(server==="247"){
+    title=`Noble 24/7 Session ${sessionNumber}`;
 
-    if(lobby === "1"){
-      msg = `@everyone 
+    if(lobby==="1") msg=`@everyone 
 
 **${title}**
 
@@ -366,10 +298,8 @@ Required at least **55+ Reacts** (1 per duo)
 The host for this session is: <@${user}>, if you need any help.
 
 3 Games,Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
-    }
 
-    if(lobby === "2"){
-      msg = `@everyone 
+    if(lobby==="2") msg=`@everyone 
 
 **${title}**
 
@@ -382,10 +312,8 @@ The host for this session is: <@${user}>, if you need any help.
 The host for this session is: <@${user}>, if you need any help.
 
 3 Games, Required at least 55+ Reacts (1 per Duo).`;
-    }
 
-    if(lobby === "3"){
-      msg = `@everyone 
+    if(lobby==="3") msg=`@everyone 
 
 **${title}**
 
@@ -398,24 +326,120 @@ The host for this session is: <@${user}>, if you need any help.
 The host for this session is: <@${user}>, if you need any help.
 
 3 Games, Required at least 55+ Reacts (1 per Duo).`;
-    }
   }
 
-  document.getElementById("output").value = msg;
+  if(server==="solos"){
+    title="Noble Solos Practice Session (3 Games)";
+
+    if(lobby==="1") msg=`@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is <@${user}>. Direct message them if you need help.
+
+• Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+• Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
+• Top 20 = Noble Solos Closed <:solos_closed:1403796828239040534> 
+
+Required at least **110+ Reacts** and **200+** for a 2nd lobby
+-# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
+
+    if(lobby==="2") msg=`@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+<:ArrowRight:1398336238448152717> Registration opens @ <t:${reg}:t>
+
+<:ArrowRight:1398336238448152717> First Game Commences @ <t:${firstGame}:t>
+
+Please DM <@${user}>, if you are in need of any help.
+
+• Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+• Top 15 = Noble Solos Closed <:solos_closed:1403796828239040534> 
+• Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
+
+Required at least **90+ reacts**
+-# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
+
+    if(lobby==="3") msg=`@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+<:ArrowRight:1398336238448152717> Registration opens @ <t:${reg}:t>
+
+<:ArrowRight:1398336238448152717> First Game Commences @ <t:${firstGame}:t>
+
+Please DM <@${user}>, if you are in need of any help.
+
+• Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+• Top 15 = Noble Solos Closed <:solos_closed:1403796828239040534> 
+• Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
+
+Required at least **90+ reacts**
+-# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
+
+    if(lobby==="power") msg=`@everyone 
+
+**Noble Solos Practice Session**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is <@${user}>. Direct message them if you need help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+**• Top 30!!! = Noble Solos Closed <:solos_closed:1403796828239040534> only this weekend 🔥 more info (top 50 for Whop) **https://discord.com/channels/1098721307077652630/1098919249055072327/1497249673642246226
+• Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
+
+Required at least 110+ reacts`;
+  }
+
+  if(server==="solosclosed"){
+    title="Noble Solos Closed Practice Session";
+
+    msg=`@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is <@${user}>. Direct message them if you need help.
+
+• Session lasts 3 Games. **Miss a game and you will be perm banned.**
+• Make sure to **read** <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+• Top 1 = Division 2 access :noble_division2_icon:  (Top 5 for Whop Supporters)
+• Top 5 = Division 3 Invite :noble_division3_icon:  (Top 20 for Whop Supporters)
+• Top 10 = @Early Register (only for the next session)
+
+Required at least 100+ Reacts`;
+  }
+
+  document.getElementById("output").value=msg;
 }
 
 function copyText(){
-  const output = document.getElementById("output");
+  const output=document.getElementById("output");
   output.select();
   navigator.clipboard.writeText(output.value);
   alert("Copied!");
 }
 
-window.onload = function(){
+window.onload=function(){
   setCurrentDateTime();
-  toggleSessionNumber();
+  updateOptions();
 };
 </script>
-
 </body>
 </html>
