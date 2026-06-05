@@ -30,6 +30,7 @@ input,select,textarea,button{
   background:#020617;
   color:white;
   font-size:15px;
+  box-sizing:border-box;
 }
 button{
   background:#7c3aed;
@@ -44,6 +45,19 @@ textarea{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:15px;
+}
+.quick-times{
+  display:grid;
+  grid-template-columns:repeat(6, 1fr);
+  gap:8px;
+  margin-top:10px;
+}
+.quick-times button{
+  background:#020617;
+  border:1px solid #475569;
+}
+.quick-times button:hover{
+  background:#1e293b;
 }
 </style>
 </head>
@@ -75,6 +89,20 @@ textarea{
 <label>Registration Opens</label>
 <input type="datetime-local" id="time">
 
+<div class="quick-times">
+  <button onclick="setHour(13)">13:00</button>
+  <button onclick="setHour(14)">14:00</button>
+  <button onclick="setHour(15)">15:00</button>
+  <button onclick="setHour(16)">16:00</button>
+  <button onclick="setHour(17)">17:00</button>
+  <button onclick="setHour(18)">18:00</button>
+  <button onclick="setHour(19)">19:00</button>
+  <button onclick="setHour(20)">20:00</button>
+  <button onclick="setHour(21)">21:00</button>
+  <button onclick="setHour(22)">22:00</button>
+  <button onclick="setHour(23)">23:00</button>
+</div>
+
 <label>Discord User ID</label>
 <input id="userid" value="1057478252865798174">
 
@@ -85,6 +113,35 @@ textarea{
 </div>
 
 <script>
+function pad(n){
+  return String(n).padStart(2, "0");
+}
+
+function setCurrentDateTime(){
+  const now = new Date();
+
+  const value =
+    now.getFullYear() + "-" +
+    pad(now.getMonth() + 1) + "-" +
+    pad(now.getDate()) + "T" +
+    pad(now.getHours()) + ":" +
+    pad(now.getMinutes());
+
+  document.getElementById("time").value = value;
+}
+
+function setHour(hour){
+  const now = new Date();
+
+  const value =
+    now.getFullYear() + "-" +
+    pad(now.getMonth() + 1) + "-" +
+    pad(now.getDate()) + "T" +
+    pad(hour) + ":00";
+
+  document.getElementById("time").value = value;
+}
+
 function unix(date){
   return Math.floor(new Date(date).getTime() / 1000);
 }
@@ -224,6 +281,8 @@ function copyText(){
   navigator.clipboard.writeText(output.value);
   alert("Copied!");
 }
+
+window.onload = setCurrentDateTime;
 </script>
 
 </body>
