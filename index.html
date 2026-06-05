@@ -1,148 +1,498 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Noble Announcement Builder</title>
-
 <style>
-body{background:#0f172a;color:white;font-family:Arial,sans-serif;padding:30px}
-.container{max-width:1000px;margin:auto;background:#111827;padding:25px;border-radius:18px;border:1px solid #334155}
-h1{margin-top:0}
-label{font-weight:bold;margin-top:15px;display:block}
-input,select,textarea,button{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:1px solid #475569;background:#020617;color:white;font-size:15px;box-sizing:border-box}
-button{background:#7c3aed;cursor:pointer;font-weight:bold}
-textarea{height:430px;font-family:Consolas,monospace}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.quick-times{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}
-.quick-times button{background:#020617;border:1px solid #475569}
-.quick-times button:hover{background:#1e293b}
-.hidden{display:none}
+:root{
+  --bg:#070b12;
+  --panel:#0d1420;
+  --panel2:#101827;
+  --line:#263244;
+  --line2:#344256;
+  --text:#eef4ff;
+  --muted:#8fa1b8;
+  --blue:#38bdf8;
+  --cyan:#22d3ee;
+  --green:#2dd4bf;
+  --red:#fb7185;
+  --purple:#a78bfa;
+  --yellow:#facc15;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    linear-gradient(135deg, rgba(56,189,248,.10), transparent 25%),
+    linear-gradient(315deg, rgba(45,212,191,.08), transparent 30%),
+    var(--bg);
+  color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
+  padding:22px;
+}
+
+.app{
+  max-width:1320px;
+  margin:0 auto;
+}
+
+.header{
+  border:1px solid var(--line);
+  background:#09111d;
+  padding:20px 22px;
+  margin-bottom:16px;
+}
+
+.header h1{
+  margin:0;
+  font-size:28px;
+  letter-spacing:-.5px;
+}
+
+.header p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:300px 1fr 430px;
+  gap:16px;
+  align-items:start;
+}
+
+.panel{
+  background:rgba(13,20,32,.96);
+  border:1px solid var(--line);
+  padding:16px;
+}
+
+.panel-title{
+  font-size:13px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:12px;
+  font-weight:800;
+}
+
+.server-list{
+  display:grid;
+  gap:8px;
+}
+
+.server-btn,
+.time-btn,
+.lobby-btn,
+.copy-btn,
+.small-btn{
+  border:1px solid var(--line2);
+  background:#0a101a;
+  color:var(--text);
+  cursor:pointer;
+  font-weight:800;
+  transition:.12s ease;
+}
+
+.server-btn{
+  width:100%;
+  text-align:left;
+  padding:14px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  min-height:52px;
+}
+
+.server-btn span{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+}
+
+.server-btn:hover,
+.time-btn:hover,
+.lobby-btn:hover,
+.copy-btn:hover,
+.small-btn:hover{
+  border-color:var(--blue);
+  background:#101a2a;
+}
+
+.server-btn.active{
+  background:#10243a;
+  border-color:var(--blue);
+  box-shadow:inset 4px 0 0 var(--blue);
+}
+
+.main-stack{
+  display:grid;
+  gap:16px;
+}
+
+.controls-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+label{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:7px;
+}
+
+input{
+  width:100%;
+  background:#070b12;
+  color:var(--text);
+  border:1px solid var(--line2);
+  padding:12px;
+  font-size:15px;
+  outline:none;
+}
+
+input:focus{
+  border-color:var(--cyan);
+}
+
+.time-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+}
+
+.time-btn{
+  padding:12px 8px;
+  font-size:14px;
+}
+
+.time-btn.active{
+  background:#10243a;
+  border-color:var(--cyan);
+  color:#e0faff;
+}
+
+.lobby-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.lobby-btn{
+  padding:12px 8px;
+  font-size:13px;
+}
+
+.lobby-btn.active{
+  background:#172033;
+  border-color:var(--green);
+  box-shadow:inset 0 -3px 0 var(--green);
+}
+
+.help-row{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.small-btn{
+  width:100%;
+  padding:10px;
+  font-size:13px;
+}
+
+.copy-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.copy-btn{
+  padding:12px;
+  font-size:14px;
+}
+
+.copy-btn.main{
+  grid-column:1 / -1;
+  background:#12302d;
+  border-color:#1f766e;
+}
+
+textarea{
+  width:100%;
+  min-height:610px;
+  resize:vertical;
+  background:#050811;
+  color:#dbeafe;
+  border:1px solid var(--line2);
+  padding:14px;
+  font-family:Consolas, monospace;
+  line-height:1.45;
+  font-size:13px;
+  outline:none;
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 8px;
+  border:1px solid var(--line2);
+  background:#07101d;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:10px;
+}
+
+.hidden{display:none!important}
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#0f2f2d;
+  border:1px solid #1f766e;
+  color:white;
+  padding:12px 16px;
+  opacity:0;
+  pointer-events:none;
+  transition:.18s ease;
+}
+
+.toast.show{opacity:1}
+
+@media(max-width:1100px){
+  .grid{grid-template-columns:1fr}
+  textarea{min-height:420px}
+}
+
+@media(max-width:700px){
+  body{padding:12px}
+  .controls-grid,.copy-grid{grid-template-columns:1fr}
+  .time-grid{grid-template-columns:repeat(3,1fr)}
+  .lobby-grid{grid-template-columns:repeat(2,1fr)}
+  .header h1{font-size:22px}
+}
 </style>
 </head>
-
 <body>
-<div class="container">
-<h1>👑 Noble Announcement Builder</h1>
-
-<div class="row">
-  <div>
-    <label>Server</label>
-    <select id="server" onchange="updateOptions()">
-      <option value="div0">Noble Division 0</option>
-      <option value="div2">Noble Division 2</option>
-      <option value="div3">Noble Division 3</option>
-      <option value="247">Noble 24/7</option>
-      <option value="solos">Noble Solos</option>
-      <option value="solosclosed">Noble Solos Closed</option>
-    </select>
+<div class="app">
+  <div class="header">
+    <h1>⚡ Noble Announcement Builder</h1>
+    <p>Wybierz serwer, lobby i godzinę — wiadomość generuje się automatycznie. Potem tylko kopiujesz.</p>
   </div>
 
-  <div>
-    <label>Lobby / Type</label>
-    <select id="lobby"></select>
+  <div class="grid">
+    <aside class="panel">
+      <div class="panel-title">Servers</div>
+      <div class="server-list">
+        <button class="server-btn active" data-server="div0" onclick="selectServer('div0')">Noble Division 0 <span>+15 min</span></button>
+        <button class="server-btn" data-server="div2" onclick="selectServer('div2')">Noble Division 2 <span>+15 min</span></button>
+        <button class="server-btn" data-server="div3" onclick="selectServer('div3')">Noble Division 3 <span>+15 min</span></button>
+        <button class="server-btn" data-server="247" onclick="selectServer('247')">Noble 24/7 <span>+20 min</span></button>
+        <button class="server-btn" data-server="solos" onclick="selectServer('solos')">Noble Solos <span>+20 min</span></button>
+        <button class="server-btn" data-server="solosclosed" onclick="selectServer('solosclosed')">Solos Closed <span>+20 min</span></button>
+      </div>
+      <div class="badge" id="delayBadge">First game: +15 min</div>
+    </aside>
+
+    <main class="main-stack">
+      <section class="panel">
+        <div class="panel-title">Setup</div>
+        <div class="controls-grid">
+          <div>
+            <label>Registration opens</label>
+            <input type="datetime-local" id="time" oninput="clearActiveTime(); generate()">
+          </div>
+          <div>
+            <label>Discord User ID</label>
+            <input id="userid" value="1057478252865798174" oninput="saveUser(); generate()">
+          </div>
+        </div>
+
+        <div id="sessionBox" class="hidden">
+          <label style="margin-top:14px">24/7 Session Number</label>
+          <input id="sessionNumber" type="number" min="1" value="1" oninput="generate()">
+        </div>
+
+        <div class="help-row">
+          <button class="small-btn" onclick="setNow()">Use current time</button>
+          <button class="small-btn" onclick="addMinutes(15)">+15 min</button>
+          <button class="small-btn" onclick="addMinutes(20)">+20 min</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">Quick hours</div>
+        <div class="time-grid" id="timeGrid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">Lobby / Type</div>
+        <div class="lobby-grid" id="lobbyGrid"></div>
+      </section>
+    </main>
+
+    <aside class="panel">
+      <div class="panel-title">Generated message</div>
+      <div class="copy-grid">
+        <button class="copy-btn main" onclick="copyAnnouncement()">Copy Announcement</button>
+        <button class="copy-btn" onclick="copyRegTimestamp()">Copy Reg Timestamp</button>
+        <button class="copy-btn" onclick="copyGameTimestamp()">Copy Game Timestamp</button>
+      </div>
+      <textarea id="output" spellcheck="false"></textarea>
+    </aside>
   </div>
 </div>
 
-<div id="sessionBox" class="hidden">
-  <label>24/7 Session Number</label>
-  <input id="sessionNumber" type="number" min="1" value="1">
-</div>
-
-<label>Registration Opens</label>
-<input type="datetime-local" id="time">
-
-<div class="quick-times">
-  <button onclick="setHour(13)">13:00</button>
-  <button onclick="setHour(14)">14:00</button>
-  <button onclick="setHour(15)">15:00</button>
-  <button onclick="setHour(16)">16:00</button>
-  <button onclick="setHour(17)">17:00</button>
-  <button onclick="setHour(18)">18:00</button>
-  <button onclick="setHour(19)">19:00</button>
-  <button onclick="setHour(20)">20:00</button>
-  <button onclick="setHour(21)">21:00</button>
-  <button onclick="setHour(22)">22:00</button>
-  <button onclick="setHour(23)">23:00</button>
-</div>
-
-<label>Discord User ID</label>
-<input id="userid" value="1057478252865798174">
-
-<button onclick="generate()">Generate announcement</button>
-<button onclick="copyText()">Copy announcement</button>
-
-<textarea id="output"></textarea>
-</div>
+<div class="toast" id="toast">Copied</div>
 
 <script>
+let currentServer = localStorage.getItem("noble_server") || "div0";
+let currentLobby = localStorage.getItem("noble_lobby") || "1";
+let activeHour = null;
+let lastReg = 0;
+let lastGame = 0;
+
+const lobbyNames = {
+  "1":"First Lobby",
+  "2":"Second Lobby",
+  "3":"Third Lobby",
+  "power":"Power Weekend"
+};
+
 function pad(n){return String(n).padStart(2,"0")}
 
+function formatDateValue(date){
+  return date.getFullYear()+"-"+pad(date.getMonth()+1)+"-"+pad(date.getDate())+"T"+pad(date.getHours())+":"+pad(date.getMinutes());
+}
+
 function setCurrentDateTime(){
-  const now=new Date();
-  document.getElementById("time").value=
-    now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate())+"T"+pad(now.getHours())+":"+pad(now.getMinutes());
+  document.getElementById("time").value = formatDateValue(new Date());
+}
+
+function setNow(){
+  activeHour = null;
+  setCurrentDateTime();
+  renderTimes();
+  generate();
 }
 
 function setHour(hour){
-  const now=new Date();
-  document.getElementById("time").value=
-    now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate())+"T"+pad(hour)+":00";
+  activeHour = hour;
+  const now = new Date();
+  now.setHours(hour,0,0,0);
+  document.getElementById("time").value = formatDateValue(now);
+  renderTimes();
+  generate();
+}
+
+function clearActiveTime(){
+  activeHour = null;
+  renderTimes();
+}
+
+function addMinutes(min){
+  activeHour = null;
+  const input = document.getElementById("time");
+  const base = input.value ? new Date(input.value) : new Date();
+  base.setMinutes(base.getMinutes()+min);
+  input.value = formatDateValue(base);
+  renderTimes();
+  generate();
 }
 
 function unix(date){return Math.floor(new Date(date).getTime()/1000)}
 
-function updateOptions(){
-  const server=document.getElementById("server").value;
-  const lobby=document.getElementById("lobby");
-  const sessionBox=document.getElementById("sessionBox");
+function saveUser(){
+  localStorage.setItem("noble_user", document.getElementById("userid").value);
+}
 
-  lobby.innerHTML="";
+function getDelay(){
+  if(currentServer === "247" || currentServer === "solos" || currentServer === "solosclosed") return 20;
+  return 15;
+}
 
-  if(server==="solos"){
-    lobby.innerHTML=`
-      <option value="1">First Lobby</option>
-      <option value="2">Second Lobby</option>
-      <option value="3">Third Lobby</option>
-      <option value="power">Power Weekend</option>
-    `;
-  }else{
-    lobby.innerHTML=`
-      <option value="1">First Lobby</option>
-      <option value="2">Second Lobby</option>
-      <option value="3">Third Lobby</option>
-    `;
-  }
+function selectServer(server){
+  currentServer = server;
+  localStorage.setItem("noble_server", server);
 
-  if(server==="247"){
-    sessionBox.classList.remove("hidden");
-  }else{
-    sessionBox.classList.add("hidden");
+  if(server !== "solos" && currentLobby === "power") currentLobby = "1";
+  localStorage.setItem("noble_lobby", currentLobby);
+
+  document.querySelectorAll(".server-btn").forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.server === server);
+  });
+
+  document.getElementById("sessionBox").classList.toggle("hidden", server !== "247");
+  document.getElementById("delayBadge").textContent = "First game: +" + getDelay() + " min";
+
+  renderLobby();
+  generate();
+}
+
+function selectLobby(lobby){
+  currentLobby = lobby;
+  localStorage.setItem("noble_lobby", lobby);
+  renderLobby();
+  generate();
+}
+
+function renderTimes(){
+  const grid = document.getElementById("timeGrid");
+  grid.innerHTML = "";
+  for(let h=13; h<=23; h++){
+    const btn = document.createElement("button");
+    btn.className = "time-btn" + (activeHour === h ? " active" : "");
+    btn.textContent = pad(h)+":00";
+    btn.onclick = () => setHour(h);
+    grid.appendChild(btn);
   }
 }
 
+function renderLobby(){
+  const grid = document.getElementById("lobbyGrid");
+  grid.innerHTML = "";
+
+  let options = ["1","2","3"];
+  if(currentServer === "solos") options.push("power");
+
+  options.forEach(lobby=>{
+    const btn = document.createElement("button");
+    btn.className = "lobby-btn" + (currentLobby === lobby ? " active" : "");
+    btn.textContent = lobbyNames[lobby];
+    btn.onclick = () => selectLobby(lobby);
+    grid.appendChild(btn);
+  });
+}
+
 function generate(){
-  const server=document.getElementById("server").value;
-  const lobby=document.getElementById("lobby").value;
   const time=document.getElementById("time").value;
   const user=document.getElementById("userid").value;
-  const sessionNumber=document.getElementById("sessionNumber").value;
+  const sessionNumber=document.getElementById("sessionNumber").value || "1";
 
-  if(!time){alert("Wybierz datę i godzinę");return}
+  if(!time){return}
 
   const reg=unix(time);
-  let delay=15;
+  const firstGame=reg+getDelay()*60;
+  lastReg = reg;
+  lastGame = firstGame;
 
-  if(server==="247" || server==="solos" || server==="solosclosed"){
-    delay=20;
-  }
-
-  const firstGame=reg+delay*60;
   let title="";
   let msg="";
+  const lobby = currentLobby;
 
-  if(server==="div0"){
+  if(currentServer==="div0"){
     title="Noble Division 0 Practice Session";
-
     if(lobby==="1") msg=`@everyone 
 
 **${title}**
@@ -157,7 +507,6 @@ The host for this session is: <@${user}>, Direct Message them for help.
 • Make sure to read <#1282840995846950962>, <#1282841044521717761> & <#1282841572336996372> before the games.
 
 Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
-
     if(lobby==="2") msg=`@everyone 
 
 **${title}**
@@ -171,7 +520,6 @@ Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby
 • The host for this session is: <@${user}>, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
-
     if(lobby==="3") msg=`@everyone 
 
 **${title}**
@@ -187,9 +535,8 @@ Required at least **55+ Reacts** (1 per duo).`;
 Required at least **55+ Reacts** (1 per duo).`;
   }
 
-  if(server==="div2"){
+  if(currentServer==="div2"){
     title="Noble Division 2 Practice Session";
-
     if(lobby==="1") msg=`@everyone 
 
 **${title}**
@@ -204,7 +551,6 @@ The host for this session is: <@${user}>, Direct Message them for help.
 • Make sure to read <#757574098359550082>, <#860622870563520513> & <#912669854543269888> before the games.
 
 Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
-
     if(lobby==="2") msg=`@everyone 
 
 **${title}**
@@ -218,7 +564,6 @@ Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby
 • The host for this session is: <@${user}>, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
-
     if(lobby==="3") msg=`@everyone 
 
 **${title}**
@@ -234,9 +579,8 @@ Required at least **55+ Reacts** (1 per duo).`;
 Required at least **55+ Reacts** (1 per duo).`;
   }
 
-  if(server==="div3"){
+  if(currentServer==="div3"){
     title="Noble Division 3 Practice Session";
-
     if(lobby==="1") msg=`@everyone 
 
 **${title}**
@@ -252,7 +596,6 @@ The host for this session is: <@${user}>, Direct Message them for help.
 
 Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a second lobby ^`;
-
     if(lobby==="2") msg=`@everyone 
 
 **${title}**
@@ -267,7 +610,6 @@ Required at least **55+ Reacts** (1 per duo)
 
 Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a third lobby ^`;
-
     if(lobby==="3") msg=`@everyone 
 
 **${title}**
@@ -284,9 +626,8 @@ Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a third lobby ^`;
   }
 
-  if(server==="247"){
+  if(currentServer==="247"){
     title=`Noble 24/7 Session ${sessionNumber}`;
-
     if(lobby==="1") msg=`@everyone 
 
 **${title}**
@@ -298,7 +639,6 @@ Required at least **55+ Reacts** (1 per duo)
 The host for this session is: <@${user}>, if you need any help.
 
 3 Games,Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
-
     if(lobby==="2") msg=`@everyone 
 
 **${title}**
@@ -312,7 +652,6 @@ The host for this session is: <@${user}>, if you need any help.
 The host for this session is: <@${user}>, if you need any help.
 
 3 Games, Required at least 55+ Reacts (1 per Duo).`;
-
     if(lobby==="3") msg=`@everyone 
 
 **${title}**
@@ -328,9 +667,8 @@ The host for this session is: <@${user}>, if you need any help.
 3 Games, Required at least 55+ Reacts (1 per Duo).`;
   }
 
-  if(server==="solos"){
+  if(currentServer==="solos"){
     title="Noble Solos Practice Session (3 Games)";
-
     if(lobby==="1") msg=`@everyone 
 
 **${title}**
@@ -347,7 +685,6 @@ The host for this session is <@${user}>. Direct message them if you need help.
 
 Required at least **110+ Reacts** and **200+** for a 2nd lobby
 -# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
-
     if(lobby==="2") msg=`@everyone 
 
 **${title}**
@@ -366,7 +703,6 @@ Please DM <@${user}>, if you are in need of any help.
 
 Required at least **90+ reacts**
 -# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
-
     if(lobby==="3") msg=`@everyone 
 
 **${title}**
@@ -385,7 +721,6 @@ Please DM <@${user}>, if you are in need of any help.
 
 Required at least **90+ reacts**
 -# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
-
     if(lobby==="power") msg=`@everyone 
 
 **Noble Solos Practice Session**
@@ -404,9 +739,8 @@ The host for this session is <@${user}>. Direct message them if you need help.
 Required at least 110+ reacts`;
   }
 
-  if(server==="solosclosed"){
+  if(currentServer==="solosclosed"){
     title="Noble Solos Closed Practice Session";
-
     msg=`@everyone 
 
 **${title}**
@@ -429,16 +763,28 @@ Required at least 100+ Reacts`;
   document.getElementById("output").value=msg;
 }
 
-function copyText(){
-  const output=document.getElementById("output");
-  output.select();
-  navigator.clipboard.writeText(output.value);
-  alert("Copied!");
+function showToast(text){
+  const toast=document.getElementById("toast");
+  toast.textContent=text;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),1200);
 }
 
+function copyText(text, label){
+  navigator.clipboard.writeText(text);
+  showToast(label || "Copied");
+}
+
+function copyAnnouncement(){copyText(document.getElementById("output").value, "Announcement copied")}
+function copyRegTimestamp(){copyText(`<t:${lastReg}:t>`, "Registration timestamp copied")}
+function copyGameTimestamp(){copyText(`<t:${lastGame}:t>`, "First game timestamp copied")}
+
 window.onload=function(){
+  const savedUser = localStorage.getItem("noble_user");
+  if(savedUser) document.getElementById("userid").value = savedUser;
   setCurrentDateTime();
-  updateOptions();
+  renderTimes();
+  selectServer(currentServer);
 };
 </script>
 </body>
