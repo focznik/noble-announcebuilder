@@ -1,48 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
 <head>
 <meta charset="UTF-8">
 <title>Noble Announcement Builder</title>
 
 <style>
 body{
-background:#0f172a;
-color:white;
-font-family:Arial,sans-serif;
-padding:30px;
+  background:#0f172a;
+  color:white;
+  font-family:Arial,sans-serif;
+  padding:30px;
 }
-
 .container{
-max-width:900px;
-margin:auto;
-background:#111827;
-padding:25px;
-border-radius:15px;
+  max-width:1000px;
+  margin:auto;
+  background:#111827;
+  padding:25px;
+  border-radius:18px;
+  border:1px solid #334155;
 }
-
-h1{
-margin-top:0;
-}
-
+h1{margin-top:0}
+label{font-weight:bold;margin-top:15px;display:block}
 input,select,textarea,button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:10px;
-border:1px solid #374151;
-background:#1f2937;
-color:white;
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  border-radius:10px;
+  border:1px solid #475569;
+  background:#020617;
+  color:white;
+  font-size:15px;
 }
-
 button{
-background:#7c3aed;
-cursor:pointer;
-font-weight:bold;
+  background:#7c3aed;
+  cursor:pointer;
+  font-weight:bold;
 }
-
 textarea{
-height:300px;
-font-family:Consolas,monospace;
+  height:430px;
+  font-family:Consolas,monospace;
+}
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
 }
 </style>
 </head>
@@ -50,68 +51,179 @@ font-family:Consolas,monospace;
 <body>
 
 <div class="container">
-
 <h1>👑 Noble Announcement Builder</h1>
+
+<div class="row">
+  <div>
+    <label>Server</label>
+    <select id="server">
+      <option value="div0">Noble Division 0</option>
+      <option value="div3">Noble Division 3</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Lobby</label>
+    <select id="lobby">
+      <option value="1">First Lobby</option>
+      <option value="2">Second Lobby</option>
+      <option value="3">Third Lobby</option>
+    </select>
+  </div>
+</div>
 
 <label>Registration Opens</label>
 <input type="datetime-local" id="time">
 
-<label>Session Type</label>
-<select id="type">
-<option>Noble 24/7</option>
-<option>Noble Solos</option>
-<option>Noble Solos Closed</option>
-<option>Noble Division 0</option>
-<option>Noble Division 2</option>
-<option>Noble Division 3</option>
-</select>
-
-<label>Session Number</label>
-<input id="session" value="1">
-
 <label>Discord User ID</label>
 <input id="userid" value="1057478252865798174">
 
-<button onclick="generate()">Generate</button>
+<button onclick="generate()">Generate announcement</button>
+<button onclick="copyText()">Copy announcement</button>
 
 <textarea id="output"></textarea>
-
 </div>
 
 <script>
-
-function generate(){
-
-let date=document.getElementById("time").value;
-let type=document.getElementById("type").value;
-let session=document.getElementById("session").value;
-let user=document.getElementById("userid").value;
-
-let reg=Math.floor(new Date(date).getTime()/1000);
-
-let delay=15;
-
-if(type==="Noble Solos") delay=20;
-if(type==="Noble Division 0") delay=20;
-if(type==="Noble Solos Closed") delay=30;
-
-let firstGame=reg+(delay*60);
-
-let msg=`@everyone
-
-**${type} Session ${session}**
-
-:arrow: Registration opens @ <t:${reg}:t>
-
-:arrow: First Game Commences @ <t:${firstGame}:t>
-
-The host for this session is: <@${user}>, if you need any help.
-
-3 Games, Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
-
-document.getElementById("output").value=msg;
+function unix(date){
+  return Math.floor(new Date(date).getTime() / 1000);
 }
 
+function generate(){
+  const server = document.getElementById("server").value;
+  const lobby = document.getElementById("lobby").value;
+  const time = document.getElementById("time").value;
+  const user = document.getElementById("userid").value;
+
+  if(!time){
+    alert("Wybierz datę i godzinę");
+    return;
+  }
+
+  const reg = unix(time);
+  const firstGame = reg + 15 * 60;
+
+  let title = "";
+  let msg = "";
+
+  if(server === "div0"){
+    title = "Noble Division 0 Practice Session";
+
+    if(lobby === "1"){
+      msg = `@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: <@${user}>, Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#1282840995846950962>, <#1282841044521717761> & <#1282841572336996372> before the games.
+
+Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
+    }
+
+    if(lobby === "2"){
+      msg = `@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: <@${user}>, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+    }
+
+    if(lobby === "3"){
+      msg = `@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: <@${user}>, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+    }
+  }
+
+  if(server === "div3"){
+    title = "Noble Division 3 Practice Session";
+
+    if(lobby === "1"){
+      msg = `@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: <@${user}>, Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#902656971801493545>, <#902656971801493547> & <#1383042801754968135> before the games.
+
+Required at least **55+ Reacts** (1 per duo)
+**110+ Reacts** for a second lobby ^`;
+    }
+
+    if(lobby === "2"){
+      msg = `@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: <@${user}>, Direct Message them for help.
+
+Required at least **55+ Reacts** (1 per duo)
+**110+ Reacts** for a third lobby ^`;
+    }
+
+    if(lobby === "3"){
+      msg = `@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: <@${user}>, Direct Message them for help.
+
+Required at least **55+ Reacts** (1 per duo)
+**110+ Reacts** for a third lobby ^`;
+    }
+  }
+
+  document.getElementById("output").value = msg;
+}
+
+function copyText(){
+  const output = document.getElementById("output");
+  output.select();
+  navigator.clipboard.writeText(output.value);
+  alert("Copied!");
+}
 </script>
 
 </body>
