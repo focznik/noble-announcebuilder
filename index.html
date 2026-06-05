@@ -422,6 +422,18 @@ function getDelay(){
   return 15;
 }
 
+function getLobbyOffset(){
+  if(currentServer === "247"){
+    if(currentLobby === "2") return 15;
+    if(currentLobby === "3") return 30;
+    return 0;
+  }
+
+  if(currentLobby === "2") return 5;
+  if(currentLobby === "3") return 10;
+  return 0;
+}
+
 function selectServer(server){
   currentServer = server;
   localStorage.setItem("noble_server", server);
@@ -482,8 +494,9 @@ function generate(){
 
   if(!time){return}
 
-  const reg=unix(time);
-  const firstGame=reg+getDelay()*60;
+  const baseReg = unix(time);
+  const reg = baseReg + getLobbyOffset() * 60;
+  const firstGame = reg + getDelay() * 60;
   lastReg = reg;
   lastGame = firstGame;
 
