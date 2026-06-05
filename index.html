@@ -45,6 +45,32 @@ body{
   background:#09111d;
   padding:20px 22px;
   margin-bottom:16px;
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:flex-start;
+}
+
+.lang-box{
+  min-width:190px;
+}
+
+.lang-box label{
+  margin:0 0 7px;
+}
+
+select{
+  width:100%;
+  background:#070b12;
+  color:var(--text);
+  border:1px solid var(--line2);
+  padding:10px 12px;
+  font-size:14px;
+  outline:none;
+}
+
+select:focus{
+  border-color:var(--cyan);
 }
 
 .header h1{
@@ -280,6 +306,8 @@ textarea{
   .controls-grid,.copy-grid{grid-template-columns:1fr}
   .time-grid{grid-template-columns:repeat(3,1fr)}
   .lobby-grid{grid-template-columns:repeat(2,1fr)}
+  .header{flex-direction:column}
+  .lang-box{width:100%}
   .header h1{font-size:22px}
 }
 </style>
@@ -287,13 +315,25 @@ textarea{
 <body>
 <div class="app">
   <div class="header">
-    <h1>⚡ Noble Announcement Builder</h1>
-    <p>Wybierz serwer, lobby i godzinę — wiadomość generuje się automatycznie. Potem tylko kopiujesz.</p>
+    <div>
+      <h1 data-i18n="title">⚡ Noble Announcement Builder</h1>
+      <p data-i18n="subtitle">Wybierz serwer, lobby i godzinę — wiadomość generuje się automatycznie. Potem tylko kopiujesz.</p>
+    </div>
+
+    <div class="lang-box">
+      <label data-i18n="language">Język strony</label>
+      <select id="language" onchange="changeLanguage()">
+        <option value="pl">🇵🇱 Polski</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="ru">🇷🇺 Русский</option>
+      </select>
+    </div>
   </div>
 
   <div class="grid">
     <aside class="panel">
-      <div class="panel-title">Servers</div>
+      <div class="panel-title" data-i18n="servers">Servers</div>
       <div class="server-list">
         <button class="server-btn active" data-server="div0" onclick="selectServer('div0')">Noble Division 0 <span>+15 min</span></button>
         <button class="server-btn" data-server="div2" onclick="selectServer('div2')">Noble Division 2 <span>+15 min</span></button>
@@ -307,51 +347,51 @@ textarea{
 
     <main class="main-stack">
       <section class="panel">
-        <div class="panel-title">Setup</div>
+        <div class="panel-title" data-i18n="setup">Setup</div>
         <div class="controls-grid">
           <div>
-            <label>Registration opens</label>
+            <label data-i18n="registrationOpens">Registration opens</label>
             <input type="datetime-local" id="time" oninput="clearActiveTime(); generate()">
           </div>
           <div>
-            <label>Host Of Session</label>
+            <label data-i18n="hostOfSession">Host Of Session</label>
             <input id="userid" value="1057478252865798174" placeholder="Main host Discord ID" oninput="saveUser(); generate()">
           </div>
           <div>
-            <label>Co-Host Of Session</label>
+            <label data-i18n="coHostOfSession">Co-Host Of Session</label>
             <input id="cohostid" placeholder="Optional co-host Discord ID" oninput="saveUser(); generate()">
           </div>
         </div>
 
         <div id="sessionBox" class="hidden">
-          <label style="margin-top:14px">24/7 Session Number</label>
+          <label style="margin-top:14px" data-i18n="sessionNumber">24/7 Session Number</label>
           <input id="sessionNumber" type="number" min="1" value="1" oninput="generate()">
         </div>
 
         <div class="help-row">
-          <button class="small-btn" onclick="setNow()">Use current time</button>
+          <button class="small-btn" onclick="setNow()" data-i18n="useCurrentTime">Use current time</button>
           <button class="small-btn" onclick="addMinutes(15)">+15 min</button>
           <button class="small-btn" onclick="addMinutes(20)">+20 min</button>
         </div>
       </section>
 
       <section class="panel">
-        <div class="panel-title">Quick hours</div>
+        <div class="panel-title" data-i18n="quickHours">Quick hours</div>
         <div class="time-grid" id="timeGrid"></div>
       </section>
 
       <section class="panel">
-        <div class="panel-title">Lobby / Type</div>
+        <div class="panel-title" data-i18n="lobbyType">Lobby / Type</div>
         <div class="lobby-grid" id="lobbyGrid"></div>
       </section>
     </main>
 
     <aside class="panel">
-      <div class="panel-title">Generated message</div>
+      <div class="panel-title" data-i18n="generatedMessage">Generated message</div>
       <div class="copy-grid">
-        <button class="copy-btn main" onclick="copyAnnouncement()">Copy Announcement</button>
-        <button class="copy-btn" onclick="copyRegTimestamp()">Copy Reg Timestamp</button>
-        <button class="copy-btn" onclick="copyGameTimestamp()">Copy Game Timestamp</button>
+        <button class="copy-btn main" onclick="copyAnnouncement()" data-i18n="copyAnnouncement">Copy Announcement</button>
+        <button class="copy-btn" onclick="copyRegTimestamp()" data-i18n="copyRegTimestamp">Copy Reg Timestamp</button>
+        <button class="copy-btn" onclick="copyGameTimestamp()" data-i18n="copyGameTimestamp">Copy Game Timestamp</button>
       </div>
       <textarea id="output" spellcheck="false"></textarea>
     </aside>
@@ -367,12 +407,147 @@ let activeHour = null;
 let lastReg = 0;
 let lastGame = 0;
 
-const lobbyNames = {
-  "1":"First Lobby",
-  "2":"Second Lobby",
-  "3":"Third Lobby",
-  "power":"Power Weekend"
+const translations = {
+  pl:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Wybierz serwer, lobby i godzinę — wiadomość generuje się automatycznie. Potem tylko kopiujesz.",
+    language:"Język strony",
+    servers:"Serwery",
+    setup:"Ustawienia",
+    registrationOpens:"Registration opens",
+    hostOfSession:"Host Of Session",
+    coHostOfSession:"Co-Host Of Session",
+    sessionNumber:"Numer sesji 24/7",
+    useCurrentTime:"Użyj aktualnego czasu",
+    quickHours:"Szybkie godziny",
+    lobbyType:"Lobby / Typ",
+    generatedMessage:"Wygenerowana wiadomość",
+    copyAnnouncement:"Kopiuj Announcement",
+    copyRegTimestamp:"Kopiuj Reg Timestamp",
+    copyGameTimestamp:"Kopiuj Game Timestamp",
+    firstGame:"First game",
+    firstLobby:"First Lobby",
+    secondLobby:"Second Lobby",
+    thirdLobby:"Third Lobby",
+    powerWeekend:"Power Weekend",
+    copied:"Skopiowano",
+    announcementCopied:"Announcement skopiowany",
+    regCopied:"Registration timestamp skopiowany",
+    gameCopied:"First game timestamp skopiowany"
+  },
+  it:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Scegli server, lobby e orario — il messaggio si genera automaticamente. Poi devi solo copiarlo.",
+    language:"Lingua della pagina",
+    servers:"Server",
+    setup:"Impostazioni",
+    registrationOpens:"Apertura registrazione",
+    hostOfSession:"Host della sessione",
+    coHostOfSession:"Co-host della sessione",
+    sessionNumber:"Numero sessione 24/7",
+    useCurrentTime:"Usa ora attuale",
+    quickHours:"Orari rapidi",
+    lobbyType:"Lobby / Tipo",
+    generatedMessage:"Messaggio generato",
+    copyAnnouncement:"Copia announcement",
+    copyRegTimestamp:"Copia timestamp registrazione",
+    copyGameTimestamp:"Copia timestamp prima partita",
+    firstGame:"Prima partita",
+    firstLobby:"Prima lobby",
+    secondLobby:"Seconda lobby",
+    thirdLobby:"Terza lobby",
+    powerWeekend:"Power Weekend",
+    copied:"Copiato",
+    announcementCopied:"Announcement copiato",
+    regCopied:"Timestamp registrazione copiato",
+    gameCopied:"Timestamp prima partita copiato"
+  },
+  de:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Wähle Server, Lobby und Uhrzeit — die Nachricht wird automatisch erstellt. Danach nur noch kopieren.",
+    language:"Seitensprache",
+    servers:"Server",
+    setup:"Einstellungen",
+    registrationOpens:"Registrierung öffnet",
+    hostOfSession:"Host der Session",
+    coHostOfSession:"Co-Host der Session",
+    sessionNumber:"24/7 Session-Nummer",
+    useCurrentTime:"Aktuelle Zeit verwenden",
+    quickHours:"Schnelle Zeiten",
+    lobbyType:"Lobby / Typ",
+    generatedMessage:"Generierte Nachricht",
+    copyAnnouncement:"Announcement kopieren",
+    copyRegTimestamp:"Reg-Timestamp kopieren",
+    copyGameTimestamp:"Game-Timestamp kopieren",
+    firstGame:"Erstes Game",
+    firstLobby:"Erste Lobby",
+    secondLobby:"Zweite Lobby",
+    thirdLobby:"Dritte Lobby",
+    powerWeekend:"Power Weekend",
+    copied:"Kopiert",
+    announcementCopied:"Announcement kopiert",
+    regCopied:"Registration-Timestamp kopiert",
+    gameCopied:"First-Game-Timestamp kopiert"
+  },
+  ru:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Выбери сервер, лобби и время — сообщение создаётся автоматически. Потом просто копируешь.",
+    language:"Язык страницы",
+    servers:"Серверы",
+    setup:"Настройки",
+    registrationOpens:"Открытие регистрации",
+    hostOfSession:"Хост сессии",
+    coHostOfSession:"Ко-хост сессии",
+    sessionNumber:"Номер сессии 24/7",
+    useCurrentTime:"Использовать текущее время",
+    quickHours:"Быстрые часы",
+    lobbyType:"Лобби / Тип",
+    generatedMessage:"Сгенерированное сообщение",
+    copyAnnouncement:"Копировать announcement",
+    copyRegTimestamp:"Копировать timestamp регистрации",
+    copyGameTimestamp:"Копировать timestamp первой игры",
+    firstGame:"Первая игра",
+    firstLobby:"Первое лобби",
+    secondLobby:"Второе лобби",
+    thirdLobby:"Третье лобби",
+    powerWeekend:"Power Weekend",
+    copied:"Скопировано",
+    announcementCopied:"Announcement скопирован",
+    regCopied:"Timestamp регистрации скопирован",
+    gameCopied:"Timestamp первой игры скопирован"
+  }
 };
+
+let currentLanguage = localStorage.getItem("noble_language") || "pl";
+
+function t(key){
+  return (translations[currentLanguage] && translations[currentLanguage][key]) || translations.pl[key] || key;
+}
+
+function getLobbyName(lobby){
+  const names = {
+    "1":"firstLobby",
+    "2":"secondLobby",
+    "3":"thirdLobby",
+    "power":"powerWeekend"
+  };
+  return t(names[lobby]);
+}
+
+function changeLanguage(){
+  currentLanguage = document.getElementById("language").value;
+  localStorage.setItem("noble_language", currentLanguage);
+  applyLanguage();
+}
+
+function applyLanguage(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.dataset.i18n;
+    el.textContent = t(key);
+  });
+  document.getElementById("delayBadge").textContent = t("firstGame") + ": +" + getDelay() + " min";
+  renderLobby();
+}
 
 function pad(n){return String(n).padStart(2,"0")}
 
@@ -467,7 +642,7 @@ function selectServer(server){
   });
 
   document.getElementById("sessionBox").classList.toggle("hidden", server !== "247");
-  document.getElementById("delayBadge").textContent = "First game: +" + getDelay() + " min";
+  document.getElementById("delayBadge").textContent = t("firstGame") + ": +" + getDelay() + " min";
 
   renderLobby();
   generate();
@@ -502,7 +677,7 @@ function renderLobby(){
   options.forEach(lobby=>{
     const btn = document.createElement("button");
     btn.className = "lobby-btn" + (currentLobby === lobby ? " active" : "");
-    btn.textContent = lobbyNames[lobby];
+    btn.textContent = getLobbyName(lobby);
     btn.onclick = () => selectLobby(lobby);
     grid.appendChild(btn);
   });
@@ -806,21 +981,23 @@ function showToast(text){
 
 function copyText(text, label){
   navigator.clipboard.writeText(text);
-  showToast(label || "Copied");
+  showToast(label || t("copied"));
 }
 
-function copyAnnouncement(){copyText(document.getElementById("output").value, "Announcement copied")}
-function copyRegTimestamp(){copyText(`<t:${lastReg}:t>`, "Registration timestamp copied")}
-function copyGameTimestamp(){copyText(`<t:${lastGame}:t>`, "First game timestamp copied")}
+function copyAnnouncement(){copyText(document.getElementById("output").value, t("announcementCopied"))}
+function copyRegTimestamp(){copyText(`<t:${lastReg}:t>`, t("regCopied"))}
+function copyGameTimestamp(){copyText(`<t:${lastGame}:t>`, t("gameCopied"))}
 
 window.onload=function(){
   const savedUser = localStorage.getItem("noble_user");
   const savedCohost = localStorage.getItem("noble_cohost");
   if(savedUser) document.getElementById("userid").value = savedUser;
   if(savedCohost) document.getElementById("cohostid").value = savedCohost;
+  document.getElementById("language").value = currentLanguage;
   setCurrentDateTime();
   renderTimes();
   selectServer(currentServer);
+  applyLanguage();
 };
 </script>
 </body>
