@@ -59,6 +59,9 @@ textarea{
 .quick-times button:hover{
   background:#1e293b;
 }
+.hidden{
+  display:none;
+}
 </style>
 </head>
 
@@ -70,9 +73,11 @@ textarea{
 <div class="row">
   <div>
     <label>Server</label>
-    <select id="server">
+    <select id="server" onchange="toggleSessionNumber()">
       <option value="div0">Noble Division 0</option>
+      <option value="div2">Noble Division 2</option>
       <option value="div3">Noble Division 3</option>
+      <option value="247">Noble 24/7</option>
     </select>
   </div>
 
@@ -84,6 +89,11 @@ textarea{
       <option value="3">Third Lobby</option>
     </select>
   </div>
+</div>
+
+<div id="sessionBox" class="hidden">
+  <label>24/7 Session Number</label>
+  <input id="sessionNumber" type="number" min="1" value="1">
 </div>
 
 <label>Registration Opens</label>
@@ -119,7 +129,6 @@ function pad(n){
 
 function setCurrentDateTime(){
   const now = new Date();
-
   const value =
     now.getFullYear() + "-" +
     pad(now.getMonth() + 1) + "-" +
@@ -132,7 +141,6 @@ function setCurrentDateTime(){
 
 function setHour(hour){
   const now = new Date();
-
   const value =
     now.getFullYear() + "-" +
     pad(now.getMonth() + 1) + "-" +
@@ -146,11 +154,23 @@ function unix(date){
   return Math.floor(new Date(date).getTime() / 1000);
 }
 
+function toggleSessionNumber(){
+  const server = document.getElementById("server").value;
+  const box = document.getElementById("sessionBox");
+
+  if(server === "247"){
+    box.classList.remove("hidden");
+  }else{
+    box.classList.add("hidden");
+  }
+}
+
 function generate(){
   const server = document.getElementById("server").value;
   const lobby = document.getElementById("lobby").value;
   const time = document.getElementById("time").value;
   const user = document.getElementById("userid").value;
+  const sessionNumber = document.getElementById("sessionNumber").value;
 
   if(!time){
     alert("Wybierz datę i godzinę");
@@ -158,7 +178,13 @@ function generate(){
   }
 
   const reg = unix(time);
-  const firstGame = reg + 15 * 60;
+
+  let delay = 15;
+  if(server === "247"){
+    delay = 20;
+  }
+
+  const firstGame = reg + delay * 60;
 
   let title = "";
   let msg = "";
@@ -209,6 +235,59 @@ Required at least **55+ Reacts** (1 per duo).`;
 :ArrowRight: Registration opens @ <t:${reg}:t>
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: <@${user}>, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+    }
+  }
+
+  if(server === "div2"){
+    title = "Noble Division 2 Practice Session";
+
+    if(lobby === "1"){
+      msg = `@everyone 
+
+**${title}**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: <@${user}>, Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#757574098359550082>, <#860622870563520513> & <#912669854543269888> before the games.
+
+Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
+    }
+
+    if(lobby === "2"){
+      msg = `@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: <@${user}>, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+    }
+
+    if(lobby === "3"){
+      msg = `@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
 
 • The host for this session is: <@${user}>, Direct Message them for help. 
 
@@ -272,6 +351,56 @@ Required at least **55+ Reacts** (1 per duo)
     }
   }
 
+  if(server === "247"){
+    title = `Noble 24/7 Session ${sessionNumber}`;
+
+    if(lobby === "1"){
+      msg = `@everyone 
+
+**${title}**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: <@${user}>, if you need any help.
+
+3 Games,Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
+    }
+
+    if(lobby === "2"){
+      msg = `@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: <@${user}>, if you need any help.
+
+3 Games, Required at least 55+ Reacts (1 per Duo).`;
+    }
+
+    if(lobby === "3"){
+      msg = `@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: <@${user}>, if you need any help.
+
+3 Games, Required at least 55+ Reacts (1 per Duo).`;
+    }
+  }
+
   document.getElementById("output").value = msg;
 }
 
@@ -282,7 +411,10 @@ function copyText(){
   alert("Copied!");
 }
 
-window.onload = setCurrentDateTime;
+window.onload = function(){
+  setCurrentDateTime();
+  toggleSessionNumber();
+};
 </script>
 
 </body>
