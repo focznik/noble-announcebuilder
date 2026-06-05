@@ -314,8 +314,12 @@ textarea{
             <input type="datetime-local" id="time" oninput="clearActiveTime(); generate()">
           </div>
           <div>
-            <label>Discord User ID</label>
-            <input id="userid" value="1057478252865798174" oninput="saveUser(); generate()">
+            <label>Host Of Session</label>
+            <input id="userid" value="1057478252865798174" placeholder="Main host Discord ID" oninput="saveUser(); generate()">
+          </div>
+          <div>
+            <label>Co-Host Of Session</label>
+            <input id="cohostid" placeholder="Optional co-host Discord ID" oninput="saveUser(); generate()">
           </div>
         </div>
 
@@ -415,6 +419,23 @@ function unix(date){return Math.floor(new Date(date).getTime()/1000)}
 
 function saveUser(){
   localStorage.setItem("noble_user", document.getElementById("userid").value);
+  localStorage.setItem("noble_cohost", document.getElementById("cohostid").value);
+}
+
+function getHostMention(){
+  const main = document.getElementById("userid").value.trim();
+  const cohost = document.getElementById("cohostid").value.trim();
+
+  if(main && cohost){
+    return `<@${main}> & <@${cohost}>`;
+  }
+  if(main){
+    return `<@${main}>`;
+  }
+  if(cohost){
+    return `<@${cohost}>`;
+  }
+  return `<@>`;
 }
 
 function getDelay(){
@@ -489,7 +510,7 @@ function renderLobby(){
 
 function generate(){
   const time=document.getElementById("time").value;
-  const user=document.getElementById("userid").value;
+  const hostMention=getHostMention();
   const sessionNumber=document.getElementById("sessionNumber").value || "1";
 
   if(!time){return}
@@ -514,7 +535,7 @@ function generate(){
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is: <@${user}>, Direct Message them for help.
+The host for this session is: ${hostMention}, Direct Message them for help.
 
 • Session lasts 3 Games. **Miss a single game and you will be banned.**
 • Make sure to read <#1282840995846950962>, <#1282841044521717761> & <#1282841572336996372> before the games.
@@ -530,7 +551,7 @@ Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-• The host for this session is: <@${user}>, Direct Message them for help. 
+• The host for this session is: ${hostMention}, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
     if(lobby==="3") msg=`@everyone 
@@ -543,7 +564,7 @@ Required at least **55+ Reacts** (1 per duo).`;
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-• The host for this session is: <@${user}>, Direct Message them for help. 
+• The host for this session is: ${hostMention}, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
   }
@@ -558,7 +579,7 @@ Required at least **55+ Reacts** (1 per duo).`;
 
 :arrow: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is: <@${user}>, Direct Message them for help.
+The host for this session is: ${hostMention}, Direct Message them for help.
 
 • Session lasts 3 Games. **Miss a single game and you will be banned.**
 • Make sure to read <#757574098359550082>, <#860622870563520513> & <#912669854543269888> before the games.
@@ -574,7 +595,7 @@ Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby
 
 :arrow: First Game Commences @ <t:${firstGame}:t>
 
-• The host for this session is: <@${user}>, Direct Message them for help. 
+• The host for this session is: ${hostMention}, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
     if(lobby==="3") msg=`@everyone 
@@ -587,7 +608,7 @@ Required at least **55+ Reacts** (1 per duo).`;
 
 :arrow: First Game Commences @ <t:${firstGame}:t>
 
-• The host for this session is: <@${user}>, Direct Message them for help. 
+• The host for this session is: ${hostMention}, Direct Message them for help. 
 
 Required at least **55+ Reacts** (1 per duo).`;
   }
@@ -602,7 +623,7 @@ Required at least **55+ Reacts** (1 per duo).`;
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is: <@${user}>, Direct Message them for help.
+The host for this session is: ${hostMention}, Direct Message them for help.
 
 • Session lasts 3 Games. **Miss a single game and you will be banned.**
 • Make sure to read <#902656971801493545>, <#902656971801493547> & <#1383042801754968135> before the games.
@@ -619,7 +640,7 @@ Required at least **55+ Reacts** (1 per duo)
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-• The host for this session is: <@${user}>, Direct Message them for help.
+• The host for this session is: ${hostMention}, Direct Message them for help.
 
 Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a third lobby ^`;
@@ -633,7 +654,7 @@ Required at least **55+ Reacts** (1 per duo)
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-• The host for this session is: <@${user}>, Direct Message them for help.
+• The host for this session is: ${hostMention}, Direct Message them for help.
 
 Required at least **55+ Reacts** (1 per duo)
 **110+ Reacts** for a third lobby ^`;
@@ -649,7 +670,7 @@ Required at least **55+ Reacts** (1 per duo)
 
 :arrow: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is: <@${user}>, if you need any help.
+The host for this session is: ${hostMention}, if you need any help.
 
 3 Games,Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
     if(lobby==="2") msg=`@everyone 
@@ -662,7 +683,7 @@ The host for this session is: <@${user}>, if you need any help.
 
 :arrow: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is: <@${user}>, if you need any help.
+The host for this session is: ${hostMention}, if you need any help.
 
 3 Games, Required at least 55+ Reacts (1 per Duo).`;
     if(lobby==="3") msg=`@everyone 
@@ -675,7 +696,7 @@ The host for this session is: <@${user}>, if you need any help.
 
 :arrow: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is: <@${user}>, if you need any help.
+The host for this session is: ${hostMention}, if you need any help.
 
 3 Games, Required at least 55+ Reacts (1 per Duo).`;
   }
@@ -690,7 +711,7 @@ The host for this session is: <@${user}>, if you need any help.
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is <@${user}>. Direct message them if you need help.
+The host for this session is ${hostMention}. Direct message them if you need help.
 
 • Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
 • Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
@@ -708,7 +729,7 @@ Required at least **110+ Reacts** and **200+** for a 2nd lobby
 
 <:ArrowRight:1398336238448152717> First Game Commences @ <t:${firstGame}:t>
 
-Please DM <@${user}>, if you are in need of any help.
+Please DM ${hostMention}, if you are in need of any help.
 
 • Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
 • Top 15 = Noble Solos Closed <:solos_closed:1403796828239040534> 
@@ -726,7 +747,7 @@ Required at least **90+ reacts**
 
 <:ArrowRight:1398336238448152717> First Game Commences @ <t:${firstGame}:t>
 
-Please DM <@${user}>, if you are in need of any help.
+Please DM ${hostMention}, if you are in need of any help.
 
 • Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
 • Top 15 = Noble Solos Closed <:solos_closed:1403796828239040534> 
@@ -742,7 +763,7 @@ Required at least **90+ reacts**
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is <@${user}>. Direct message them if you need help.
+The host for this session is ${hostMention}. Direct message them if you need help.
 
 • Session lasts 3 Games. **Miss a single game and you will be banned.**
 • Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
@@ -762,7 +783,7 @@ Required at least 110+ reacts`;
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
 
-The host for this session is <@${user}>. Direct message them if you need help.
+The host for this session is ${hostMention}. Direct message them if you need help.
 
 • Session lasts 3 Games. **Miss a game and you will be perm banned.**
 • Make sure to **read** <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
@@ -794,7 +815,9 @@ function copyGameTimestamp(){copyText(`<t:${lastGame}:t>`, "First game timestamp
 
 window.onload=function(){
   const savedUser = localStorage.getItem("noble_user");
+  const savedCohost = localStorage.getItem("noble_cohost");
   if(savedUser) document.getElementById("userid").value = savedUser;
+  if(savedCohost) document.getElementById("cohostid").value = savedCohost;
   setCurrentDateTime();
   renderTimes();
   selectServer(currentServer);
