@@ -169,11 +169,10 @@ select:focus{
 
 #time::-webkit-calendar-picker-indicator{
   opacity:0 !important;
-  width:42px;
-  height:100%;
+  width:32px;
+  height:32px;
   cursor:pointer;
-  position:absolute;
-  right:0;
+  margin-right:-34px;
 }
 
 #time::-webkit-datetime-edit,
@@ -564,7 +563,7 @@ textarea:focus{
         <div class="controls-grid">
           <div>
             <label data-i18n="registrationOpens">Registration opens</label>
-            <input type="datetime-local" id="time" oninput="clearActiveTime(); generate()">
+            <input type="datetime-local" id="time" onclick="openDatePicker()" onfocus="openDatePicker()" oninput="clearActiveTime(); generate()">
           </div>
           <div>
             <label data-i18n="hostOfSession">Host Of Session</label>
@@ -811,6 +810,16 @@ function applyLanguage(){
   });
   document.getElementById("delayBadge").textContent = t("firstGame") + ": +" + getDelay() + " min";
   renderLobby();
+}
+
+
+function openDatePicker(){
+  const input = document.getElementById("time");
+  if(input && typeof input.showPicker === "function"){
+    try{
+      input.showPicker();
+    }catch(e){}
+  }
 }
 
 function pad(n){return String(n).padStart(2,"0")}
