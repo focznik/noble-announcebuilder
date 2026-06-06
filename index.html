@@ -1095,6 +1095,128 @@ select{
   box-shadow:none!important;
 }
 
+
+/* Discord Timestamp Helper */
+.timestamp-helper{
+  margin-top:16px;
+}
+.timestamp-card{
+  overflow:hidden;
+}
+.timestamp-head{
+  display:grid;
+  grid-template-columns:360px 1fr;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.035);
+}
+.timestamp-head div{
+  padding:11px 16px;
+  color:rgba(238,244,255,.62);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.timestamp-body{
+  display:grid;
+  grid-template-columns:360px 1fr;
+}
+.timestamp-formats{
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.timestamp-row{
+  display:grid;
+  grid-template-columns:42px 1fr 34px;
+  gap:10px;
+  align-items:center;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.045);
+}
+.timestamp-icon{
+  width:30px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.07);
+  color:var(--theme);
+  font-size:14px;
+}
+.timestamp-label{
+  color:rgba(238,244,255,.62);
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.timestamp-code{
+  width:100%;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(3,7,15,.75);
+  color:#ffffff;
+  font-family:'JetBrains Mono', Consolas, monospace;
+  font-size:12px;
+  padding:8px 9px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.timestamp-copy{
+  width:32px;
+  height:32px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.035);
+  color:rgba(255,255,255,.75);
+  cursor:pointer;
+  font-size:15px;
+}
+.timestamp-copy:hover{
+  border-color:var(--theme);
+  color:#fff;
+}
+.timestamp-preview{
+  padding:18px 20px;
+  display:grid;
+  align-content:start;
+}
+.preview-line{
+  min-height:73px;
+  display:flex;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.045);
+  color:#ffffff;
+  font-size:18px;
+  font-weight:800;
+}
+.timestamp-note{
+  color:rgba(238,244,255,.55);
+  font-size:12px;
+  line-height:1.5;
+  padding:12px 16px;
+  background:rgba(255,255,255,.025);
+}
+@media(max-width:900px){
+  .timestamp-head,
+  .timestamp-body{
+    grid-template-columns:1fr;
+  }
+  .timestamp-head div:nth-child(2){
+    display:none;
+  }
+  .timestamp-formats{
+    border-right:none;
+  }
+  .timestamp-preview{
+    padding:12px 14px;
+  }
+  .preview-line{
+    min-height:auto;
+    padding:12px 0;
+    font-size:15px;
+  }
+}
+
 </style>
 </head>
 <body data-theme="div0">
@@ -1932,6 +2054,68 @@ Required at least 100+ Reacts`;
   }
 
   document.getElementById("output").value=msg;
+  updateTimestampHelper();
+}
+
+
+function discordTimestampUnix(){
+  const input = document.getElementById("time");
+  if(!input || !input.value) return Math.floor(Date.now()/1000);
+  return Math.floor(new Date(input.value).getTime()/1000);
+}
+
+function formatRelative(targetDate){
+  const diff = targetDate.getTime() - Date.now();
+  const abs = Math.abs(diff);
+  const mins = Math.round(abs / 60000);
+  const hours = Math.round(abs / 3600000);
+  const days = Math.round(abs / 86400000);
+
+  if(mins < 1) return "now";
+  if(mins < 60) return diff >= 0 ? `in ${mins} minutes` : `${mins} minutes ago`;
+  if(hours < 24) return diff >= 0 ? `in ${hours} hours` : `${hours} hours ago`;
+  if(days === 1) return diff >= 0 ? "tomorrow" : "yesterday";
+  return diff >= 0 ? `in ${days} days` : `${days} days ago`;
+}
+
+function updateTimestampHelper(){
+  const unixValue = discordTimestampUnix();
+  const d = new Date(unixValue * 1000);
+  ["d","D","t","T","f","F","R"].forEach(f=>{
+    const el = document.getElementById("ts-" + f);
+    if(el) el.textContent = `<t:${unixValue}:${f}>`;
+  });
+  const unixEl = document.getElementById("ts-unix");
+  if(unixEl) unixEl.textContent = String(unixValue);
+
+  const dateShort = d.toLocaleDateString("en-GB");
+  const dateLong = d.toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"});
+  const timeShort = d.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
+  const timeLong = d.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+  const dateTimeShort = dateLong + " at " + timeShort;
+  const dateTimeLong = d.toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"}) + " at " + timeShort;
+
+  const previews = {
+    d: dateShort,
+    D: dateLong,
+    t: timeShort,
+    T: timeLong,
+    f: dateTimeShort,
+    F: dateTimeLong,
+    R: formatRelative(d),
+    unix: String(unixValue)
+  };
+
+  Object.keys(previews).forEach(k=>{
+    const el = document.getElementById("pv-" + k);
+    if(el) el.textContent = previews[k];
+  });
+}
+
+function copyTimestampFormat(format){
+  const unixValue = discordTimestampUnix();
+  const text = format === "unix" ? String(unixValue) : `<t:${unixValue}:${format}>`;
+  copyText(text, "Timestamp copied");
 }
 
 function showToast(text){
@@ -1964,6 +2148,7 @@ window.onload=function(){
   renderTimes();
   selectServer(currentServer);
   applyLanguage();
+  updateTimestampHelper();
 };
 </script>
 
