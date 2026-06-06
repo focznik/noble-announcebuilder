@@ -1217,6 +1217,140 @@ select{
   }
 }
 
+
+/* ================================
+   VISIBLE DISCORD TIMESTAMP PANEL
+   ================================ */
+.discord-ts-panel{
+  max-width:1400px;
+  margin:18px auto 54px;
+  background:#22272f;
+  border:1px solid #343b46;
+  overflow:hidden;
+  box-shadow:0 8px 18px rgba(0,0,0,.22);
+}
+
+.discord-ts-top{
+  display:grid;
+  grid-template-columns:430px 1fr;
+  background:#272d36;
+  border-bottom:1px solid #343b46;
+}
+
+.discord-ts-top div{
+  padding:10px 16px;
+  color:#aeb6c2;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.discord-ts-body{
+  display:grid;
+  grid-template-columns:430px 1fr;
+}
+
+.discord-ts-left{
+  border-right:1px solid #343b46;
+}
+
+.discord-ts-row{
+  min-height:72px;
+  display:grid;
+  grid-template-columns:42px 1fr 32px;
+  gap:12px;
+  align-items:center;
+  padding:11px 14px;
+}
+
+.discord-ts-ico{
+  width:30px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#2d333d;
+  color:#aeb6c2;
+  border-radius:10px;
+  font-size:14px;
+}
+
+.discord-ts-label{
+  color:#b7bec9;
+  font-size:12px;
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+.discord-ts-code{
+  background:#2c333e;
+  color:#fff;
+  padding:7px 9px;
+  border-radius:4px;
+  font-family:'JetBrains Mono', Consolas, monospace;
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.discord-ts-copy{
+  width:28px;
+  height:28px;
+  border:0;
+  background:transparent;
+  color:#aeb6c2;
+  cursor:pointer;
+  font-size:17px;
+}
+
+.discord-ts-copy:hover{
+  color:#fff;
+}
+
+.discord-ts-preview{
+  padding:0 16px;
+}
+
+.discord-ts-preview-line{
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  color:#fff;
+  font-size:17px;
+  font-weight:800;
+}
+
+.discord-ts-panel-title{
+  padding:14px 16px 0;
+  color:var(--theme);
+  font-size:13px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  background:#22272f;
+}
+
+@media(max-width:900px){
+  .discord-ts-top,
+  .discord-ts-body{
+    grid-template-columns:1fr;
+  }
+
+  .discord-ts-top div:nth-child(2){
+    display:none;
+  }
+
+  .discord-ts-left{
+    border-right:0;
+  }
+
+  .discord-ts-preview{
+    display:none;
+  }
+}
+
 </style>
 </head>
 <body data-theme="div0">
@@ -1260,7 +1394,7 @@ select{
         <div class="controls-grid">
           <div>
             <label data-i18n="registrationOpens">Registration opens</label>
-            <input type="datetime-local" id="time" onclick="openDatePicker()" onfocus="openDatePicker()" oninput="clearActiveTime(); generate()">
+            <input type="datetime-local" id="time" onclick="openDatePicker()" onfocus="openDatePicker()" oninput="clearActiveTime(); generate(); updateDiscordTimestampPanel()">
           </div>
           <div>
             <label data-i18n="hostOfSession">Host Of Session</label>
@@ -2118,6 +2252,78 @@ function copyTimestampFormat(format){
   copyText(text, "Timestamp copied");
 }
 
+
+function getDiscordTsUnix(){
+  const input = document.getElementById("time");
+  if(input && input.value){
+    return Math.floor(new Date(input.value).getTime() / 1000);
+  }
+  return Math.floor(Date.now() / 1000);
+}
+
+function getRelativePreview(date){
+  const diff = date.getTime() - Date.now();
+  const abs = Math.abs(diff);
+  const mins = Math.round(abs / 60000);
+  const hours = Math.round(abs / 3600000);
+  const days = Math.round(abs / 86400000);
+
+  if(mins < 1) return "now";
+  if(mins < 60) return diff >= 0 ? `in ${mins} minutes` : `${mins} minutes ago`;
+  if(hours < 24) return diff >= 0 ? `in ${hours} hours` : `${hours} hours ago`;
+  if(days === 1) return diff >= 0 ? "tomorrow" : "yesterday";
+  return diff >= 0 ? `in ${days} days` : `${days} days ago`;
+}
+
+function updateDiscordTimestampPanel(){
+  const unix = getDiscordTsUnix();
+  const date = new Date(unix * 1000);
+
+  ["d","D","t","T","f","F","R"].forEach(type=>{
+    const code = document.getElementById("dt-code-" + type);
+    if(code) code.textContent = `<t:${unix}:${type}>`;
+  });
+
+  const unixCode = document.getElementById("dt-code-unix");
+  if(unixCode) unixCode.textContent = String(unix);
+
+  const shortDate = date.toLocaleDateString("en-GB");
+  const longDate = date.toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"});
+  const shortTime = date.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
+  const longTime = date.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+  const shortDateTime = `${longDate} at ${shortTime}`;
+  const longDateTime = `${date.toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"})} at ${shortTime}`;
+
+  const previews = {
+    d: shortDate,
+    D: longDate,
+    t: shortTime,
+    T: longTime,
+    f: shortDateTime,
+    F: longDateTime,
+    R: getRelativePreview(date),
+    unix: String(unix)
+  };
+
+  Object.entries(previews).forEach(([key,value])=>{
+    const el = document.getElementById("dt-prev-" + key);
+    if(el) el.textContent = value;
+  });
+}
+
+function copyDiscordTs(type){
+  const unix = getDiscordTsUnix();
+  const text = type === "unix" ? String(unix) : `<t:${unix}:${type}>`;
+
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text);
+  }
+
+  if(typeof showToast === "function"){
+    showToast("Timestamp copied");
+  }
+}
+
 function showToast(text){
   const toast=document.getElementById("toast");
   toast.textContent=text;
@@ -2151,6 +2357,102 @@ window.onload=function(){
   updateTimestampHelper();
 };
 </script>
+
+
+<section id="discordTimestampHelper" class="discord-ts-panel">
+  <div class="discord-ts-panel-title">Discord Timestamp Helper</div>
+  <div class="discord-ts-top">
+    <div>Format</div>
+    <div>Preview</div>
+  </div>
+
+  <div class="discord-ts-body">
+    <div class="discord-ts-left">
+      <div class="discord-ts-row">
+        <div class="discord-ts-ico">📅</div>
+        <div>
+          <div class="discord-ts-label">Short Date</div>
+          <div class="discord-ts-code" id="dt-code-d">&lt;t:0:d&gt;</div>
+        </div>
+        <button class="discord-ts-copy" onclick="copyDiscordTs('d')">⧉</button>
+      </div>
+
+      <div class="discord-ts-row">
+        <div class="discord-ts-ico">📅</div>
+        <div>
+          <div class="discord-ts-label">Long Date</div>
+          <div class="discord-ts-code" id="dt-code-D">&lt;t:0:D&gt;</div>
+        </div>
+        <button class="discord-ts-copy" onclick="copyDiscordTs('D')">⧉</button>
+      </div>
+
+      <div class="discord-ts-row">
+        <div class="discord-ts-ico">🕒</div>
+        <div>
+          <div class="discord-ts-label">Short Time</div>
+          <div class="discord-ts-code" id="dt-code-t">&lt;t:0:t&gt;</div>
+        </div>
+        <button class="discord-ts-copy" onclick="copyDiscordTs('t')">⧉</button>
+      </div>
+
+      <div class="discord-ts-row">
+        <div class="discord-ts-ico">🕒</div>
+        <div>
+          <div class="discord-ts-label">Long Time</div>
+          <div class="discord-ts-code" id="dt-code-T">&lt;t:0:T&gt;</div>
+        </div>
+        <button class="discord-ts-copy" onclick="copyDiscordTs('T')">⧉</button>
+      </div>
+
+      <div class="discord-ts-row">
+        <div class="discord-ts-ico">📆</div>
+        <div>
+          <div class="discord-ts-label">Short Date/Time</div>
+          <div class="discord-ts-code" id="dt-code-f">&lt;t:0:f&gt;</div>
+        </div>
+        <button class="discord-ts-copy" onclick="copyDiscordTs('f')">⧉</button>
+      </div>
+
+      <div class="discord-ts-row">
+        <div class="discord-ts-ico">📆</div>
+        <div>
+          <div class="discord-ts-label">Long Date/Time</div>
+          <div class="discord-ts-code" id="dt-code-F">&lt;t:0:F&gt;</div>
+        </div>
+        <button class="discord-ts-copy" onclick="copyDiscordTs('F')">⧉</button>
+      </div>
+
+      <div class="discord-ts-row">
+        <div class="discord-ts-ico">🕒</div>
+        <div>
+          <div class="discord-ts-label">Relative Time</div>
+          <div class="discord-ts-code" id="dt-code-R">&lt;t:0:R&gt;</div>
+        </div>
+        <button class="discord-ts-copy" onclick="copyDiscordTs('R')">⧉</button>
+      </div>
+
+      <div class="discord-ts-row">
+        <div class="discord-ts-ico">&lt;&gt;</div>
+        <div>
+          <div class="discord-ts-label">Unix Timestamp</div>
+          <div class="discord-ts-code" id="dt-code-unix">0</div>
+        </div>
+        <button class="discord-ts-copy" onclick="copyDiscordTs('unix')">⧉</button>
+      </div>
+    </div>
+
+    <div class="discord-ts-preview">
+      <div class="discord-ts-preview-line" id="dt-prev-d">--</div>
+      <div class="discord-ts-preview-line" id="dt-prev-D">--</div>
+      <div class="discord-ts-preview-line" id="dt-prev-t">--</div>
+      <div class="discord-ts-preview-line" id="dt-prev-T">--</div>
+      <div class="discord-ts-preview-line" id="dt-prev-f">--</div>
+      <div class="discord-ts-preview-line" id="dt-prev-F">--</div>
+      <div class="discord-ts-preview-line" id="dt-prev-R">--</div>
+      <div class="discord-ts-preview-line" id="dt-prev-unix">--</div>
+    </div>
+  </div>
+</section>
 
 <div class="watermark">Made by <span>Focznik</span></div>
 </body>
