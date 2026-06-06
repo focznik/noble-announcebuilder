@@ -991,12 +991,42 @@ function renderLobby(){
 }
 
 function generateReloadMessage(title, reg, firstGame, hostMention){
-  const lobbyTitle = reloadLobbyTitle();
-  const lobbyBlock = lobbyTitle ? `\n**${lobbyTitle}**\n` : "";
+  if(currentLobby === "reload2"){
+    return `@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+Required at least **25+ Reacts** (1 per duo)`;
+  }
+
+  if(currentLobby === "reload3"){
+    return `@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+Required at least **25+ Reacts** (1 per duo)`;
+  }
 
   return `@everyone 
 
-**${title}**${lobbyBlock}
+**${title}**
+
 :ArrowRight: Registration opens @ <t:${reg}:t>
 
 :ArrowRight: First Game Commences @ <t:${firstGame}:t>
