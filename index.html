@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <title>Noble Announcement Builder</title>
 <style>
 :root{
@@ -545,9 +545,415 @@ textarea:focus{
   color:var(--theme);
 }
 
+
+/* ================================
+   PREMIUM NOBLE UI V2
+   ================================ */
+
+:root{
+  --glass:rgba(10,16,28,.72);
+  --glass2:rgba(15,24,42,.82);
+  --shine:rgba(255,255,255,.08);
+  --shadow:0 22px 80px rgba(0,0,0,.48);
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  position:relative;
+  overflow-x:hidden;
+  padding:28px;
+  background:
+    radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--theme) 38%, transparent), transparent 26%),
+    radial-gradient(circle at 82% 18%, rgba(255,255,255,.06), transparent 22%),
+    radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--theme) 20%, transparent), transparent 35%),
+    linear-gradient(135deg,#05070d 0%,#090e19 48%,#05070d 100%);
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-2;
+  background:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size:42px 42px;
+  mask-image:radial-gradient(circle at center, black, transparent 78%);
+}
+
+body::after{
+  content:"NOBLE  NOBLE  NOBLE  NOBLE  NOBLE";
+  position:fixed;
+  left:-60px;
+  top:40px;
+  width:140%;
+  pointer-events:none;
+  z-index:-1;
+  color:rgba(255,255,255,.025);
+  font-weight:800;
+  font-size:58px;
+  letter-spacing:12px;
+  transform:rotate(-7deg);
+  white-space:pre;
+  text-shadow:
+    0 110px 0 rgba(255,255,255,.018),
+    0 220px 0 rgba(255,255,255,.014),
+    0 330px 0 rgba(255,255,255,.012),
+    0 440px 0 rgba(255,255,255,.010);
+}
+
+.app{
+  max-width:1400px;
+  position:relative;
+}
+
+.header{
+  position:relative;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb, var(--theme) 60%, rgba(255,255,255,.08));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--theme) 16%, transparent), transparent 42%),
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),
+    var(--glass);
+  backdrop-filter:blur(18px);
+  box-shadow:
+    var(--shadow),
+    0 0 60px color-mix(in srgb, var(--theme) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.14);
+  padding:24px 26px;
+}
+
+.header::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,.18) 35%,transparent 55%);
+  transform:translateX(-120%);
+  animation:headerShine 7s ease-in-out infinite;
+}
+
+@keyframes headerShine{
+  0%,65%{transform:translateX(-120%)}
+  82%,100%{transform:translateX(120%)}
+}
+
+.header h1{
+  position:relative;
+  font-size:36px;
+  font-weight:800;
+  letter-spacing:-1.4px;
+  line-height:1.05;
+  text-shadow:0 0 26px color-mix(in srgb, var(--theme) 30%, transparent);
+}
+
+.header h1::after{
+  content:"";
+  display:block;
+  width:110px;
+  height:3px;
+  margin-top:12px;
+  background:linear-gradient(90deg,var(--theme),transparent);
+  border-radius:99px;
+  box-shadow:0 0 18px var(--theme);
+}
+
+.header p{
+  position:relative;
+  margin-top:12px;
+  color:rgba(238,244,255,.72);
+  font-size:14px;
+  letter-spacing:.1px;
+}
+
+.lang-box{
+  position:relative;
+  z-index:2;
+}
+
+.panel{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),
+    var(--glass);
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:
+    0 18px 55px rgba(0,0,0,.36),
+    inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+.panel::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--theme),transparent);
+  opacity:.75;
+}
+
+.panel-title{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  color:#fff;
+  text-shadow:0 0 18px color-mix(in srgb, var(--theme) 45%, transparent);
+}
+
+.panel-title::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:var(--theme);
+  box-shadow:0 0 15px var(--theme);
+}
+
+.server-list{
+  gap:10px;
+}
+
+.server-btn,
+.time-btn,
+.lobby-btn,
+.copy-btn,
+.small-btn{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.11);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.02)),
+    rgba(4,8,16,.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 10px 25px rgba(0,0,0,.20);
+}
+
+.server-btn::before,
+.time-btn::before,
+.lobby-btn::before,
+.copy-btn::before,
+.small-btn::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb, var(--theme) 16%, transparent),transparent);
+  transform:translateX(-105%);
+  transition:.35s ease;
+}
+
+.server-btn:hover::before,
+.time-btn:hover::before,
+.lobby-btn:hover::before,
+.copy-btn:hover::before,
+.small-btn:hover::before{
+  transform:translateX(105%);
+}
+
+.server-btn:hover,
+.time-btn:hover,
+.lobby-btn:hover,
+.copy-btn:hover,
+.small-btn:hover{
+  transform:translateY(-2px);
+  border-color:color-mix(in srgb, var(--theme) 75%, white 10%);
+  box-shadow:
+    0 18px 38px rgba(0,0,0,.36),
+    0 0 26px color-mix(in srgb, var(--theme) 25%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.14);
+}
+
+.server-btn.active{
+  background:
+    linear-gradient(90deg,color-mix(in srgb, var(--theme) 28%, transparent),rgba(4,8,16,.86)),
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.025));
+  border-color:var(--theme);
+  box-shadow:
+    inset 5px 0 0 var(--theme),
+    0 0 0 1px color-mix(in srgb, var(--theme) 25%, transparent),
+    0 16px 42px rgba(0,0,0,.36),
+    0 0 32px color-mix(in srgb, var(--theme) 35%, transparent);
+}
+
+.server-icon{
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  min-height:42px!important;
+  filter:
+    drop-shadow(0 0 10px color-mix(in srgb, var(--theme) 28%, transparent))
+    drop-shadow(0 6px 10px rgba(0,0,0,.45));
+  transform:scale(1);
+  transition:.18s ease;
+}
+
+.server-btn:hover .server-icon{
+  transform:scale(1.08) rotate(-2deg);
+}
+
+.server-name{
+  font-size:14px!important;
+  letter-spacing:-.15px;
+}
+
+.server-btn span:last-child{
+  padding:5px 8px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.22);
+  color:rgba(255,255,255,.66);
+  font-size:11px;
+}
+
+.badge{
+  margin-top:14px;
+  width:100%;
+  text-align:center;
+  border-color:color-mix(in srgb, var(--theme) 60%, transparent);
+  background:
+    linear-gradient(90deg,color-mix(in srgb, var(--theme) 18%, transparent),rgba(255,255,255,.03));
+  box-shadow:0 0 22px color-mix(in srgb, var(--theme) 17%, transparent);
+  font-weight:700;
+}
+
+input,select,textarea{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015)),
+    rgba(2,6,14,.88);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 8px 20px rgba(0,0,0,.18);
+  transition:.14s ease;
+}
+
+input:hover,select:hover,textarea:hover{
+  border-color:color-mix(in srgb, var(--theme) 45%, rgba(255,255,255,.14));
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--theme);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--theme) 18%, transparent),
+    0 0 25px color-mix(in srgb, var(--theme) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+label{
+  color:rgba(238,244,255,.66);
+}
+
+.time-grid{
+  gap:10px;
+}
+
+.time-btn.active,
+.lobby-btn.active{
+  background:
+    linear-gradient(180deg,color-mix(in srgb, var(--theme) 24%, transparent),rgba(255,255,255,.025));
+  border-color:var(--theme);
+  box-shadow:
+    inset 0 -3px 0 var(--theme),
+    0 0 24px color-mix(in srgb, var(--theme) 28%, transparent);
+}
+
+.lobby-btn.reload{
+  border-color:rgba(167,139,250,.55);
+  background:linear-gradient(180deg,rgba(167,139,250,.12),rgba(0,0,0,.20));
+}
+
+.lobby-btn.ladder{
+  border-color:rgba(250,204,21,.60);
+  background:linear-gradient(180deg,rgba(250,204,21,.13),rgba(0,0,0,.20));
+}
+
+.copy-btn.main{
+  font-size:15px;
+  min-height:48px;
+  background:
+    linear-gradient(90deg,color-mix(in srgb, var(--theme) 36%, transparent),rgba(255,255,255,.04)),
+    rgba(0,0,0,.32);
+  border-color:var(--theme);
+  box-shadow:
+    0 0 26px color-mix(in srgb, var(--theme) 24%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+.copy-btn.main::after{
+  content:" ✦";
+  color:var(--theme);
+}
+
+textarea{
+  font-family:'JetBrains Mono', Consolas, monospace;
+  border-color:color-mix(in srgb, var(--theme) 35%, rgba(255,255,255,.10));
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.035),transparent 28%),
+    radial-gradient(circle at 80% 0%,color-mix(in srgb, var(--theme) 10%, transparent),transparent 28%),
+    #040812;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 0 35px rgba(0,0,0,.32);
+}
+
+.watermark{
+  right:22px;
+  bottom:16px;
+  padding:8px 12px;
+  border:1px solid color-mix(in srgb, var(--theme) 45%, rgba(255,255,255,.06));
+  background:rgba(5,8,14,.72);
+  backdrop-filter:blur(12px);
+  box-shadow:0 0 22px color-mix(in srgb, var(--theme) 18%, transparent);
+  color:rgba(255,255,255,.45);
+}
+
+.toast{
+  border-color:var(--theme);
+  background:
+    linear-gradient(90deg,color-mix(in srgb, var(--theme) 25%, transparent),rgba(0,0,0,.48));
+  backdrop-filter:blur(14px);
+}
+
+@media(max-width:1100px){
+  body{padding:16px}
+  .header h1{font-size:30px}
+}
+
+@media(max-width:700px){
+  body{padding:12px}
+  .server-icon{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    min-height:36px!important;
+  }
+}
+
+
+#nobleParticles{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.58;
+}
+
 </style>
 </head>
 <body data-theme="div0">
+
+<canvas id="nobleParticles"></canvas>
+
 <div class="app">
   <div class="header">
     <div>
@@ -1399,7 +1805,60 @@ function copyAnnouncement(){copyText(document.getElementById("output").value, t(
 function copyRegTimestamp(){copyText(`<t:${lastReg}:t>`, t("regCopied"))}
 function copyGameTimestamp(){copyText(`<t:${lastGame}:t>`, t("gameCopied"))}
 
+
+function startNobleParticles(){
+  const canvas = document.getElementById("nobleParticles");
+  if(!canvas) return;
+  const ctx = canvas.getContext("2d");
+  let w, h, particles = [];
+
+  function resize(){
+    w = canvas.width = window.innerWidth * devicePixelRatio;
+    h = canvas.height = window.innerHeight * devicePixelRatio;
+    particles = Array.from({length: Math.min(90, Math.floor(window.innerWidth / 16))}, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: (Math.random() * 1.8 + .6) * devicePixelRatio,
+      vx: (Math.random() - .5) * .18 * devicePixelRatio,
+      vy: (Math.random() - .5) * .18 * devicePixelRatio,
+      a: Math.random() * .45 + .12
+    }));
+  }
+
+  function getThemeColor(){
+    const cs = getComputedStyle(document.body);
+    return cs.getPropertyValue("--theme").trim() || "#38bdf8";
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    const color = getThemeColor();
+    for(const p of particles){
+      p.x += p.vx;
+      p.y += p.vy;
+      if(p.x < 0) p.x = w;
+      if(p.x > w) p.x = 0;
+      if(p.y < 0) p.y = h;
+      if(p.y > h) p.y = 0;
+      ctx.beginPath();
+      ctx.fillStyle = color;
+      ctx.globalAlpha = p.a;
+      ctx.shadowBlur = 16 * devicePixelRatio;
+      ctx.shadowColor = color;
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+  draw();
+}
+
 window.onload=function(){
+  startNobleParticles();
   const savedUser = localStorage.getItem("noble_user");
   const savedCohost = localStorage.getItem("noble_cohost");
   if(savedUser) document.getElementById("userid").value = savedUser;
