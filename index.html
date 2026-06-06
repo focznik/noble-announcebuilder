@@ -1096,150 +1096,40 @@ select{
 }
 
 
-/* Discord Timestamp Helper */
-.timestamp-helper{
-  margin-top:16px;
-}
-.timestamp-card{
-  overflow:hidden;
-}
-.timestamp-head{
-  display:grid;
-  grid-template-columns:360px 1fr;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.035);
-}
-.timestamp-head div{
-  padding:11px 16px;
-  color:rgba(238,244,255,.62);
-  font-size:12px;
-  font-weight:800;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-.timestamp-body{
-  display:grid;
-  grid-template-columns:360px 1fr;
-}
-.timestamp-formats{
-  border-right:1px solid rgba(255,255,255,.08);
-}
-.timestamp-row{
-  display:grid;
-  grid-template-columns:42px 1fr 34px;
-  gap:10px;
-  align-items:center;
-  padding:12px 14px;
-  border-bottom:1px solid rgba(255,255,255,.045);
-}
-.timestamp-icon{
-  width:30px;
-  height:30px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:9px;
-  background:rgba(255,255,255,.055);
-  border:1px solid rgba(255,255,255,.07);
-  color:var(--theme);
-  font-size:14px;
-}
-.timestamp-label{
-  color:rgba(238,244,255,.62);
-  font-size:12px;
-  font-weight:700;
-  margin-bottom:6px;
-}
-.timestamp-code{
-  width:100%;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(3,7,15,.75);
-  color:#ffffff;
-  font-family:'JetBrains Mono', Consolas, monospace;
-  font-size:12px;
-  padding:8px 9px;
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-}
-.timestamp-copy{
-  width:32px;
-  height:32px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.035);
-  color:rgba(255,255,255,.75);
-  cursor:pointer;
-  font-size:15px;
-}
-.timestamp-copy:hover{
-  border-color:var(--theme);
-  color:#fff;
-}
-.timestamp-preview{
-  padding:18px 20px;
-  display:grid;
-  align-content:start;
-}
-.preview-line{
-  min-height:73px;
-  display:flex;
-  align-items:center;
-  border-bottom:1px solid rgba(255,255,255,.045);
-  color:#ffffff;
-  font-size:18px;
-  font-weight:800;
-}
-.timestamp-note{
-  color:rgba(238,244,255,.55);
-  font-size:12px;
-  line-height:1.5;
-  padding:12px 16px;
-  background:rgba(255,255,255,.025);
-}
-@media(max-width:900px){
-  .timestamp-head,
-  .timestamp-body{
-    grid-template-columns:1fr;
-  }
-  .timestamp-head div:nth-child(2){
-    display:none;
-  }
-  .timestamp-formats{
-    border-right:none;
-  }
-  .timestamp-preview{
-    padding:12px 14px;
-  }
-  .preview-line{
-    min-height:auto;
-    padding:12px 0;
-    font-size:15px;
-  }
-}
-
 
 /* ================================
-   VISIBLE DISCORD TIMESTAMP PANEL
+   DISCORD TIMESTAMP PANEL - MATCHED UI
    ================================ */
+
 .discord-ts-panel{
   max-width:1400px;
-  margin:18px auto 54px;
-  background:#22272f;
-  border:1px solid #343b46;
+  margin:18px auto 58px;
+  padding:0;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),
+    rgba(10,16,28,.82);
+  border:1px solid rgba(255,255,255,.10);
   overflow:hidden;
   box-shadow:0 8px 18px rgba(0,0,0,.22);
+}
+
+.discord-ts-panel .panel-title{
+  padding:16px 16px 0;
+  margin-bottom:14px;
 }
 
 .discord-ts-top{
   display:grid;
   grid-template-columns:430px 1fr;
-  background:#272d36;
-  border-bottom:1px solid #343b46;
+  background:
+    linear-gradient(90deg,var(--theme-soft),rgba(255,255,255,.025));
+  border-top:1px solid rgba(255,255,255,.055);
+  border-bottom:1px solid rgba(255,255,255,.08);
 }
 
 .discord-ts-top div{
-  padding:10px 16px;
-  color:#aeb6c2;
+  padding:11px 16px;
+  color:rgba(238,244,255,.72);
   font-size:12px;
   font-weight:800;
   letter-spacing:.12em;
@@ -1252,7 +1142,7 @@ select{
 }
 
 .discord-ts-left{
-  border-right:1px solid #343b46;
+  border-right:1px solid rgba(255,255,255,.08);
 }
 
 .discord-ts-row{
@@ -1262,6 +1152,7 @@ select{
   gap:12px;
   align-items:center;
   padding:11px 14px;
+  border-bottom:1px solid rgba(255,255,255,.045);
 }
 
 .discord-ts-ico{
@@ -1270,24 +1161,26 @@ select{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:#2d333d;
-  color:#aeb6c2;
-  border-radius:10px;
+  background:var(--theme-soft);
+  border:1px solid var(--theme-border);
+  color:#fff;
   font-size:14px;
 }
 
 .discord-ts-label{
-  color:#b7bec9;
+  color:rgba(238,244,255,.66);
   font-size:12px;
-  font-weight:600;
+  font-weight:700;
   margin-bottom:6px;
 }
 
 .discord-ts-code{
-  background:#2c333e;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015)),
+    rgba(2,6,14,.88);
   color:#fff;
-  padding:7px 9px;
-  border-radius:4px;
+  padding:8px 9px;
+  border:1px solid rgba(255,255,255,.10);
   font-family:'JetBrains Mono', Consolas, monospace;
   font-size:12px;
   white-space:nowrap;
@@ -1296,17 +1189,20 @@ select{
 }
 
 .discord-ts-copy{
-  width:28px;
-  height:28px;
-  border:0;
-  background:transparent;
-  color:#aeb6c2;
+  width:30px;
+  height:30px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.035);
+  color:rgba(255,255,255,.72);
   cursor:pointer;
-  font-size:17px;
+  font-size:16px;
+  transition:border-color .12s ease, color .12s ease, background .12s ease;
 }
 
 .discord-ts-copy:hover{
+  border-color:var(--theme);
   color:#fff;
+  background:var(--theme-soft);
 }
 
 .discord-ts-preview{
@@ -1317,19 +1213,14 @@ select{
   min-height:72px;
   display:flex;
   align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.045);
   color:#fff;
   font-size:17px;
   font-weight:800;
 }
 
-.discord-ts-panel-title{
-  padding:14px 16px 0;
-  color:var(--theme);
-  font-size:13px;
-  font-weight:800;
-  text-transform:uppercase;
-  letter-spacing:.12em;
-  background:#22272f;
+.discord-ts-preview-line span{
+  color:rgba(255,255,255,.92);
 }
 
 @media(max-width:900px){
@@ -1347,8 +1238,36 @@ select{
   }
 
   .discord-ts-preview{
-    display:none;
+    border-top:1px solid rgba(255,255,255,.08);
   }
+
+  .discord-ts-preview-line{
+    min-height:auto;
+    padding:13px 0;
+    font-size:15px;
+  }
+}
+
+
+/* TIMESTAMP PREVIEW HARD FIX */
+.discord-ts-preview-line{
+  min-height:72px!important;
+  display:flex!important;
+  align-items:center!important;
+  color:#ffffff!important;
+  font-size:17px!important;
+  font-weight:800!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+
+.discord-ts-code{
+  color:#ffffff!important;
+}
+
+.discord-ts-panel{
+  display:block!important;
+  visibility:visible!important;
 }
 
 </style>
@@ -1398,17 +1317,17 @@ select{
           </div>
           <div>
             <label data-i18n="hostOfSession">Host Of Session</label>
-            <input id="userid" value="1057478252865798174" placeholder="Main host Discord ID" oninput="saveUser(); generate()">
+            <input id="userid" value="1057478252865798174" placeholder="Main host Discord ID" oninput="clearActiveTime(); generate(); updateDiscordTimestampPanel()">
           </div>
           <div>
             <label data-i18n="coHostOfSession">Co-Host Of Session</label>
-            <input id="cohostid" placeholder="Optional co-host Discord ID" oninput="saveUser(); generate()">
+            <input id="cohostid" placeholder="Optional co-host Discord ID" oninput="clearActiveTime(); generate(); updateDiscordTimestampPanel()">
           </div>
         </div>
 
         <div id="sessionBox" class="hidden">
           <label style="margin-top:14px" data-i18n="sessionNumber">24/7 Session Number</label>
-          <input id="sessionNumber" type="number" min="1" value="1" oninput="generate()">
+          <input id="sessionNumber" type="number" min="1" value="1" oninput="clearActiveTime(); generate(); updateDiscordTimestampPanel()">
         </div>
 
         <div class="help-row">
@@ -2188,141 +2107,18 @@ Required at least 100+ Reacts`;
   }
 
   document.getElementById("output").value=msg;
-  updateTimestampHelper();
+  updateDiscordTimestampPanel();
 }
 
 
-function discordTimestampUnix(){
-  const input = document.getElementById("time");
-  if(!input || !input.value) return Math.floor(Date.now()/1000);
-  return Math.floor(new Date(input.value).getTime()/1000);
-}
-
-function formatRelative(targetDate){
-  const diff = targetDate.getTime() - Date.now();
-  const abs = Math.abs(diff);
-  const mins = Math.round(abs / 60000);
-  const hours = Math.round(abs / 3600000);
-  const days = Math.round(abs / 86400000);
-
-  if(mins < 1) return "now";
-  if(mins < 60) return diff >= 0 ? `in ${mins} minutes` : `${mins} minutes ago`;
-  if(hours < 24) return diff >= 0 ? `in ${hours} hours` : `${hours} hours ago`;
-  if(days === 1) return diff >= 0 ? "tomorrow" : "yesterday";
-  return diff >= 0 ? `in ${days} days` : `${days} days ago`;
-}
-
-function updateTimestampHelper(){
-  const unixValue = discordTimestampUnix();
-  const d = new Date(unixValue * 1000);
-  ["d","D","t","T","f","F","R"].forEach(f=>{
-    const el = document.getElementById("ts-" + f);
-    if(el) el.textContent = `<t:${unixValue}:${f}>`;
-  });
-  const unixEl = document.getElementById("ts-unix");
-  if(unixEl) unixEl.textContent = String(unixValue);
-
-  const dateShort = d.toLocaleDateString("en-GB");
-  const dateLong = d.toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"});
-  const timeShort = d.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
-  const timeLong = d.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
-  const dateTimeShort = dateLong + " at " + timeShort;
-  const dateTimeLong = d.toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"}) + " at " + timeShort;
-
-  const previews = {
-    d: dateShort,
-    D: dateLong,
-    t: timeShort,
-    T: timeLong,
-    f: dateTimeShort,
-    F: dateTimeLong,
-    R: formatRelative(d),
-    unix: String(unixValue)
-  };
-
-  Object.keys(previews).forEach(k=>{
-    const el = document.getElementById("pv-" + k);
-    if(el) el.textContent = previews[k];
-  });
-}
-
-function copyTimestampFormat(format){
-  const unixValue = discordTimestampUnix();
-  const text = format === "unix" ? String(unixValue) : `<t:${unixValue}:${format}>`;
-  copyText(text, "Timestamp copied");
-}
 
 
-function getDiscordTsUnix(){
-  const input = document.getElementById("time");
-  if(input && input.value){
-    return Math.floor(new Date(input.value).getTime() / 1000);
-  }
-  return Math.floor(Date.now() / 1000);
-}
 
-function getRelativePreview(date){
-  const diff = date.getTime() - Date.now();
-  const abs = Math.abs(diff);
-  const mins = Math.round(abs / 60000);
-  const hours = Math.round(abs / 3600000);
-  const days = Math.round(abs / 86400000);
 
-  if(mins < 1) return "now";
-  if(mins < 60) return diff >= 0 ? `in ${mins} minutes` : `${mins} minutes ago`;
-  if(hours < 24) return diff >= 0 ? `in ${hours} hours` : `${hours} hours ago`;
-  if(days === 1) return diff >= 0 ? "tomorrow" : "yesterday";
-  return diff >= 0 ? `in ${days} days` : `${days} days ago`;
-}
 
-function updateDiscordTimestampPanel(){
-  const unix = getDiscordTsUnix();
-  const date = new Date(unix * 1000);
 
-  ["d","D","t","T","f","F","R"].forEach(type=>{
-    const code = document.getElementById("dt-code-" + type);
-    if(code) code.textContent = `<t:${unix}:${type}>`;
-  });
 
-  const unixCode = document.getElementById("dt-code-unix");
-  if(unixCode) unixCode.textContent = String(unix);
 
-  const shortDate = date.toLocaleDateString("en-GB");
-  const longDate = date.toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"});
-  const shortTime = date.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
-  const longTime = date.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
-  const shortDateTime = `${longDate} at ${shortTime}`;
-  const longDateTime = `${date.toLocaleDateString("en-GB", {weekday:"long", day:"numeric", month:"long", year:"numeric"})} at ${shortTime}`;
-
-  const previews = {
-    d: shortDate,
-    D: longDate,
-    t: shortTime,
-    T: longTime,
-    f: shortDateTime,
-    F: longDateTime,
-    R: getRelativePreview(date),
-    unix: String(unix)
-  };
-
-  Object.entries(previews).forEach(([key,value])=>{
-    const el = document.getElementById("dt-prev-" + key);
-    if(el) el.textContent = value;
-  });
-}
-
-function copyDiscordTs(type){
-  const unix = getDiscordTsUnix();
-  const text = type === "unix" ? String(unix) : `<t:${unix}:${type}>`;
-
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(text);
-  }
-
-  if(typeof showToast === "function"){
-    showToast("Timestamp copied");
-  }
-}
 
 function showToast(text){
   const toast=document.getElementById("toast");
@@ -2354,13 +2150,13 @@ window.onload=function(){
   renderTimes();
   selectServer(currentServer);
   applyLanguage();
-  updateTimestampHelper();
+  updateDiscordTimestampPanel();
 };
 </script>
 
 
-<section id="discordTimestampHelper" class="discord-ts-panel">
-  <div class="discord-ts-panel-title">Discord Timestamp Helper</div>
+<section id="discordTimestampHelper" class="panel discord-ts-panel">
+  <div class="panel-title">Discord Timestamp Helper</div>
   <div class="discord-ts-top">
     <div>Format</div>
     <div>Preview</div>
@@ -2455,5 +2251,131 @@ window.onload=function(){
 </section>
 
 <div class="watermark">Made by <span>Focznik</span></div>
+
+<script>
+(function(){
+  function pad(n){ return String(n).padStart(2, "0"); }
+
+  function getUnix(){
+    const input = document.getElementById("time");
+    if(input && input.value){
+      const d = new Date(input.value);
+      if(!Number.isNaN(d.getTime())){
+        return Math.floor(d.getTime() / 1000);
+      }
+    }
+    return Math.floor(Date.now() / 1000);
+  }
+
+  function monthName(d){
+    return d.toLocaleDateString("en-US", {month:"long"});
+  }
+
+  function weekdayName(d){
+    return d.toLocaleDateString("en-US", {weekday:"long"});
+  }
+
+  function relativeText(d){
+    const diff = d.getTime() - Date.now();
+    const abs = Math.abs(diff);
+
+    const min = Math.round(abs / 60000);
+    const hour = Math.round(abs / 3600000);
+    const day = Math.round(abs / 86400000);
+    const month = Math.round(day / 30);
+    const year = Math.round(day / 365);
+
+    if(min < 1) return "now";
+    if(min < 60) return diff >= 0 ? `in ${min} minutes` : `${min} minutes ago`;
+    if(hour < 24) return diff >= 0 ? `in ${hour} hours` : `${hour} hours ago`;
+    if(day === 1) return diff >= 0 ? "tomorrow" : "yesterday";
+    if(day < 30) return diff >= 0 ? `in ${day} days` : `${day} days ago`;
+    if(month < 12) return diff >= 0 ? `in ${month} months` : `${month} months ago`;
+    return diff >= 0 ? `in ${year} years` : `${year} years ago`;
+  }
+
+  function set(id, text){
+    const el = document.getElementById(id);
+    if(el) el.textContent = text;
+  }
+
+  window.updateDiscordTimestampPanel = function(){
+    const unix = getUnix();
+    const d = new Date(unix * 1000);
+
+    const shortDate = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+    const longDate = `${d.getDate()} ${monthName(d)} ${d.getFullYear()}`;
+    const shortTime = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const longTime = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const shortDateTime = `${longDate} at ${shortTime}`;
+    const longDateTime = `${weekdayName(d)}, ${d.getDate()} ${monthName(d)} ${d.getFullYear()} at ${shortTime}`;
+    const relative = relativeText(d);
+
+    const formats = {
+      d: shortDate,
+      D: longDate,
+      t: shortTime,
+      T: longTime,
+      f: shortDateTime,
+      F: longDateTime,
+      R: relative,
+      unix: String(unix)
+    };
+
+    ["d","D","t","T","f","F","R"].forEach(type => {
+      set("dt-code-" + type, `<t:${unix}:${type}>`);
+      set("dt-prev-" + type, formats[type]);
+    });
+
+    set("dt-code-unix", String(unix));
+    set("dt-prev-unix", String(unix));
+  };
+
+  window.copyDiscordTs = function(type){
+    const unix = getUnix();
+    const text = type === "unix" ? String(unix) : `<t:${unix}:${type}>`;
+
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text);
+    }
+
+    if(typeof showToast === "function"){
+      showToast("Timestamp copied");
+    }else{
+      alert("Copied: " + text);
+    }
+  };
+
+  function hook(){
+    updateDiscordTimestampPanel();
+
+    const input = document.getElementById("time");
+    if(input){
+      input.addEventListener("input", updateDiscordTimestampPanel);
+      input.addEventListener("change", updateDiscordTimestampPanel);
+      input.addEventListener("blur", updateDiscordTimestampPanel);
+    }
+
+    document.querySelectorAll(".time-btn,.lobby-btn,.server-btn,.small-btn").forEach(btn=>{
+      btn.addEventListener("click", function(){
+        setTimeout(updateDiscordTimestampPanel, 30);
+        setTimeout(updateDiscordTimestampPanel, 200);
+      });
+    });
+
+    // refresh relative time sometimes
+    setInterval(updateDiscordTimestampPanel, 30000);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", hook);
+  }else{
+    hook();
+  }
+
+  window.addEventListener("load", updateDiscordTimestampPanel);
+})();
+</script>
+
 </body>
 </html>
