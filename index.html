@@ -521,6 +521,24 @@ textarea:focus{
   border-color:var(--theme);
 }
 
+
+.watermark{
+  position:fixed;
+  right:18px;
+  bottom:12px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1px;
+  color:rgba(255,255,255,.35);
+  pointer-events:none;
+  user-select:none;
+  text-transform:uppercase;
+  z-index:9999;
+}
+.watermark span{
+  color:var(--theme);
+}
+
 </style>
 </head>
 <body data-theme="div0">
@@ -1387,5 +1405,7 @@ window.onload=function(){
   applyLanguage();
 };
 </script>
+
+<div class="watermark">Made by <span>Focznik</span></div>
 </body>
 </html>
