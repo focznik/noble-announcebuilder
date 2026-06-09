@@ -1396,6 +1396,8 @@ const translations = {
     reloadThirdLobby:"Reload 3rd Lobby",
     ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1st Lobby",
+    lateNightSecondLobby:"Late Night 2nd Lobby",
     copied:"Copied",
     announcementCopied:"Announcement copied",
     regCopied:"Registration timestamp copied",
@@ -1427,6 +1429,8 @@ const translations = {
     reloadThirdLobby:"Reload 3rd Lobby",
     ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1st Lobby",
+    lateNightSecondLobby:"Late Night 2nd Lobby",
     copied:"Skopiowano",
     announcementCopied:"Announcement skopiowany",
     regCopied:"Registration timestamp skopiowany",
@@ -1458,6 +1462,8 @@ const translations = {
     reloadThirdLobby:"Reload 3rd Lobby",
     ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1st Lobby",
+    lateNightSecondLobby:"Late Night 2nd Lobby",
     copied:"Copiato",
     announcementCopied:"Announcement copiato",
     regCopied:"Timestamp registrazione copiato",
@@ -1489,6 +1495,8 @@ const translations = {
     reloadThirdLobby:"Reload 3rd Lobby",
     ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1st Lobby",
+    lateNightSecondLobby:"Late Night 2nd Lobby",
     copied:"Kopiert",
     announcementCopied:"Announcement kopiert",
     regCopied:"Registration-Timestamp kopiert",
@@ -1520,6 +1528,8 @@ const translations = {
     reloadThirdLobby:"Reload 3rd Lobby",
     ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1st Lobby",
+    lateNightSecondLobby:"Late Night 2nd Lobby",
     copied:"Скопировано",
     announcementCopied:"Announcement скопирован",
     regCopied:"Timestamp регистрации скопирован",
@@ -1542,7 +1552,9 @@ function getLobbyName(lobby){
     "reload2":"reloadSecondLobby",
     "reload3":"reloadThirdLobby",
     "ladder":"ladderLobby",
-    "power":"powerWeekend"
+    "power":"powerWeekend",
+    "latenight1":"lateNightFirstLobby",
+    "latenight2":"lateNightSecondLobby"
   };
   return t(names[lobby]);
 }
@@ -1648,7 +1660,7 @@ function getLobbyOffset(){
     return 0;
   }
 
-  if(currentLobby === "2" || currentLobby === "reload2") return 5;
+  if(currentLobby === "2" || currentLobby === "reload2" || currentLobby === "latenight2") return 5;
   if(currentLobby === "3" || currentLobby === "reload3") return 10;
   return 0;
 }
@@ -1670,9 +1682,11 @@ function selectServer(server){
 
   const availableReload = (server === "div0" || server === "div3");
   const availableLadder = (server === "div3");
+  const availableLateNight = (server === "div0");
   if(server !== "solos" && currentLobby === "power") currentLobby = "1";
   if(!availableReload && isReloadLobby()) currentLobby = "1";
   if(!availableLadder && currentLobby === "ladder") currentLobby = "1";
+  if(!availableLateNight && (currentLobby === "latenight1" || currentLobby === "latenight2")) currentLobby = "1";
 
   localStorage.setItem("noble_lobby", currentLobby);
 
@@ -1713,7 +1727,7 @@ function renderLobby(){
   let options = ["1","2","3"];
 
   if(currentServer === "div0"){
-    options = ["1","2","3","reload1","reload2","reload3"];
+    options = ["1","2","3","reload1","reload2","reload3","latenight1","latenight2"];
   }
 
   if(currentServer === "div3"){
@@ -1733,7 +1747,8 @@ function renderLobby(){
     const btn = document.createElement("button");
     const reloadClass = lobby.startsWith("reload") ? " reload" : "";
     const ladderClass = lobby === "ladder" ? " ladder" : "";
-    btn.className = "lobby-btn" + reloadClass + ladderClass + (currentLobby === lobby ? " active" : "");
+    const lateNightClass = lobby.startsWith("latenight") ? " ladder" : "";
+    btn.className = "lobby-btn" + reloadClass + ladderClass + lateNightClass + (currentLobby === lobby ? " active" : "");
     btn.textContent = getLobbyName(lobby);
     btn.onclick = () => selectLobby(lobby);
     grid.appendChild(btn);
@@ -1790,6 +1805,42 @@ Required at least **25+ Reacts** (1 per duo)
 **50+ Reacts** for a second lobby ^`;
 }
 
+
+function generateLateNightMessage(reg, firstGame, hostMention){
+  const arrow = "<:ArrowRight:1398422494817419385>";
+
+  if(currentLobby === "latenight2"){
+    return `@everyone 
+
+**Noble Division 0 Practice Late Night Session ( 2 GAMES )**
+
+**Second Lobby**
+
+${arrow} Registration opens @ <t:${reg}:t>
+
+${arrow} First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: ${hostMention}, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+  }
+
+  return `@everyone 
+
+**Noble Division 0 Practice Late Night Session ( 2 GAMES )**
+
+${arrow} Registration opens @ <t:${reg}:t>
+
+${arrow} First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• Session lasts 2 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#1282840995846950962>, <#1282841044521717761> & <#1282841572336996372> before the games.
+
+Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
+}
+
 function generate(){
   const time=document.getElementById("time").value;
   const hostMention=getHostMention();
@@ -1807,7 +1858,11 @@ function generate(){
   let msg="";
   const lobby = currentLobby;
 
-  if(currentServer==="div0" && isReloadLobby()){
+  if(currentServer==="div0" && (currentLobby === "latenight1" || currentLobby === "latenight2")){
+    msg = generateLateNightMessage(reg, firstGame, hostMention);
+  }
+
+  else if(currentServer==="div0" && isReloadLobby()){
     msg = generateReloadMessage("Noble Division 0 Practice Session (Reload)", reg, firstGame, hostMention);
   }
 
