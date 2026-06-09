@@ -1559,11 +1559,11 @@ select{
           </div>
           <div>
             <label data-i18n="hostOfSession">Host Of Session</label>
-            <input id="userid" value="1057478252865798174" placeholder="Main host Discord ID" oninput="clearActiveTime(); generate(); updateDiscordTimestampPanel()">
+            <input id="userid" value="1057478252865798174" placeholder="Main host Discord ID" data-i18n-placeholder="mainHostPlaceholder" oninput="clearActiveTime(); generate(); updateDiscordTimestampPanel()">
           </div>
           <div>
             <label data-i18n="coHostOfSession">Co-Host Of Session</label>
-            <input id="cohostid" placeholder="Optional co-host Discord ID" oninput="clearActiveTime(); generate(); updateDiscordTimestampPanel()">
+            <input id="cohostid" placeholder="Optional co-host Discord ID" data-i18n-placeholder="coHostPlaceholder" oninput="clearActiveTime(); generate(); updateDiscordTimestampPanel()">
           </div>
         </div>
 
@@ -1574,8 +1574,8 @@ select{
 
         <div class="help-row">
           <button class="small-btn" onclick="setNow()" data-i18n="useCurrentTime">Use current time</button>
-          <button class="small-btn" onclick="addMinutes(15)">+15 min</button>
-          <button class="small-btn" onclick="addMinutes(20)">+20 min</button>
+          <button class="small-btn" onclick="addMinutes(15)" data-i18n="plus15">+15 min</button>
+          <button class="small-btn" onclick="addMinutes(20)" data-i18n="plus20">+20 min</button>
         </div>
       </section>
 
@@ -1640,6 +1640,37 @@ const translations = {
     powerWeekend:"Power Weekend",
     lateNightFirstLobby:"Late Night 1st Lobby",
     lateNightSecondLobby:"Late Night 2nd Lobby",
+    timestampHelper:"Discord Timestamp Helper",
+    format:"Format",
+    preview:"Preview",
+    shortDate:"Short Date",
+    longDate:"Long Date",
+    shortTime:"Short Time",
+    longTime:"Long Time",
+    shortDateTime:"Short Date/Time",
+    longDateTime:"Long Date/Time",
+    relativeTime:"Relative Time",
+    unixTimestamp:"Unix Timestamp",
+    mainHostPlaceholder:"Main host Discord ID",
+    coHostPlaceholder:"Optional co-host Discord ID",
+    plus15:"+15 min",
+    plus20:"+20 min",
+    madeBy:"Made by",
+    now:"now",
+    inMinutes:"in {n} minutes",
+    minutesAgo:"{n} minutes ago",
+    inHours:"in {n} hours",
+    hoursAgo:"{n} hours ago",
+    tomorrow:"tomorrow",
+    yesterday:"yesterday",
+    inDays:"in {n} days",
+    daysAgo:"{n} days ago",
+    inMonths:"in {n} months",
+    monthsAgo:"{n} months ago",
+    inYears:"in {n} years",
+    yearsAgo:"{n} years ago",
+    at:"at",
+    timestampCopied:"Timestamp copied",
     copied:"Copied",
     announcementCopied:"Announcement copied",
     regCopied:"Registration timestamp copied",
@@ -1651,32 +1682,63 @@ const translations = {
     language:"Język strony",
     servers:"Serwery",
     setup:"Ustawienia",
-    registrationOpens:"Registration opens",
-    hostOfSession:"Host Of Session",
-    coHostOfSession:"Co-Host Of Session",
+    registrationOpens:"Otwarcie zapisów",
+    hostOfSession:"Host sesji",
+    coHostOfSession:"Co-host sesji",
     sessionNumber:"Numer sesji 24/7",
     useCurrentTime:"Użyj aktualnego czasu",
     quickHours:"Szybkie godziny",
     lobbyType:"Lobby / Typ",
     generatedMessage:"Wygenerowana wiadomość",
-    copyAnnouncement:"Kopiuj Announcement",
-    copyRegTimestamp:"Kopiuj Reg Timestamp",
-    copyGameTimestamp:"Kopiuj Game Timestamp",
-    firstGame:"First game",
-    firstLobby:"First Lobby",
-    secondLobby:"Second Lobby",
-    thirdLobby:"Third Lobby",
+    copyAnnouncement:"Kopiuj wiadomość",
+    copyRegTimestamp:"Kopiuj timestamp zapisów",
+    copyGameTimestamp:"Kopiuj timestamp gry",
+    firstGame:"Pierwsza gra",
+    firstLobby:"Pierwsze lobby",
+    secondLobby:"Drugie lobby",
+    thirdLobby:"Trzecie lobby",
     reloadLobby:"Reload",
-    reloadSecondLobby:"Reload 2nd Lobby",
-    reloadThirdLobby:"Reload 3rd Lobby",
+    reloadSecondLobby:"Reload 2. lobby",
+    reloadThirdLobby:"Reload 3. lobby",
     ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
-    lateNightFirstLobby:"Late Night 1st Lobby",
-    lateNightSecondLobby:"Late Night 2nd Lobby",
+    lateNightFirstLobby:"Late Night 1. lobby",
+    lateNightSecondLobby:"Late Night 2. lobby",
+    timestampHelper:"Pomocnik timestampów Discord",
+    format:"Format",
+    preview:"Podgląd",
+    shortDate:"Krótka data",
+    longDate:"Długa data",
+    shortTime:"Krótka godzina",
+    longTime:"Długa godzina",
+    shortDateTime:"Krótka data/godzina",
+    longDateTime:"Długa data/godzina",
+    relativeTime:"Czas względny",
+    unixTimestamp:"Timestamp Unix",
+    mainHostPlaceholder:"ID głównego hosta Discord",
+    coHostPlaceholder:"Opcjonalne ID co-hosta Discord",
+    plus15:"+15 min",
+    plus20:"+20 min",
+    madeBy:"Stworzone przez",
+    now:"teraz",
+    inMinutes:"za {n} min",
+    minutesAgo:"{n} min temu",
+    inHours:"za {n} godz.",
+    hoursAgo:"{n} godz. temu",
+    tomorrow:"jutro",
+    yesterday:"wczoraj",
+    inDays:"za {n} dni",
+    daysAgo:"{n} dni temu",
+    inMonths:"za {n} mies.",
+    monthsAgo:"{n} mies. temu",
+    inYears:"za {n} lat",
+    yearsAgo:"{n} lat temu",
+    at:"o",
+    timestampCopied:"Timestamp skopiowany",
     copied:"Skopiowano",
-    announcementCopied:"Announcement skopiowany",
-    regCopied:"Registration timestamp skopiowany",
-    gameCopied:"First game timestamp skopiowany"
+    announcementCopied:"Wiadomość skopiowana",
+    regCopied:"Timestamp zapisów skopiowany",
+    gameCopied:"Timestamp pierwszej gry skopiowany"
   },
   it:{
     title:"⚡ Noble Announcement Builder",
@@ -1700,12 +1762,43 @@ const translations = {
     secondLobby:"Seconda lobby",
     thirdLobby:"Terza lobby",
     reloadLobby:"Reload",
-    reloadSecondLobby:"Reload 2nd Lobby",
-    reloadThirdLobby:"Reload 3rd Lobby",
+    reloadSecondLobby:"Reload 2ª lobby",
+    reloadThirdLobby:"Reload 3ª lobby",
     ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
-    lateNightFirstLobby:"Late Night 1st Lobby",
-    lateNightSecondLobby:"Late Night 2nd Lobby",
+    lateNightFirstLobby:"Late Night 1ª lobby",
+    lateNightSecondLobby:"Late Night 2ª lobby",
+    timestampHelper:"Helper timestamp Discord",
+    format:"Formato",
+    preview:"Anteprima",
+    shortDate:"Data breve",
+    longDate:"Data lunga",
+    shortTime:"Ora breve",
+    longTime:"Ora lunga",
+    shortDateTime:"Data/ora breve",
+    longDateTime:"Data/ora lunga",
+    relativeTime:"Tempo relativo",
+    unixTimestamp:"Timestamp Unix",
+    mainHostPlaceholder:"ID Discord host principale",
+    coHostPlaceholder:"ID Discord co-host opzionale",
+    plus15:"+15 min",
+    plus20:"+20 min",
+    madeBy:"Creato da",
+    now:"adesso",
+    inMinutes:"tra {n} minuti",
+    minutesAgo:"{n} minuti fa",
+    inHours:"tra {n} ore",
+    hoursAgo:"{n} ore fa",
+    tomorrow:"domani",
+    yesterday:"ieri",
+    inDays:"tra {n} giorni",
+    daysAgo:"{n} giorni fa",
+    inMonths:"tra {n} mesi",
+    monthsAgo:"{n} mesi fa",
+    inYears:"tra {n} anni",
+    yearsAgo:"{n} anni fa",
+    at:"alle",
+    timestampCopied:"Timestamp copiato",
     copied:"Copiato",
     announcementCopied:"Announcement copiato",
     regCopied:"Timestamp registrazione copiato",
@@ -1733,12 +1826,43 @@ const translations = {
     secondLobby:"Zweite Lobby",
     thirdLobby:"Dritte Lobby",
     reloadLobby:"Reload",
-    reloadSecondLobby:"Reload 2nd Lobby",
-    reloadThirdLobby:"Reload 3rd Lobby",
+    reloadSecondLobby:"Reload 2. Lobby",
+    reloadThirdLobby:"Reload 3. Lobby",
     ladderLobby:"Ladder",
     powerWeekend:"Power Weekend",
-    lateNightFirstLobby:"Late Night 1st Lobby",
-    lateNightSecondLobby:"Late Night 2nd Lobby",
+    lateNightFirstLobby:"Late Night 1. Lobby",
+    lateNightSecondLobby:"Late Night 2. Lobby",
+    timestampHelper:"Discord-Timestamp-Helfer",
+    format:"Format",
+    preview:"Vorschau",
+    shortDate:"Kurzes Datum",
+    longDate:"Langes Datum",
+    shortTime:"Kurze Uhrzeit",
+    longTime:"Lange Uhrzeit",
+    shortDateTime:"Kurzes Datum/Uhrzeit",
+    longDateTime:"Langes Datum/Uhrzeit",
+    relativeTime:"Relative Zeit",
+    unixTimestamp:"Unix-Timestamp",
+    mainHostPlaceholder:"Discord-ID des Haupt-Hosts",
+    coHostPlaceholder:"Optionale Discord-ID des Co-Hosts",
+    plus15:"+15 Min.",
+    plus20:"+20 Min.",
+    madeBy:"Erstellt von",
+    now:"jetzt",
+    inMinutes:"in {n} Minuten",
+    minutesAgo:"vor {n} Minuten",
+    inHours:"in {n} Stunden",
+    hoursAgo:"vor {n} Stunden",
+    tomorrow:"morgen",
+    yesterday:"gestern",
+    inDays:"in {n} Tagen",
+    daysAgo:"vor {n} Tagen",
+    inMonths:"in {n} Monaten",
+    monthsAgo:"vor {n} Monaten",
+    inYears:"in {n} Jahren",
+    yearsAgo:"vor {n} Jahren",
+    at:"um",
+    timestampCopied:"Timestamp kopiert",
     copied:"Kopiert",
     announcementCopied:"Announcement kopiert",
     regCopied:"Registration-Timestamp kopiert",
@@ -1765,13 +1889,44 @@ const translations = {
     firstLobby:"Первое лобби",
     secondLobby:"Второе лобби",
     thirdLobby:"Третье лобби",
-    reloadLobby:"Reload",
-    reloadSecondLobby:"Reload 2nd Lobby",
-    reloadThirdLobby:"Reload 3rd Lobby",
-    ladderLobby:"Ladder",
+    reloadLobby:"Перезагрузка",
+    reloadSecondLobby:"Перезагрузка 2-го лобби",
+    reloadThirdLobby:"Перезагрузка 3-го лобби",
+    ladderLobby:"Ладдер",
     powerWeekend:"Power Weekend",
-    lateNightFirstLobby:"Late Night 1st Lobby",
-    lateNightSecondLobby:"Late Night 2nd Lobby",
+    lateNightFirstLobby:"Ночное 1-е лобби",
+    lateNightSecondLobby:"Ночное 2-е лобби",
+    timestampHelper:"Помощник timestamp Discord",
+    format:"Формат",
+    preview:"Предпросмотр",
+    shortDate:"Короткая дата",
+    longDate:"Длинная дата",
+    shortTime:"Короткое время",
+    longTime:"Длинное время",
+    shortDateTime:"Короткая дата/время",
+    longDateTime:"Длинная дата/время",
+    relativeTime:"Относительное время",
+    unixTimestamp:"Unix timestamp",
+    mainHostPlaceholder:"Discord ID главного хоста",
+    coHostPlaceholder:"Необязательный Discord ID co-host",
+    plus15:"+15 мин",
+    plus20:"+20 мин",
+    madeBy:"Сделал",
+    now:"сейчас",
+    inMinutes:"через {n} мин",
+    minutesAgo:"{n} мин назад",
+    inHours:"через {n} ч",
+    hoursAgo:"{n} ч назад",
+    tomorrow:"завтра",
+    yesterday:"вчера",
+    inDays:"через {n} дн.",
+    daysAgo:"{n} дн. назад",
+    inMonths:"через {n} мес.",
+    monthsAgo:"{n} мес. назад",
+    inYears:"через {n} лет",
+    yearsAgo:"{n} лет назад",
+    at:"в",
+    timestampCopied:"Timestamp скопирован",
     copied:"Скопировано",
     announcementCopied:"Announcement скопирован",
     regCopied:"Timestamp регистрации скопирован",
@@ -1812,8 +1967,14 @@ function applyLanguage(){
     const key = el.dataset.i18n;
     el.textContent = t(key);
   });
-  document.getElementById("delayBadge").textContent = t("firstGame") + ": +" + getDelay() + " min";
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+    const key = el.dataset.i18nPlaceholder;
+    el.placeholder = t(key);
+  });
+  const delayBadge = document.getElementById("delayBadge");
+  if(delayBadge) delayBadge.textContent = t("firstGame") + ": +" + getDelay() + " min";
   renderLobby();
+  if(typeof updateDiscordTimestampPanel === "function") updateDiscordTimestampPanel();
 }
 
 
@@ -2483,10 +2644,10 @@ window.onload=function(){
 
 
 <section id="discordTimestampHelper" class="panel discord-ts-panel">
-  <div class="panel-title">Discord Timestamp Helper</div>
+  <div class="panel-title" data-i18n="timestampHelper">Discord Timestamp Helper</div>
   <div class="discord-ts-top">
-    <div>Format</div>
-    <div>Preview</div>
+    <div data-i18n="format">Format</div>
+    <div data-i18n="preview">Preview</div>
   </div>
 
   <div class="discord-ts-body">
@@ -2494,7 +2655,7 @@ window.onload=function(){
       <div class="discord-ts-row">
         <div class="discord-ts-ico">📅</div>
         <div>
-          <div class="discord-ts-label">Short Date</div>
+          <div class="discord-ts-label" data-i18n="shortDate">Short Date</div>
           <div class="discord-ts-code" id="dt-code-d">&lt;t:0:d&gt;</div>
         </div>
         <button class="discord-ts-copy" onclick="copyDiscordTs('d')">⧉</button>
@@ -2503,7 +2664,7 @@ window.onload=function(){
       <div class="discord-ts-row">
         <div class="discord-ts-ico">📅</div>
         <div>
-          <div class="discord-ts-label">Long Date</div>
+          <div class="discord-ts-label" data-i18n="longDate">Long Date</div>
           <div class="discord-ts-code" id="dt-code-D">&lt;t:0:D&gt;</div>
         </div>
         <button class="discord-ts-copy" onclick="copyDiscordTs('D')">⧉</button>
@@ -2512,7 +2673,7 @@ window.onload=function(){
       <div class="discord-ts-row">
         <div class="discord-ts-ico">🕒</div>
         <div>
-          <div class="discord-ts-label">Short Time</div>
+          <div class="discord-ts-label" data-i18n="shortTime">Short Time</div>
           <div class="discord-ts-code" id="dt-code-t">&lt;t:0:t&gt;</div>
         </div>
         <button class="discord-ts-copy" onclick="copyDiscordTs('t')">⧉</button>
@@ -2521,7 +2682,7 @@ window.onload=function(){
       <div class="discord-ts-row">
         <div class="discord-ts-ico">🕒</div>
         <div>
-          <div class="discord-ts-label">Long Time</div>
+          <div class="discord-ts-label" data-i18n="longTime">Long Time</div>
           <div class="discord-ts-code" id="dt-code-T">&lt;t:0:T&gt;</div>
         </div>
         <button class="discord-ts-copy" onclick="copyDiscordTs('T')">⧉</button>
@@ -2530,7 +2691,7 @@ window.onload=function(){
       <div class="discord-ts-row">
         <div class="discord-ts-ico">📆</div>
         <div>
-          <div class="discord-ts-label">Short Date/Time</div>
+          <div class="discord-ts-label" data-i18n="shortDateTime">Short Date/Time</div>
           <div class="discord-ts-code" id="dt-code-f">&lt;t:0:f&gt;</div>
         </div>
         <button class="discord-ts-copy" onclick="copyDiscordTs('f')">⧉</button>
@@ -2539,7 +2700,7 @@ window.onload=function(){
       <div class="discord-ts-row">
         <div class="discord-ts-ico">📆</div>
         <div>
-          <div class="discord-ts-label">Long Date/Time</div>
+          <div class="discord-ts-label" data-i18n="longDateTime">Long Date/Time</div>
           <div class="discord-ts-code" id="dt-code-F">&lt;t:0:F&gt;</div>
         </div>
         <button class="discord-ts-copy" onclick="copyDiscordTs('F')">⧉</button>
@@ -2548,7 +2709,7 @@ window.onload=function(){
       <div class="discord-ts-row">
         <div class="discord-ts-ico">🕒</div>
         <div>
-          <div class="discord-ts-label">Relative Time</div>
+          <div class="discord-ts-label" data-i18n="relativeTime">Relative Time</div>
           <div class="discord-ts-code" id="dt-code-R">&lt;t:0:R&gt;</div>
         </div>
         <button class="discord-ts-copy" onclick="copyDiscordTs('R')">⧉</button>
@@ -2557,7 +2718,7 @@ window.onload=function(){
       <div class="discord-ts-row">
         <div class="discord-ts-ico">&lt;&gt;</div>
         <div>
-          <div class="discord-ts-label">Unix Timestamp</div>
+          <div class="discord-ts-label" data-i18n="unixTimestamp">Unix Timestamp</div>
           <div class="discord-ts-code" id="dt-code-unix">0</div>
         </div>
         <button class="discord-ts-copy" onclick="copyDiscordTs('unix')">⧉</button>
@@ -2577,7 +2738,7 @@ window.onload=function(){
   </div>
 </section>
 
-<div class="watermark">Made by <span>Focznik</span></div>
+<div class="watermark"><span data-i18n="madeBy">Made by</span> <span>Focznik</span></div>
 
 <script>
 (function(){
@@ -2594,12 +2755,21 @@ window.onload=function(){
     return Math.floor(Date.now() / 1000);
   }
 
+  function localeCode(){
+    const map = {en:"en-GB", pl:"pl-PL", it:"it-IT", de:"de-DE", ru:"ru-RU"};
+    return map[currentLanguage] || "en-GB";
+  }
+
   function monthName(d){
-    return d.toLocaleDateString("en-US", {month:"long"});
+    return d.toLocaleDateString(localeCode(), {month:"long"});
   }
 
   function weekdayName(d){
-    return d.toLocaleDateString("en-US", {weekday:"long"});
+    return d.toLocaleDateString(localeCode(), {weekday:"long"});
+  }
+
+  function fill(key, n){
+    return t(key).replace("{n}", n);
   }
 
   function relativeText(d){
@@ -2612,13 +2782,13 @@ window.onload=function(){
     const month = Math.round(day / 30);
     const year = Math.round(day / 365);
 
-    if(min < 1) return "now";
-    if(min < 60) return diff >= 0 ? `in ${min} minutes` : `${min} minutes ago`;
-    if(hour < 24) return diff >= 0 ? `in ${hour} hours` : `${hour} hours ago`;
-    if(day === 1) return diff >= 0 ? "tomorrow" : "yesterday";
-    if(day < 30) return diff >= 0 ? `in ${day} days` : `${day} days ago`;
-    if(month < 12) return diff >= 0 ? `in ${month} months` : `${month} months ago`;
-    return diff >= 0 ? `in ${year} years` : `${year} years ago`;
+    if(min < 1) return t("now");
+    if(min < 60) return diff >= 0 ? fill("inMinutes", min) : fill("minutesAgo", min);
+    if(hour < 24) return diff >= 0 ? fill("inHours", hour) : fill("hoursAgo", hour);
+    if(day === 1) return diff >= 0 ? t("tomorrow") : t("yesterday");
+    if(day < 30) return diff >= 0 ? fill("inDays", day) : fill("daysAgo", day);
+    if(month < 12) return diff >= 0 ? fill("inMonths", month) : fill("monthsAgo", month);
+    return diff >= 0 ? fill("inYears", year) : fill("yearsAgo", year);
   }
 
   function set(id, text){
@@ -2630,12 +2800,12 @@ window.onload=function(){
     const unix = getUnix();
     const d = new Date(unix * 1000);
 
-    const shortDate = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
-    const longDate = `${d.getDate()} ${monthName(d)} ${d.getFullYear()}`;
+    const shortDate = d.toLocaleDateString(localeCode(), {day:"2-digit", month:"2-digit", year:"numeric"});
+    const longDate = d.toLocaleDateString(localeCode(), {day:"numeric", month:"long", year:"numeric"});
     const shortTime = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
     const longTime = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    const shortDateTime = `${longDate} at ${shortTime}`;
-    const longDateTime = `${weekdayName(d)}, ${d.getDate()} ${monthName(d)} ${d.getFullYear()} at ${shortTime}`;
+    const shortDateTime = `${longDate} ${t("at")} ${shortTime}`;
+    const longDateTime = `${weekdayName(d)}, ${longDate} ${t("at")} ${shortTime}`;
     const relative = relativeText(d);
 
     const formats = {
@@ -2667,9 +2837,9 @@ window.onload=function(){
     }
 
     if(typeof showToast === "function"){
-      showToast("Timestamp copied");
-    }else{
-      alert("Copied: " + text);
+      showToast(t("timestampCopied"));
+     }else{
+      alert(t("copied") + ": " + text);
     }
   };
 
