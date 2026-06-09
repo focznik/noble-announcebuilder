@@ -304,6 +304,17 @@ input:focus{
   box-shadow:inset 0 -3px 0 #fbbf24;
 }
 
+.lobby-btn.latenight{
+  border-color:#6366f1;
+  background:#0f1230;
+}
+
+.lobby-btn.latenight.active{
+  border-color:#818cf8;
+  background:#1e1b4b;
+  box-shadow:inset 0 -3px 0 #818cf8;
+}
+
 .help-row{
   display:flex;
   gap:8px;
@@ -397,8 +408,6 @@ body[data-theme="div0"]{
   --theme-soft:rgba(217,70,239,.16);
   --theme-border:rgba(217,70,239,.75);
 }
-
-
 
 body[data-theme="latenight"]{
   --theme:#6366f1;
@@ -1684,9 +1693,17 @@ function reloadLobbyTitle(){
   return "";
 }
 
+function applyTheme(){
+  if(currentServer === "div0" && (currentLobby === "latenight1" || currentLobby === "latenight2")){
+    document.body.setAttribute("data-theme", "latenight");
+  }else{
+    document.body.setAttribute("data-theme", currentServer);
+  }
+}
+
 function selectServer(server){
   currentServer = server;
-  document.body.setAttribute("data-theme", server);
+  applyTheme();
   localStorage.setItem("noble_server", server);
 
   const availableReload = (server === "div0" || server === "div3");
@@ -1698,6 +1715,7 @@ function selectServer(server){
   if(!availableLateNight && (currentLobby === "latenight1" || currentLobby === "latenight2")) currentLobby = "1";
 
   localStorage.setItem("noble_lobby", currentLobby);
+  applyTheme();
 
   document.querySelectorAll(".server-btn").forEach(btn=>{
     btn.classList.toggle("active", btn.dataset.server === server);
@@ -1713,6 +1731,7 @@ function selectServer(server){
 function selectLobby(lobby){
   currentLobby = lobby;
   localStorage.setItem("noble_lobby", lobby);
+  applyTheme();
   renderLobby();
   generate();
 }
@@ -1756,7 +1775,7 @@ function renderLobby(){
     const btn = document.createElement("button");
     const reloadClass = lobby.startsWith("reload") ? " reload" : "";
     const ladderClass = lobby === "ladder" ? " ladder" : "";
-    const lateNightClass = lobby.startsWith("latenight") ? " ladder" : "";
+    const lateNightClass = lobby.startsWith("latenight") ? " latenight" : "";
     btn.className = "lobby-btn" + reloadClass + ladderClass + lateNightClass + (currentLobby === lobby ? " active" : "");
     btn.textContent = getLobbyName(lobby);
     btn.onclick = () => selectLobby(lobby);
@@ -1764,7 +1783,27 @@ function renderLobby(){
   });
 }
 
-function generateReloadMessage(title, reg, firstGame, hostMention){
+function generateReloadMessage(title, reg, firstGame, hostMention, server){
+  const arrow = "<:ArrowRight:1398422494817419385>";
+
+  if(server === "div0" && currentLobby === "reload1"){
+    return `@everyone 
+
+**Noble Division 0 Practice Session (Reload)**
+
+${arrow} Registration opens <t:${reg}:t>
+
+${arrow} First Game Commences <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}   Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read ⁠⁠<#1282840995846950962>, ⁠⁠<#1282841044521717761> & ⁠⁠<#1282841572336996372> before the games.
+
+Required at least **25+ Reacts** (1 per duo)
+**50+ Reacts** for a second lobby`;
+  }
+
   if(currentLobby === "reload2"){
     return `@everyone 
 
@@ -1872,7 +1911,7 @@ function generate(){
   }
 
   else if(currentServer==="div0" && isReloadLobby()){
-    msg = generateReloadMessage("Noble Division 0 Practice Session (Reload)", reg, firstGame, hostMention);
+    msg = generateReloadMessage("Noble Division 0 Practice Session (Reload)", reg, firstGame, hostMention, currentServer);
   }
 
   else if(currentServer==="div3" && currentLobby==="ladder"){
@@ -1894,7 +1933,7 @@ Required at least **55+ Reacts** (1 per duo)`;
   }
 
   else if(currentServer==="div3" && isReloadLobby()){
-    msg = generateReloadMessage("Noble Division 3 Practice Session (Reload)", reg, firstGame, hostMention);
+    msg = generateReloadMessage("Noble Division 3 Practice Session (Reload)", reg, firstGame, hostMention, currentServer);
   }
 
   else if(currentServer==="div0"){
