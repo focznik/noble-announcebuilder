@@ -3078,7 +3078,7 @@ window.onload=function(){
 
     const banned = new Set([
       "rank","players","player","games","eliminations","wins","score","points",
-      "game","win","team","total","place","minutes","minute","mins",
+      "game","win","team","total","place","minutes","minute","mins","seconds","second","secs","sec",
       "yunite","tournaments","scrim","live","leaderboard","session","noble",
       "division","practice","format","preview","discord","timestamp","helper",
       "ready","mentions","copy","paste","first","second","third","lobby"
@@ -3093,7 +3093,7 @@ window.onload=function(){
       if(!n) return false;
       if(banned.has(n.toLowerCase())) return false;
       if(/^\d+$/.test(n)) return false;
-      if(/\d+\s*(minutes?|mins?|seconds?|hours?)/i.test(n)) return false;
+      if(/^(seconds?|secs?|sec|minutes?|mins?|hours?|hrs?)$/i.test(n)) return false;\n      if(/\d+\s*(seconds?|secs?|sec|minutes?|mins?|hours?|hrs?)/i.test(n)) return false;
       return /^[A-Za-z0-9._-]{3,32}$/.test(n);
     }
 
