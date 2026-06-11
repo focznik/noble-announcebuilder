@@ -3185,20 +3185,116 @@ window.onload=function(){
 
 <script>
 function extractYunitePlayers(raw){
-  const lines = raw.split(/
-?
-/).map(v=>v.trim()).filter(Boolean);
-  const bad = new Set(["rank","players","games","eliminations","wins","score","minutes","yunite","tournaments","scrim","live"]);
-  const out=[];
+  const banned = new Set(["rank","players","player","games","eliminations","wins","score","minutes","yunite","tournaments","scrim","live","first","second","third","lobby","lobbies","registration","opens","commences","format","preview","short","long","date","time","relative","unix","timestamp","helper","discord","ready","mentions","copy","paste","leaderboard","session","practice","division","noble"]);
+  const lines = raw.replace(/\r/g,"\n").replace(/[|+\t]/g,"\n").split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  const names = [];
   for(const line of lines){
-    const n=line.replace(/^@/,'').trim();
-    if(!/^[A-Za-z0-9._-]{3,32}$/.test(n)) continue;
-    if(bad.has(n.toLowerCase())) continue;
-    if(!out.includes(n)) out.push(n);
-    if(out.length===5) break;
+    const s = line.replace(/^#?\d+\s*/g,"").replace(/^@+/g,"").trim();
+    if(!s || banned.has(s.toLowerCase()) || /^\d+$/.test(s) || /minutes?|seconds?|hours?|ago/i.test(s)) continue;
+    if(/^[A-Za-z0-9._-]{3,32}$/.test(s) && !names.includes(s)) names.push(s);
+    if(names.length >= 5) break;
   }
-  return out;
+  return names;
 }
+</script>
+
+
+<script>
+(function(){
+  const BAD_WORDS = new Set([
+    "rank","players","player","games","eliminations","wins","score",
+    "yunite","tournaments","scrim","live","minutes","minute","mins",
+    "first","second","third","lobby","reload","ladder","format","preview",
+    "short","long","date","time","relative","unix","timestamp","helper",
+    "discord","ready","mentions","copy","paste","leaderboard","noble",
+    "division","practice","session","registration","opens","commences"
+  ]);
+
+  function cleanNick(value){
+    return String(value || "")
+      .replace(/^#?\d+\s*/g, "")
+      .replace(/^@+/g, "")
+      .replace(/[|+]/g, "")
+      .trim();
+  }
+
+  function isValidNick(nick){
+    if(!nick) return false;
+    if(BAD_WORDS.has(nick.toLowerCase())) return false;
+    if(/^\d+$/.test(nick)) return false;
+    if(/\d+\s*(minutes?|mins?|seconds?|hours?)/i.test(nick)) return false;
+    return /^[A-Za-z0-9._-]{3,32}$/.test(nick);
+  }
+
+  window.extractYunitePlayers = function(raw){
+    const text = String(raw || "").replace(/\r/g, "\n");
+
+    // Best case: copied left column, one username per line.
+    const lines = text.split(/\n+/).map(cleanNick).filter(Boolean);
+    const names = [];
+    for(const line of lines){
+      if(isValidNick(line) && !names.includes(line)){
+        names.push(line);
+        if(names.length === 5) return names;
+      }
+    }
+
+    // Fallback for full table rows: #1 username + teammate ...
+    const oneLine = text.replace(/\s+/g, " ");
+    const rankRegex = /#\s*[1-5]\s+([A-Za-z0-9._-]{3,32})/g;
+    let m;
+    while((m = rankRegex.exec(oneLine)) !== null){
+      const nick = cleanNick(m[1]);
+      if(isValidNick(nick) && !names.includes(nick)){
+        names.push(nick);
+        if(names.length === 5) break;
+      }
+    }
+    return names.slice(0,5);
+  };
+
+  window.renderYunitePlayers = function(players){
+    const output = document.getElementById("yuniteOutput") || document.querySelector(".yunite-output");
+    const list = document.getElementById("yuniteResultList") || document.querySelector(".yunite-result-list");
+    const finalText = players.length ? "!gt " + players.map(n => "@" + n).join(" ") : "";
+    if(output) output.value = finalText;
+
+    if(list){
+      list.innerHTML = "";
+      players.forEach((nick, index) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">#' + (index + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+    }
+  };
+
+  window.generateYuniteMentions = function(){
+    const input = document.getElementById("yuniteInput") || document.querySelector(".yunite-input");
+    const raw = input ? input.value : "";
+    const players = window.extractYunitePlayers(raw);
+    window.renderYunitePlayers(players);
+  };
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const input = document.getElementById("yuniteInput") || document.querySelector(".yunite-input");
+    if(input){
+      input.addEventListener("input", window.generateYuniteMentions);
+      input.addEventListener("paste", function(){
+        setTimeout(window.generateYuniteMentions, 0);
+      });
+    }
+
+    const buttons = Array.from(document.querySelectorAll("button"));
+    buttons.forEach(btn => {
+      const t = (btn.textContent || "").toLowerCase();
+      if(t.includes("extract") || t.includes("mention") || t.includes("generate")){
+        btn.addEventListener("click", window.generateYuniteMentions);
+      }
+    });
+  });
+})();
 </script>
 
 </body>
