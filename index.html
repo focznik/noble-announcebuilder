@@ -3111,13 +3111,18 @@ window.onload=function(){
       }
     }
 
+    // Prefer pure username lines like copied left leaderboard column
+    const usernameOnly = lines.filter(x=>/^[A-Za-z0-9._-]{3,32}$/.test(x));
+    if(usernameOnly.length>=5){
+      return usernameOnly.slice(0,5);
+    }
     return players.slice(0,5);
   }
 
   function render(players){
     const out = document.getElementById("yuniteOutput");
     const list = document.getElementById("yuniteResultList");
-    const mentions = players.map(n => "@" + n).join("\n");
+    const mentions = "!gt " + players.map(n => "@" + n).join(" ");
     if(out) out.value = mentions;
     if(list){
       list.innerHTML = players.map((n,i)=>
