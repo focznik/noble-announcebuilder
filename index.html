@@ -3070,52 +3070,101 @@ window.onload=function(){
 
   function parseLeaderboardText(text){
     const raw = String(text || "").replace(/\r/g, "\n");
-    const lines = raw.split("\n").map(x => x.trim()).filter(Boolean);
+
+    // Do not parse random webpage/header text from URLs as player names.
+    if(/^https?:\/\//i.test(raw.trim())){
+      return [];
+    }
+
+    const banned = new Set([
+      "rank","players","player","games","eliminations","wins","score","points",
+      "game","win","team","total","place","minutes","minute","mins",
+      "yunite","tournaments","scrim","live","leaderboard","session","noble",
+      "division","practice","format","preview","discord","timestamp","helper",
+      "ready","mentions","copy","paste","first","second","third","lobby"
+    ]);
+
+    function validNick(v){
+      const n = String(v || "")
+        .replace(/^@+/,"")
+        .replace(/[|+]/g,"")
+        .trim();
+
+      if(!n) return false;
+      if(banned.has(n.toLowerCase())) return false;
+      if(/^\d+$/.test(n)) return false;
+      if(/\d+\s*(minutes?|mins?|seconds?|hours?)/i.test(n)) return false;
+      return /^[A-Za-z0-9._-]{3,32}$/.test(n);
+    }
+
+    function cleanNick(v){
+      return String(v || "")
+        .replace(/^#?\d+\s*/,"")
+        .replace(/^@+/,"")
+        .replace(/[|+]/g,"")
+        .trim();
+    }
+
     const players = [];
-
-    function add(name){
-      name = cleanName(name);
-      if(!name || isBadToken(name)) return;
-      if(/^\d+$/.test(name)) return;
-      if(name.length > 32) return;
-      if(!players.includes(name)) players.push(name);
+    function add(v){
+      const n = cleanNick(v);
+      if(validNick(n) && !players.includes(n)){
+        players.push(n);
+      }
     }
 
-    // Strong pattern for rows like: #1 sweatytate + xenkru_ 3 20 1 145
-    for(const line of lines){
-      const m = line.match(/^#?\s*([1-5])\s+(.+?)\s+(?:\+|\s{2,}|\t)/);
-      if(m) add(m[2]);
+    const lines = raw
+      .split(/\n+/)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    // BEST: copied table where rank and player are on separate lines:
+    // #1
+    // sweatytate
+    for(let i = 0; i < lines.length; i++){
+      if(/^#?\s*[1-5]\s*$/.test(lines[i])){
+        for(let j = i + 1; j < Math.min(lines.length, i + 8); j++){
+          const candidate = cleanNick(lines[j]);
+          if(validNick(candidate)){
+            add(candidate);
+            break;
+          }
+        }
+      }
+      if(players.length >= 5) break;
     }
 
-    // If copied table creates one value per line: #1, sweatytate, +, xenkru_, 3...
-    for(let i=0;i<lines.length;i++){
-      const rank = lines[i].match(/^#?([1-5])$/);
-      if(rank && lines[i+1]) add(lines[i+1]);
-    }
-
-    // Fallback: detect first usable token after #1...#5 in whole text
+    // SECOND: row text like "#1 sweatytate + xenkru_ 3 20 1 145"
     if(players.length < 5){
-      const flat = raw.replace(/\s+/g, " ");
-      const re = /#?\s*([1-5])\s+([^\s]+(?:\s+[^\s+]+){0,2}?)(?=\s+\+|\s+#?\s*[1-5]\s+|\s+\d+\s+\d+\s+\d+\s+\d+|$)/g;
+      const rowRegex = /#\s*[1-5]\s+([A-Za-z0-9._-]{3,32})/g;
       let m;
-      while((m = re.exec(flat)) && players.length < 5){ add(m[2]); }
-    }
-
-    // Final fallback for pasted simple list of usernames
-    if(players.length < 5){
-      for(const line of lines){
-        if(line.startsWith("http")) continue;
-        const parts = line.split(/\s+/).filter(Boolean);
-        if(parts.length === 1) add(parts[0]);
+      const flat = raw.replace(/\s+/g, " ");
+      while((m = rowRegex.exec(flat)) !== null){
+        add(m[1]);
         if(players.length >= 5) break;
       }
     }
 
-    // Prefer pure username lines like copied left leaderboard column
-    const usernameOnly = lines.filter(x=>/^[A-Za-z0-9._-]{3,32}$/.test(x));
-    if(usernameOnly.length>=5){
-      return usernameOnly.slice(0,5);
+    // THIRD: plain pasted left column:
+    // sweatytate
+    // statiii
+    if(players.length < 5){
+      const pure = [];
+      for(const line of lines){
+        const candidate = cleanNick(line);
+        if(validNick(candidate) && !pure.includes(candidate)){
+          pure.push(candidate);
+        }
+      }
+
+      if(pure.length >= 5){
+        for(const n of pure){
+          add(n);
+          if(players.length >= 5) break;
+        }
+      }
     }
+
     return players.slice(0,5);
   }
 
@@ -3132,24 +3181,6 @@ window.onload=function(){
   }
 
   async function tryFetchLink(value){
-    const url = value.trim();
-    if(!/^https?:\/\//i.test(url)) return value;
-
-    const proxies = [
-      url,
-      "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
-      "https://r.jina.ai/http://r.jina.ai/http://" + url.replace(/^https?:\/\//i, "")
-    ];
-
-    for(const p of proxies){
-      try{
-        const res = await fetch(p, {method:"GET"});
-        if(res.ok){
-          const txt = await res.text();
-          if(txt && txt.length > 50) return txt;
-        }
-      }catch(e){}
-    }
     return value;
   }
 
@@ -3182,120 +3213,6 @@ window.onload=function(){
 })();
 </script>
 
-
-<script>
-function extractYunitePlayers(raw){
-  const banned = new Set(["rank","players","player","games","eliminations","wins","score","minutes","yunite","tournaments","scrim","live","first","second","third","lobby","lobbies","registration","opens","commences","format","preview","short","long","date","time","relative","unix","timestamp","helper","discord","ready","mentions","copy","paste","leaderboard","session","practice","division","noble"]);
-  const lines = raw.replace(/\r/g,"\n").replace(/[|+\t]/g,"\n").split(/\n+/).map(x=>x.trim()).filter(Boolean);
-  const names = [];
-  for(const line of lines){
-    const s = line.replace(/^#?\d+\s*/g,"").replace(/^@+/g,"").trim();
-    if(!s || banned.has(s.toLowerCase()) || /^\d+$/.test(s) || /minutes?|seconds?|hours?|ago/i.test(s)) continue;
-    if(/^[A-Za-z0-9._-]{3,32}$/.test(s) && !names.includes(s)) names.push(s);
-    if(names.length >= 5) break;
-  }
-  return names;
-}
-</script>
-
-
-<script>
-(function(){
-  const BAD_WORDS = new Set([
-    "rank","players","player","games","eliminations","wins","score",
-    "yunite","tournaments","scrim","live","minutes","minute","mins",
-    "first","second","third","lobby","reload","ladder","format","preview",
-    "short","long","date","time","relative","unix","timestamp","helper",
-    "discord","ready","mentions","copy","paste","leaderboard","noble",
-    "division","practice","session","registration","opens","commences"
-  ]);
-
-  function cleanNick(value){
-    return String(value || "")
-      .replace(/^#?\d+\s*/g, "")
-      .replace(/^@+/g, "")
-      .replace(/[|+]/g, "")
-      .trim();
-  }
-
-  function isValidNick(nick){
-    if(!nick) return false;
-    if(BAD_WORDS.has(nick.toLowerCase())) return false;
-    if(/^\d+$/.test(nick)) return false;
-    if(/\d+\s*(minutes?|mins?|seconds?|hours?)/i.test(nick)) return false;
-    return /^[A-Za-z0-9._-]{3,32}$/.test(nick);
-  }
-
-  window.extractYunitePlayers = function(raw){
-    const text = String(raw || "").replace(/\r/g, "\n");
-
-    // Best case: copied left column, one username per line.
-    const lines = text.split(/\n+/).map(cleanNick).filter(Boolean);
-    const names = [];
-    for(const line of lines){
-      if(isValidNick(line) && !names.includes(line)){
-        names.push(line);
-        if(names.length === 5) return names;
-      }
-    }
-
-    // Fallback for full table rows: #1 username + teammate ...
-    const oneLine = text.replace(/\s+/g, " ");
-    const rankRegex = /#\s*[1-5]\s+([A-Za-z0-9._-]{3,32})/g;
-    let m;
-    while((m = rankRegex.exec(oneLine)) !== null){
-      const nick = cleanNick(m[1]);
-      if(isValidNick(nick) && !names.includes(nick)){
-        names.push(nick);
-        if(names.length === 5) break;
-      }
-    }
-    return names.slice(0,5);
-  };
-
-  window.renderYunitePlayers = function(players){
-    const output = document.getElementById("yuniteOutput") || document.querySelector(".yunite-output");
-    const list = document.getElementById("yuniteResultList") || document.querySelector(".yunite-result-list");
-    const finalText = players.length ? "!gt " + players.map(n => "@" + n).join(" ") : "";
-    if(output) output.value = finalText;
-
-    if(list){
-      list.innerHTML = "";
-      players.forEach((nick, index) => {
-        const row = document.createElement("div");
-        row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">#' + (index + 1) + '</span><span>@' + nick + '</span>';
-        list.appendChild(row);
-      });
-    }
-  };
-
-  window.generateYuniteMentions = function(){
-    const input = document.getElementById("yuniteInput") || document.querySelector(".yunite-input");
-    const raw = input ? input.value : "";
-    const players = window.extractYunitePlayers(raw);
-    window.renderYunitePlayers(players);
-  };
-
-  document.addEventListener("DOMContentLoaded", function(){
-    const input = document.getElementById("yuniteInput") || document.querySelector(".yunite-input");
-    if(input){
-      input.addEventListener("input", window.generateYuniteMentions);
-      input.addEventListener("paste", function(){
-        setTimeout(window.generateYuniteMentions, 0);
-      });
-    }
-
-    const buttons = Array.from(document.querySelectorAll("button"));
-    buttons.forEach(btn => {
-      const t = (btn.textContent || "").toLowerCase();
-      if(t.includes("extract") || t.includes("mention") || t.includes("generate")){
-        btn.addEventListener("click", window.generateYuniteMentions);
-      }
-    });
-  });
-})();
-</script>
 
 </body>
 </html>
