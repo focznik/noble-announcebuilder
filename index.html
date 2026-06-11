@@ -3185,16 +3185,19 @@ window.onload=function(){
 
 <script>
 function extractYunitePlayers(raw){
-  const banned = new Set(["rank","players","player","games","eliminations","wins","score","minutes","yunite","tournaments","scrim","live","first","second","third","lobby","lobbies","registration","opens","commences","format","preview","short","long","date","time","relative","unix","timestamp","helper","discord","ready","mentions","copy","paste","leaderboard","session","practice","division","noble"]);
-  const lines = raw.replace(/\r/g,"\n").replace(/[|+\t]/g,"\n").split(/\n+/).map(x=>x.trim()).filter(Boolean);
-  const names = [];
+  const lines = raw.split(/
+?
+/).map(v=>v.trim()).filter(Boolean);
+  const bad = new Set(["rank","players","games","eliminations","wins","score","minutes","yunite","tournaments","scrim","live"]);
+  const out=[];
   for(const line of lines){
-    const s = line.replace(/^#?\d+\s*/g,"").replace(/^@+/g,"").trim();
-    if(!s || banned.has(s.toLowerCase()) || /^\d+$/.test(s) || /minutes?|seconds?|hours?|ago/i.test(s)) continue;
-    if(/^[A-Za-z0-9._-]{3,32}$/.test(s) && !names.includes(s)) names.push(s);
-    if(names.length >= 5) break;
+    const n=line.replace(/^@/,'').trim();
+    if(!/^[A-Za-z0-9._-]{3,32}$/.test(n)) continue;
+    if(bad.has(n.toLowerCase())) continue;
+    if(!out.includes(n)) out.push(n);
+    if(out.length===5) break;
   }
-  return names;
+  return out;
 }
 </script>
 
