@@ -1512,6 +1512,96 @@ select{
   }
 }
 
+
+
+/* ================================
+   YUNITE TOP 5 MENTION EXTRACTOR
+   no animations, aligned premium panel
+   ================================ */
+.yunite-panel{
+  max-width:1400px;
+  margin:18px auto 0;
+  padding:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018)),rgba(10,16,28,.88);
+  border:1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+  box-shadow:0 8px 18px rgba(0,0,0,.22);
+}
+.yunite-panel .panel-title{
+  padding:16px 16px 0;
+  margin-bottom:14px;
+}
+.yunite-box{
+  padding:16px;
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:14px;
+}
+.yunite-card{
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(5,10,19,.58);
+  padding:14px;
+}
+.yunite-input{
+  min-height:138px;
+  resize:vertical;
+  width:100%;
+  font-family:'JetBrains Mono', Consolas, monospace;
+  font-size:13px;
+  line-height:1.45;
+}
+.yunite-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+.yunite-output{
+  min-height:138px;
+  width:100%;
+  resize:vertical;
+  font-family:'JetBrains Mono', Consolas, monospace;
+  font-size:14px;
+  line-height:1.55;
+}
+.yunite-help{
+  margin-top:10px;
+  color:rgba(238,244,255,.62);
+  font-size:12px;
+  line-height:1.45;
+}
+.yunite-result-list{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
+}
+.yunite-result-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(90deg,var(--theme-soft),rgba(255,255,255,.015));
+  padding:10px 11px;
+  min-height:42px;
+}
+.yunite-result-row span{
+  font-family:'JetBrains Mono', Consolas, monospace;
+  font-weight:800;
+  color:#fff;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.yunite-rank{
+  color:var(--theme)!important;
+  min-width:32px;
+}
+@media(max-width:900px){
+  .yunite-box{grid-template-columns:1fr}
+  .yunite-actions{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body data-theme="div0">
@@ -1670,6 +1760,16 @@ const translations = {
     inYears:"in {n} years",
     yearsAgo:"{n} years ago",
     at:"at",
+    yuniteExtractorTitle:"Yunite Top 5 Mention Extractor",
+    yuniteInputLabel:"Paste Yunite link or table text",
+    yuniteInputPlaceholder:"Paste leaderboard rows or a Yunite leaderboard link",
+    extractTop5:"Extract Top 5",
+    clear:"Clear",
+    yuniteHelp:"Best result: copy rows from the leaderboard. Direct links can be blocked by browser/CORS, so pasted table text is the safest.",
+    mentionOutputLabel:"Ready Discord mentions",
+    copyMentions:"Copy Mentions",
+    mentionsCopied:"Mentions copied",
+    noPlayersFound:"No players found",
     timestampCopied:"Timestamp copied",
     copied:"Copied",
     announcementCopied:"Announcement copied",
@@ -1734,6 +1834,16 @@ const translations = {
     inYears:"za {n} lat",
     yearsAgo:"{n} lat temu",
     at:"o",
+    yuniteExtractorTitle:"Yunite Top 5 Mention Extractor",
+    yuniteInputLabel:"Wklej link Yunite albo tekst tabeli",
+    yuniteInputPlaceholder:"Wklej rzędy leaderboarda albo link Yunite",
+    extractTop5:"Wyciągnij Top 5",
+    clear:"Wyczyść",
+    yuniteHelp:"Najlepiej skopiuj rzędy z leaderboarda. Same linki mogą być blokowane przez przeglądarkę/CORS, więc wklejony tekst tabeli działa najpewniej.",
+    mentionOutputLabel:"Gotowe wzmianki Discord",
+    copyMentions:"Kopiuj wzmianki",
+    mentionsCopied:"Wzmianki skopiowane",
+    noPlayersFound:"Nie znaleziono graczy",
     timestampCopied:"Timestamp skopiowany",
     copied:"Skopiowano",
     announcementCopied:"Wiadomość skopiowana",
@@ -1798,6 +1908,16 @@ const translations = {
     inYears:"tra {n} anni",
     yearsAgo:"{n} anni fa",
     at:"alle",
+    yuniteExtractorTitle:"Estrattore Top 5 Yunite",
+    yuniteInputLabel:"Incolla link Yunite o testo tabella",
+    yuniteInputPlaceholder:"Incolla righe leaderboard o link Yunite",
+    extractTop5:"Estrai Top 5",
+    clear:"Pulisci",
+    yuniteHelp:"Risultato migliore: copia le righe della leaderboard. I link diretti possono essere bloccati dal browser/CORS.",
+    mentionOutputLabel:"Mention Discord pronte",
+    copyMentions:"Copia mention",
+    mentionsCopied:"Mention copiate",
+    noPlayersFound:"Nessun giocatore trovato",
     timestampCopied:"Timestamp copiato",
     copied:"Copiato",
     announcementCopied:"Announcement copiato",
@@ -1862,6 +1982,16 @@ const translations = {
     inYears:"in {n} Jahren",
     yearsAgo:"vor {n} Jahren",
     at:"um",
+    yuniteExtractorTitle:"Yunite Top-5 Mention-Extractor",
+    yuniteInputLabel:"Yunite-Link oder Tabellentext einfügen",
+    yuniteInputPlaceholder:"Leaderboard-Zeilen oder Yunite-Link einfügen",
+    extractTop5:"Top 5 extrahieren",
+    clear:"Leeren",
+    yuniteHelp:"Bestes Ergebnis: kopiere die Zeilen aus dem Leaderboard. Direkte Links können vom Browser/CORS blockiert werden.",
+    mentionOutputLabel:"Fertige Discord-Mentions",
+    copyMentions:"Mentions kopieren",
+    mentionsCopied:"Mentions kopiert",
+    noPlayersFound:"Keine Spieler gefunden",
     timestampCopied:"Timestamp kopiert",
     copied:"Kopiert",
     announcementCopied:"Announcement kopiert",
@@ -1926,6 +2056,16 @@ const translations = {
     inYears:"через {n} лет",
     yearsAgo:"{n} лет назад",
     at:"в",
+    yuniteExtractorTitle:"Экстрактор Top 5 Yunite",
+    yuniteInputLabel:"Вставь ссылку Yunite или текст таблицы",
+    yuniteInputPlaceholder:"Вставь строки leaderboard или ссылку Yunite",
+    extractTop5:"Извлечь Top 5",
+    clear:"Очистить",
+    yuniteHelp:"Лучше всего скопировать строки из leaderboard. Прямые ссылки могут блокироваться браузером/CORS.",
+    mentionOutputLabel:"Готовые упоминания Discord",
+    copyMentions:"Копировать упоминания",
+    mentionsCopied:"Упоминания скопированы",
+    noPlayersFound:"Игроки не найдены",
     timestampCopied:"Timestamp скопирован",
     copied:"Скопировано",
     announcementCopied:"Announcement скопирован",
@@ -2643,6 +2783,30 @@ window.onload=function(){
 </script>
 
 
+
+<section id="yuniteMentionExtractor" class="panel yunite-panel">
+  <div class="panel-title" data-i18n="yuniteExtractorTitle">Yunite Top 5 Mention Extractor</div>
+  <div class="yunite-box">
+    <div class="yunite-card">
+      <label data-i18n="yuniteInputLabel">Paste Yunite link or table text</label>
+      <textarea id="yuniteInput" class="yunite-input" data-i18n-placeholder="yuniteInputPlaceholder" placeholder="Paste leaderboard text here, e.g. #1 sweatytate ... or a Yunite leaderboard link"></textarea>
+      <div class="yunite-actions">
+        <button class="small-btn" onclick="extractYuniteMentions()" data-i18n="extractTop5">Extract Top 5</button>
+        <button class="small-btn" onclick="clearYuniteMentions()" data-i18n="clear">Clear</button>
+      </div>
+      <div class="yunite-help" data-i18n="yuniteHelp">Best result: copy rows from the leaderboard or paste a screenshot text/table. Direct links can be blocked by browser/CORS, so pasted table text is the safest.</div>
+    </div>
+    <div class="yunite-card">
+      <label data-i18n="mentionOutputLabel">Ready Discord mentions</label>
+      <textarea id="yuniteOutput" class="yunite-output" readonly placeholder="@sweatytate&#10;@statiii&#10;@midjy._&#10;@destyggs&#10;@therealolko"></textarea>
+      <div class="yunite-actions">
+        <button class="copy-btn main" onclick="copyYuniteMentions()" data-i18n="copyMentions">Copy Mentions</button>
+      </div>
+      <div id="yuniteResultList" class="yunite-result-list"></div>
+    </div>
+  </div>
+</section>
+
 <section id="discordTimestampHelper" class="panel discord-ts-panel">
   <div class="panel-title" data-i18n="timestampHelper">Discord Timestamp Helper</div>
   <div class="discord-ts-top">
@@ -2871,6 +3035,145 @@ window.onload=function(){
   }
 
   window.addEventListener("load", updateDiscordTimestampPanel);
+})();
+</script>
+
+
+<script>
+(function(){
+  function safeT(key){
+    try{
+      if(typeof t === "function") return t(key);
+    }catch(e){}
+    const fallback = {
+      mentionsCopied:"Mentions copied",
+      noPlayersFound:"No players found"
+    };
+    return fallback[key] || key;
+  }
+
+  function cleanName(name){
+    return String(name || "")
+      .replace(/[\u200B-\u200D\uFEFF]/g, "")
+      .replace(/^@+/, "")
+      .replace(/[,:;]+$/g, "")
+      .trim();
+  }
+
+  function isBadToken(token){
+    const bad = new Set([
+      "rank","players","games","eliminations","wins","score","points",
+      "game","win","player","team","total","place","#","+"
+    ]);
+    return bad.has(String(token || "").toLowerCase());
+  }
+
+  function parseLeaderboardText(text){
+    const raw = String(text || "").replace(/\r/g, "\n");
+    const lines = raw.split("\n").map(x => x.trim()).filter(Boolean);
+    const players = [];
+
+    function add(name){
+      name = cleanName(name);
+      if(!name || isBadToken(name)) return;
+      if(/^\d+$/.test(name)) return;
+      if(name.length > 32) return;
+      if(!players.includes(name)) players.push(name);
+    }
+
+    // Strong pattern for rows like: #1 sweatytate + xenkru_ 3 20 1 145
+    for(const line of lines){
+      const m = line.match(/^#?\s*([1-5])\s+(.+?)\s+(?:\+|\s{2,}|\t)/);
+      if(m) add(m[2]);
+    }
+
+    // If copied table creates one value per line: #1, sweatytate, +, xenkru_, 3...
+    for(let i=0;i<lines.length;i++){
+      const rank = lines[i].match(/^#?([1-5])$/);
+      if(rank && lines[i+1]) add(lines[i+1]);
+    }
+
+    // Fallback: detect first usable token after #1...#5 in whole text
+    if(players.length < 5){
+      const flat = raw.replace(/\s+/g, " ");
+      const re = /#?\s*([1-5])\s+([^\s]+(?:\s+[^\s+]+){0,2}?)(?=\s+\+|\s+#?\s*[1-5]\s+|\s+\d+\s+\d+\s+\d+\s+\d+|$)/g;
+      let m;
+      while((m = re.exec(flat)) && players.length < 5){ add(m[2]); }
+    }
+
+    // Final fallback for pasted simple list of usernames
+    if(players.length < 5){
+      for(const line of lines){
+        if(line.startsWith("http")) continue;
+        const parts = line.split(/\s+/).filter(Boolean);
+        if(parts.length === 1) add(parts[0]);
+        if(players.length >= 5) break;
+      }
+    }
+
+    return players.slice(0,5);
+  }
+
+  function render(players){
+    const out = document.getElementById("yuniteOutput");
+    const list = document.getElementById("yuniteResultList");
+    const mentions = players.map(n => "@" + n).join("\n");
+    if(out) out.value = mentions;
+    if(list){
+      list.innerHTML = players.map((n,i)=>
+        `<div class="yunite-result-row"><span class="yunite-rank">#${i+1}</span><span>@${n}</span></div>`
+      ).join("");
+    }
+  }
+
+  async function tryFetchLink(value){
+    const url = value.trim();
+    if(!/^https?:\/\//i.test(url)) return value;
+
+    const proxies = [
+      url,
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+      "https://r.jina.ai/http://r.jina.ai/http://" + url.replace(/^https?:\/\//i, "")
+    ];
+
+    for(const p of proxies){
+      try{
+        const res = await fetch(p, {method:"GET"});
+        if(res.ok){
+          const txt = await res.text();
+          if(txt && txt.length > 50) return txt;
+        }
+      }catch(e){}
+    }
+    return value;
+  }
+
+  window.extractYuniteMentions = async function(){
+    const input = document.getElementById("yuniteInput");
+    if(!input) return;
+    let text = input.value || "";
+    text = await tryFetchLink(text);
+    const players = parseLeaderboardText(text);
+    render(players);
+    if(!players.length && typeof showToast === "function") showToast(safeT("noPlayersFound"));
+  };
+
+  window.clearYuniteMentions = function(){
+    const input = document.getElementById("yuniteInput");
+    const out = document.getElementById("yuniteOutput");
+    const list = document.getElementById("yuniteResultList");
+    if(input) input.value = "";
+    if(out) out.value = "";
+    if(list) list.innerHTML = "";
+  };
+
+  window.copyYuniteMentions = function(){
+    const out = document.getElementById("yuniteOutput");
+    const text = out ? out.value : "";
+    if(!text) return;
+    if(navigator.clipboard) navigator.clipboard.writeText(text);
+    if(typeof showToast === "function") showToast(safeT("mentionsCopied"));
+  };
 })();
 </script>
 
