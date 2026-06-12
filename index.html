@@ -1603,6 +1603,24 @@ select{
 }
 
 </style>
+
+<style>
+/* TOP/BOTTOM YUNITE OUTPUT FIX */
+.yunite-output-stack{display:grid;gap:10px}
+.yunite-output-label{
+  display:block;color:rgba(238,244,255,.66);font-size:12px;font-weight:900;
+  letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px
+}
+.yunite-output-mini{
+  min-height:72px!important;width:100%;resize:vertical;
+  font-family:'JetBrains Mono', Consolas, monospace!important;
+  font-size:14px!important;line-height:1.55!important
+}
+.yunite-extra-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px
+}
+</style>
+
 </head>
 <body data-theme="div0">
 
@@ -3216,7 +3234,7 @@ window.onload=function(){
 
 
 <script>
-/* FINAL YUNITE CTRL+A PARSER FIX */
+/* FINAL TOP 5 / BOTTOM 5 YUNITE PARSER */
 (function(){
   const bad = new Set([
     "rank","players","player","games","eliminations","wins","score",
@@ -3228,141 +3246,30 @@ window.onload=function(){
     "paste","timestamp","helper","early"
   ]);
 
-  function isNick(s){
-    s = String(s || "").trim().replace(/^@+/, "");
-    if(!s) return false;
-    if(bad.has(s.toLowerCase())) return false;
-    if(/^https?:\/\//i.test(s)) return false;
-    if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
-    if(/^\d+$/.test(s)) return false;
-    if(/[ \t]/.test(s)) return false;
-    return /^[A-Za-z0-9._-]{2,32}$/.test(s);
-  }
+  function q(sel){ return document.querySelector(sel); }
 
-  function clean(s){
-    return String(s || "")
-      .replace(/^@+/, "")
-      .replace(/[|+]/g, "")
-      .trim();
-  }
-
-  window.yuniteTop5FromText = function(raw){
-    const lines = String(raw || "")
-      .replace(/\r/g, "\n")
-      .split(/\n+/)
-      .map(x => x.trim())
-      .filter(Boolean);
-
-    const result = [];
-
-    for(let rank = 1; rank <= 5; rank++){
-      const rankRe = new RegExp("^#\\s*" + rank + "$");
-      const idx = lines.findIndex(x => rankRe.test(x.trim()));
-
-      if(idx === -1) continue;
-
-      for(let j = idx + 1; j < Math.min(lines.length, idx + 12); j++){
-        const candidate = clean(lines[j]);
-        if(isNick(candidate)){
-          result.push(candidate);
-          break;
-        }
-      }
-    }
-
-    return result;
-  };
-
-  window.generateYuniteMentions = function(){
-    const input =
-      document.getElementById("yuniteInput") ||
-      document.querySelector(".yunite-input") ||
-      document.querySelector("textarea[placeholder*='Yunite' i]");
-
-    const output =
-      document.getElementById("yuniteOutput") ||
-      document.querySelector(".yunite-output");
-
-    const list =
-      document.getElementById("yuniteResultList") ||
-      document.querySelector(".yunite-result-list");
-
-    const raw = input ? input.value : "";
-    const players = window.yuniteTop5FromText(raw);
-    const finalText = players.length ? "!gt " + players.map(x => "@" + x).join(" ") : "";
-
-    if(output) output.value = finalText;
-
-    if(list){
-      list.innerHTML = "";
-      players.forEach((nick, i) => {
-        const row = document.createElement("div");
-        row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">#' + (i + 1) + '</span><span>@' + nick + '</span>';
-        list.appendChild(row);
-      });
-    }
-  };
-
-  document.addEventListener("DOMContentLoaded", function(){
-    const input =
-      document.getElementById("yuniteInput") ||
-      document.querySelector(".yunite-input") ||
-      document.querySelector("textarea[placeholder*='Yunite' i]");
-
-    if(input){
-      input.addEventListener("input", window.generateYuniteMentions);
-      input.addEventListener("paste", () => setTimeout(window.generateYuniteMentions, 0));
-    }
-
-    document.querySelectorAll("button").forEach(btn => {
-      const t = (btn.textContent || "").toLowerCase();
-      if(t.includes("extract") || t.includes("generate") || t.includes("mention") || t.includes("top 5")){
-        btn.addEventListener("click", window.generateYuniteMentions);
-      }
-    });
-  });
-})();
-</script>
-
-
-<script>
-/* FINAL BUTTON FIX FOR YUNITE PANEL */
-(function(){
-  const bad = new Set([
-    "rank","players","player","games","eliminations","wins","score",
-    "yunite","logo","tournaments","practice","session","scrim","on",
-    "server","icon","noble","division","ended","since","hours","hour",
-    "minutes","minute","seconds","second","top","bottom","points","kick",
-    "twitter","discord","click","team","show","details","registration",
-    "opens","commences","leaderboard","live","format","preview","copy",
-    "paste","timestamp","helper","early"
-  ]);
-
-  function getYuniteInput(){
+  function getInput(){
     return document.getElementById("yuniteInput") ||
-      document.querySelector(".yunite-input") ||
-      document.querySelector(".yunite-panel textarea") ||
-      document.querySelector("textarea[placeholder*='Yunite' i]");
+      q(".yunite-input") ||
+      q(".yunite-panel textarea");
   }
 
-  function getYuniteOutput(){
+  function getTopOutput(){
     return document.getElementById("yuniteOutput") ||
-      document.querySelector(".yunite-output") ||
-      document.querySelector(".yunite-panel textarea[readonly]") ||
-      document.querySelector(".yunite-card textarea:not(.yunite-input)");
+      q(".yunite-output");
   }
 
-  function getYuniteList(){
+  function getBottomOutput(){
+    return document.getElementById("yuniteBottomOutput");
+  }
+
+  function getList(){
     return document.getElementById("yuniteResultList") ||
-      document.querySelector(".yunite-result-list");
+      q(".yunite-result-list");
   }
 
   function clean(s){
-    return String(s || "")
-      .replace(/^@+/, "")
-      .replace(/[|+]/g, "")
-      .trim();
+    return String(s || "").replace(/^@+/, "").replace(/[|+]/g, "").trim();
   }
 
   function isNick(s){
@@ -3376,91 +3283,209 @@ window.onload=function(){
     return /^[A-Za-z0-9._-]{2,32}$/.test(s);
   }
 
-  window.yuniteTop5FromText = function(raw){
+  function parseTeams(raw){
     const lines = String(raw || "")
       .replace(/\r/g, "\n")
       .split(/\n+/)
       .map(x => x.trim())
       .filter(Boolean);
 
-    const result = [];
+    const teams = [];
 
-    for(let rank = 1; rank <= 5; rank++){
-      const rankRe = new RegExp("^#\\s*" + rank + "$");
-      const idx = lines.findIndex(x => rankRe.test(x.trim()));
+    for(let i = 0; i < lines.length; i++){
+      const rankMatch = lines[i].match(/^#\s*(\d+)$/);
+      if(!rankMatch) continue;
 
-      if(idx === -1) continue;
+      const rank = Number(rankMatch[1]);
+      let p1 = "";
+      let p2 = "";
+      let games = null;
+      let eliminations = null;
+      let wins = null;
+      let score = null;
 
-      for(let j = idx + 1; j < Math.min(lines.length, idx + 16); j++){
-        const candidate = clean(lines[j]);
-        if(isNick(candidate)){
-          result.push(candidate);
+      for(let j = i + 1; j < Math.min(lines.length, i + 10); j++){
+        if(isNick(lines[j])){
+          p1 = clean(lines[j]);
           break;
         }
       }
+
+      const plusRelative = lines.slice(i + 1, Math.min(lines.length, i + 14)).findIndex(x => x.trim() === "+");
+      if(plusRelative !== -1){
+        const plusIndex = i + 1 + plusRelative;
+        for(let j = plusIndex + 1; j < Math.min(lines.length, plusIndex + 7); j++){
+          if(isNick(lines[j])){
+            p2 = clean(lines[j]);
+            break;
+          }
+        }
+      }
+
+      let startStats = i + 1;
+      if(p2){
+        for(let j = i + 1; j < Math.min(lines.length, i + 16); j++){
+          if(clean(lines[j]) === p2){
+            startStats = j + 1;
+            break;
+          }
+        }
+      }else if(p1){
+        for(let j = i + 1; j < Math.min(lines.length, i + 12); j++){
+          if(clean(lines[j]) === p1){
+            startStats = j + 1;
+            break;
+          }
+        }
+      }
+
+      const nums = [];
+      for(let j = startStats; j < Math.min(lines.length, startStats + 14); j++){
+        if(/^#\s*\d+$/.test(lines[j])) break;
+        if(/^\d+$/.test(lines[j])) nums.push(Number(lines[j]));
+      }
+
+      if(nums.length >= 3){
+        games = nums[0];
+        eliminations = nums[1];
+        wins = nums[2];
+        score = nums.length >= 4 ? nums[3] : null;
+      }
+
+      if(p1){
+        teams.push({rank, p1, p2, games, eliminations, wins, score});
+      }
     }
 
-    return result;
-  };
+    return teams;
+  }
 
-  window.generateYuniteMentions = function(){
-    const input = getYuniteInput();
-    const output = getYuniteOutput();
-    const list = getYuniteList();
+  function getTop5(raw){
+    return parseTeams(raw).slice(0,5).map(t => t.p1);
+  }
 
-    const players = window.yuniteTop5FromText(input ? input.value : "");
-    const finalText = players.length ? "!gt " + players.map(x => "@" + x).join(" ") : "";
+  function getBottom5(raw){
+    return parseTeams(raw)
+      .filter(t => Number(t.games) === 3)
+      .sort((a,b) => b.rank - a.rank)
+      .slice(0,5)
+      .map(t => t.p1);
+  }
 
-    if(output) output.value = finalText;
+  function format(command, players){
+    return players.length ? command + " " + players.map(x => "@" + x).join(" ") : "";
+  }
 
+  function ensureBottomUI(){
+    const topOutput = getTopOutput();
+    if(!topOutput || document.getElementById("yuniteBottomOutput")) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "yunite-output-stack";
+
+    const topWrap = document.createElement("div");
+    topWrap.innerHTML = '<label class="yunite-output-label">Top 5 Command</label>';
+    topOutput.parentNode.insertBefore(wrapper, topOutput);
+    wrapper.appendChild(topWrap);
+    topWrap.appendChild(topOutput);
+    topOutput.classList.add("yunite-output-mini");
+    topOutput.placeholder = "!gt @top1 @top2 @top3 @top4 @top5";
+
+    const bottomWrap = document.createElement("div");
+    bottomWrap.innerHTML = `
+      <label class="yunite-output-label">Bottom 5 Command</label>
+      <textarea id="yuniteBottomOutput" class="yunite-output yunite-output-mini" readonly placeholder="!brole @bottom1 @bottom2 @bottom3 @bottom4 @bottom5"></textarea>
+      <div class="yunite-extra-actions">
+        <button class="copy-btn" type="button" id="copyTop5Btn">Copy Top 5</button>
+        <button class="copy-btn" type="button" id="copyBottom5Btn">Copy Bottom 5</button>
+      </div>
+    `;
+    wrapper.appendChild(bottomWrap);
+  }
+
+  window.generateYuniteMentions = function(mode){
+    ensureBottomUI();
+
+    const input = getInput();
+    const raw = input ? input.value : "";
+
+    const topPlayers = getTop5(raw);
+    const bottomPlayers = getBottom5(raw);
+
+    const topText = format("!gt", topPlayers);
+    const bottomText = format("!brole", bottomPlayers);
+
+    const topOutput = getTopOutput();
+    const bottomOutput = getBottomOutput();
+
+    if(topOutput) topOutput.value = topText;
+    if(bottomOutput) bottomOutput.value = bottomText;
+
+    const list = getList();
     if(list){
       list.innerHTML = "";
-      players.forEach((nick, i) => {
+      topPlayers.forEach((nick, i) => {
         const row = document.createElement("div");
         row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">#' + (i + 1) + '</span><span>@' + nick + '</span>';
+        row.innerHTML = '<span class="yunite-rank">TOP #' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+      bottomPlayers.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">BOT #' + (i + 1) + '</span><span>@' + nick + '</span>';
         list.appendChild(row);
       });
     }
-    return finalText;
+
+    return mode === "bottom" ? bottomText : topText;
   };
 
   window.clearYuniteMentions = function(){
-    const input = getYuniteInput();
-    const output = getYuniteOutput();
-    const list = getYuniteList();
+    const input = getInput();
+    const topOutput = getTopOutput();
+    const bottomOutput = getBottomOutput();
+    const list = getList();
 
     if(input) input.value = "";
-    if(output) output.value = "";
+    if(topOutput) topOutput.value = "";
+    if(bottomOutput) bottomOutput.value = "";
     if(list) list.innerHTML = "";
   };
 
-  window.copyYuniteMentions = async function(){
-    const output = getYuniteOutput();
-    const text = output ? output.value : window.generateYuniteMentions();
-
+  async function copyText(text, fallbackEl){
     if(!text) return;
-
     try{
       await navigator.clipboard.writeText(text);
     }catch(e){
-      if(output){
-        output.focus();
-        output.select();
+      if(fallbackEl){
+        fallbackEl.focus();
+        fallbackEl.select();
         document.execCommand("copy");
       }
     }
+  }
+
+  window.copyTop5Mentions = function(){
+    const value = window.generateYuniteMentions("top");
+    copyText(value, getTopOutput());
   };
 
-  function bindYuniteButtons(){
-    const buttons = Array.from(document.querySelectorAll("button"));
-    buttons.forEach(btn => {
+  window.copyBottom5Mentions = function(){
+    const value = window.generateYuniteMentions("bottom");
+    copyText(value, getBottomOutput());
+  };
+
+  function bindButtons(){
+    ensureBottomUI();
+
+    document.querySelectorAll("button").forEach(btn => {
       const t = (btn.textContent || "").toLowerCase().trim();
 
       if(t.includes("extract") || t.includes("top 5") || t.includes("generate")){
         btn.onclick = function(e){
           e.preventDefault();
-          window.generateYuniteMentions();
+          window.generateYuniteMentions("top");
         };
       }
 
@@ -3471,22 +3496,37 @@ window.onload=function(){
         };
       }
 
-      if(t.includes("copy mentions") || t.includes("copy mention")){
+      if(t.includes("copy mentions")){
         btn.onclick = function(e){
           e.preventDefault();
-          window.copyYuniteMentions();
+          window.copyTop5Mentions();
+        };
+      }
+
+      if(btn.id === "copyTop5Btn" || t.includes("copy top 5")){
+        btn.onclick = function(e){
+          e.preventDefault();
+          window.copyTop5Mentions();
+        };
+      }
+
+      if(btn.id === "copyBottom5Btn" || t.includes("copy bottom 5")){
+        btn.onclick = function(e){
+          e.preventDefault();
+          window.copyBottom5Mentions();
         };
       }
     });
   }
 
   document.addEventListener("DOMContentLoaded", function(){
-    bindYuniteButtons();
+    ensureBottomUI();
+    bindButtons();
 
-    const input = getYuniteInput();
+    const input = getInput();
     if(input){
-      input.addEventListener("input", window.generateYuniteMentions);
-      input.addEventListener("paste", () => setTimeout(window.generateYuniteMentions, 0));
+      input.addEventListener("input", () => window.generateYuniteMentions());
+      input.addEventListener("paste", () => setTimeout(() => window.generateYuniteMentions(), 0));
     }
   });
 })();
