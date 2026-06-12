@@ -1603,82 +1603,6 @@ select{
 }
 
 </style>
-
-<style>
-.yunite-panel{
-  max-width:1400px;
-  margin:18px auto 0;
-  padding:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018)),rgba(10,16,28,.88);
-  border:1px solid rgba(255,255,255,.10);
-  overflow:hidden;
-  box-shadow:0 8px 18px rgba(0,0,0,.22);
-}
-.yunite-panel .panel-title{
-  padding:16px 16px 0;
-  margin-bottom:14px;
-}
-.yunite-box{
-  padding:16px;
-  display:grid;
-  grid-template-columns:1.15fr .85fr;
-  gap:14px;
-}
-.yunite-card{
-  border:1px solid rgba(255,255,255,.09);
-  background:rgba(5,10,19,.58);
-  padding:14px;
-}
-.yunite-input,.yunite-output{
-  min-height:120px;
-  resize:vertical;
-  width:100%;
-  font-family:'JetBrains Mono', Consolas, monospace;
-  font-size:13px;
-  line-height:1.45;
-}
-.yunite-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-top:10px;
-}
-.yunite-help{
-  margin-top:10px;
-  color:rgba(238,244,255,.62);
-  font-size:12px;
-  line-height:1.45;
-}
-.yunite-result-list{
-  display:grid;
-  gap:8px;
-  margin-top:10px;
-}
-.yunite-result-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  border:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(90deg,var(--theme-soft),rgba(255,255,255,.015));
-  padding:10px 11px;
-  min-height:42px;
-}
-.yunite-result-row span{
-  font-family:'JetBrains Mono', Consolas, monospace;
-  font-weight:800;
-  color:#fff;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.yunite-rank{color:var(--theme)!important;min-width:90px}
-@media(max-width:900px){
-  .yunite-box{grid-template-columns:1fr}
-  .yunite-actions{grid-template-columns:1fr}
-}
-</style>
-
 </head>
 <body data-theme="div0">
 
@@ -1770,44 +1694,1125 @@ select{
 
 <div class="toast" id="toast">Copied</div>
 
+<script>
+let currentServer = localStorage.getItem("noble_server") || "div0";
+let currentLobby = localStorage.getItem("noble_lobby") || "1";
+let activeHour = null;
+let lastReg = 0;
+let lastGame = 0;
+
+const translations = {
+  en:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Select a server, lobby and time — the announcement generates automatically. Then just copy it.",
+    language:"Page Language",
+    servers:"Servers",
+    setup:"Setup",
+    registrationOpens:"Registration Opens",
+    hostOfSession:"Host Of Session",
+    coHostOfSession:"Co-Host Of Session",
+    sessionNumber:"24/7 Session Number",
+    useCurrentTime:"Use Current Time",
+    quickHours:"Quick Hours",
+    lobbyType:"Lobby / Type",
+    generatedMessage:"Generated Message",
+    copyAnnouncement:"Copy Announcement",
+    copyRegTimestamp:"Copy Reg Timestamp",
+    copyGameTimestamp:"Copy Game Timestamp",
+    firstGame:"First Game",
+    firstLobby:"First Lobby",
+    secondLobby:"Second Lobby",
+    thirdLobby:"Third Lobby",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2nd Lobby",
+    reloadThirdLobby:"Reload 3rd Lobby",
+    ladderLobby:"Ladder",
+    powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1st Lobby",
+    lateNightSecondLobby:"Late Night 2nd Lobby",
+    timestampHelper:"Discord Timestamp Helper",
+    format:"Format",
+    preview:"Preview",
+    shortDate:"Short Date",
+    longDate:"Long Date",
+    shortTime:"Short Time",
+    longTime:"Long Time",
+    shortDateTime:"Short Date/Time",
+    longDateTime:"Long Date/Time",
+    relativeTime:"Relative Time",
+    unixTimestamp:"Unix Timestamp",
+    mainHostPlaceholder:"Main host Discord ID",
+    coHostPlaceholder:"Optional co-host Discord ID",
+    plus15:"+15 min",
+    plus20:"+20 min",
+    madeBy:"Made by",
+    now:"now",
+    inMinutes:"in {n} minutes",
+    minutesAgo:"{n} minutes ago",
+    inHours:"in {n} hours",
+    hoursAgo:"{n} hours ago",
+    tomorrow:"tomorrow",
+    yesterday:"yesterday",
+    inDays:"in {n} days",
+    daysAgo:"{n} days ago",
+    inMonths:"in {n} months",
+    monthsAgo:"{n} months ago",
+    inYears:"in {n} years",
+    yearsAgo:"{n} years ago",
+    at:"at",
+    yuniteExtractorTitle:"Yunite Top 5 Mention Extractor",
+    yuniteInputLabel:"Paste Yunite link or table text",
+    yuniteInputPlaceholder:"Paste leaderboard rows or a Yunite leaderboard link",
+    extractTop5:"Extract Top 5",
+    clear:"Clear",
+    yuniteHelp:"Best result: copy rows from the leaderboard. Direct links can be blocked by browser/CORS, so pasted table text is the safest.",
+    mentionOutputLabel:"Ready Discord mentions",
+    copyMentions:"Copy Mentions",
+    mentionsCopied:"Mentions copied",
+    noPlayersFound:"No players found",
+    timestampCopied:"Timestamp copied",
+    copied:"Copied",
+    announcementCopied:"Announcement copied",
+    regCopied:"Registration timestamp copied",
+    gameCopied:"First game timestamp copied"
+  },
+  pl:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Wybierz serwer, lobby i godzinę — wiadomość generuje się automatycznie. Potem tylko kopiujesz.",
+    language:"Język strony",
+    servers:"Serwery",
+    setup:"Ustawienia",
+    registrationOpens:"Otwarcie zapisów",
+    hostOfSession:"Host sesji",
+    coHostOfSession:"Co-host sesji",
+    sessionNumber:"Numer sesji 24/7",
+    useCurrentTime:"Użyj aktualnego czasu",
+    quickHours:"Szybkie godziny",
+    lobbyType:"Lobby / Typ",
+    generatedMessage:"Wygenerowana wiadomość",
+    copyAnnouncement:"Kopiuj wiadomość",
+    copyRegTimestamp:"Kopiuj timestamp zapisów",
+    copyGameTimestamp:"Kopiuj timestamp gry",
+    firstGame:"Pierwsza gra",
+    firstLobby:"Pierwsze lobby",
+    secondLobby:"Drugie lobby",
+    thirdLobby:"Trzecie lobby",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2. lobby",
+    reloadThirdLobby:"Reload 3. lobby",
+    ladderLobby:"Ladder",
+    powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1. lobby",
+    lateNightSecondLobby:"Late Night 2. lobby",
+    timestampHelper:"Pomocnik timestampów Discord",
+    format:"Format",
+    preview:"Podgląd",
+    shortDate:"Krótka data",
+    longDate:"Długa data",
+    shortTime:"Krótka godzina",
+    longTime:"Długa godzina",
+    shortDateTime:"Krótka data/godzina",
+    longDateTime:"Długa data/godzina",
+    relativeTime:"Czas względny",
+    unixTimestamp:"Timestamp Unix",
+    mainHostPlaceholder:"ID głównego hosta Discord",
+    coHostPlaceholder:"Opcjonalne ID co-hosta Discord",
+    plus15:"+15 min",
+    plus20:"+20 min",
+    madeBy:"Stworzone przez",
+    now:"teraz",
+    inMinutes:"za {n} min",
+    minutesAgo:"{n} min temu",
+    inHours:"za {n} godz.",
+    hoursAgo:"{n} godz. temu",
+    tomorrow:"jutro",
+    yesterday:"wczoraj",
+    inDays:"za {n} dni",
+    daysAgo:"{n} dni temu",
+    inMonths:"za {n} mies.",
+    monthsAgo:"{n} mies. temu",
+    inYears:"za {n} lat",
+    yearsAgo:"{n} lat temu",
+    at:"o",
+    yuniteExtractorTitle:"Yunite Top 5 Mention Extractor",
+    yuniteInputLabel:"Wklej link Yunite albo tekst tabeli",
+    yuniteInputPlaceholder:"Wklej rzędy leaderboarda albo link Yunite",
+    extractTop5:"Wyciągnij Top 5",
+    clear:"Wyczyść",
+    yuniteHelp:"Najlepiej skopiuj rzędy z leaderboarda. Same linki mogą być blokowane przez przeglądarkę/CORS, więc wklejony tekst tabeli działa najpewniej.",
+    mentionOutputLabel:"Gotowe wzmianki Discord",
+    copyMentions:"Kopiuj wzmianki",
+    mentionsCopied:"Wzmianki skopiowane",
+    noPlayersFound:"Nie znaleziono graczy",
+    timestampCopied:"Timestamp skopiowany",
+    copied:"Skopiowano",
+    announcementCopied:"Wiadomość skopiowana",
+    regCopied:"Timestamp zapisów skopiowany",
+    gameCopied:"Timestamp pierwszej gry skopiowany"
+  },
+  it:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Scegli server, lobby e orario — il messaggio si genera automaticamente. Poi devi solo copiarlo.",
+    language:"Lingua della pagina",
+    servers:"Server",
+    setup:"Impostazioni",
+    registrationOpens:"Apertura registrazione",
+    hostOfSession:"Host della sessione",
+    coHostOfSession:"Co-host della sessione",
+    sessionNumber:"Numero sessione 24/7",
+    useCurrentTime:"Usa ora attuale",
+    quickHours:"Orari rapidi",
+    lobbyType:"Lobby / Tipo",
+    generatedMessage:"Messaggio generato",
+    copyAnnouncement:"Copia announcement",
+    copyRegTimestamp:"Copia timestamp registrazione",
+    copyGameTimestamp:"Copia timestamp prima partita",
+    firstGame:"Prima partita",
+    firstLobby:"Prima lobby",
+    secondLobby:"Seconda lobby",
+    thirdLobby:"Terza lobby",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2ª lobby",
+    reloadThirdLobby:"Reload 3ª lobby",
+    ladderLobby:"Ladder",
+    powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1ª lobby",
+    lateNightSecondLobby:"Late Night 2ª lobby",
+    timestampHelper:"Helper timestamp Discord",
+    format:"Formato",
+    preview:"Anteprima",
+    shortDate:"Data breve",
+    longDate:"Data lunga",
+    shortTime:"Ora breve",
+    longTime:"Ora lunga",
+    shortDateTime:"Data/ora breve",
+    longDateTime:"Data/ora lunga",
+    relativeTime:"Tempo relativo",
+    unixTimestamp:"Timestamp Unix",
+    mainHostPlaceholder:"ID Discord host principale",
+    coHostPlaceholder:"ID Discord co-host opzionale",
+    plus15:"+15 min",
+    plus20:"+20 min",
+    madeBy:"Creato da",
+    now:"adesso",
+    inMinutes:"tra {n} minuti",
+    minutesAgo:"{n} minuti fa",
+    inHours:"tra {n} ore",
+    hoursAgo:"{n} ore fa",
+    tomorrow:"domani",
+    yesterday:"ieri",
+    inDays:"tra {n} giorni",
+    daysAgo:"{n} giorni fa",
+    inMonths:"tra {n} mesi",
+    monthsAgo:"{n} mesi fa",
+    inYears:"tra {n} anni",
+    yearsAgo:"{n} anni fa",
+    at:"alle",
+    yuniteExtractorTitle:"Estrattore Top 5 Yunite",
+    yuniteInputLabel:"Incolla link Yunite o testo tabella",
+    yuniteInputPlaceholder:"Incolla righe leaderboard o link Yunite",
+    extractTop5:"Estrai Top 5",
+    clear:"Pulisci",
+    yuniteHelp:"Risultato migliore: copia le righe della leaderboard. I link diretti possono essere bloccati dal browser/CORS.",
+    mentionOutputLabel:"Mention Discord pronte",
+    copyMentions:"Copia mention",
+    mentionsCopied:"Mention copiate",
+    noPlayersFound:"Nessun giocatore trovato",
+    timestampCopied:"Timestamp copiato",
+    copied:"Copiato",
+    announcementCopied:"Announcement copiato",
+    regCopied:"Timestamp registrazione copiato",
+    gameCopied:"Timestamp prima partita copiato"
+  },
+  de:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Wähle Server, Lobby und Uhrzeit — die Nachricht wird automatisch erstellt. Danach nur noch kopieren.",
+    language:"Seitensprache",
+    servers:"Server",
+    setup:"Einstellungen",
+    registrationOpens:"Registrierung öffnet",
+    hostOfSession:"Host der Session",
+    coHostOfSession:"Co-Host der Session",
+    sessionNumber:"24/7 Session-Nummer",
+    useCurrentTime:"Aktuelle Zeit verwenden",
+    quickHours:"Schnelle Zeiten",
+    lobbyType:"Lobby / Typ",
+    generatedMessage:"Generierte Nachricht",
+    copyAnnouncement:"Announcement kopieren",
+    copyRegTimestamp:"Reg-Timestamp kopieren",
+    copyGameTimestamp:"Game-Timestamp kopieren",
+    firstGame:"Erstes Game",
+    firstLobby:"Erste Lobby",
+    secondLobby:"Zweite Lobby",
+    thirdLobby:"Dritte Lobby",
+    reloadLobby:"Reload",
+    reloadSecondLobby:"Reload 2. Lobby",
+    reloadThirdLobby:"Reload 3. Lobby",
+    ladderLobby:"Ladder",
+    powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Late Night 1. Lobby",
+    lateNightSecondLobby:"Late Night 2. Lobby",
+    timestampHelper:"Discord-Timestamp-Helfer",
+    format:"Format",
+    preview:"Vorschau",
+    shortDate:"Kurzes Datum",
+    longDate:"Langes Datum",
+    shortTime:"Kurze Uhrzeit",
+    longTime:"Lange Uhrzeit",
+    shortDateTime:"Kurzes Datum/Uhrzeit",
+    longDateTime:"Langes Datum/Uhrzeit",
+    relativeTime:"Relative Zeit",
+    unixTimestamp:"Unix-Timestamp",
+    mainHostPlaceholder:"Discord-ID des Haupt-Hosts",
+    coHostPlaceholder:"Optionale Discord-ID des Co-Hosts",
+    plus15:"+15 Min.",
+    plus20:"+20 Min.",
+    madeBy:"Erstellt von",
+    now:"jetzt",
+    inMinutes:"in {n} Minuten",
+    minutesAgo:"vor {n} Minuten",
+    inHours:"in {n} Stunden",
+    hoursAgo:"vor {n} Stunden",
+    tomorrow:"morgen",
+    yesterday:"gestern",
+    inDays:"in {n} Tagen",
+    daysAgo:"vor {n} Tagen",
+    inMonths:"in {n} Monaten",
+    monthsAgo:"vor {n} Monaten",
+    inYears:"in {n} Jahren",
+    yearsAgo:"vor {n} Jahren",
+    at:"um",
+    yuniteExtractorTitle:"Yunite Top-5 Mention-Extractor",
+    yuniteInputLabel:"Yunite-Link oder Tabellentext einfügen",
+    yuniteInputPlaceholder:"Leaderboard-Zeilen oder Yunite-Link einfügen",
+    extractTop5:"Top 5 extrahieren",
+    clear:"Leeren",
+    yuniteHelp:"Bestes Ergebnis: kopiere die Zeilen aus dem Leaderboard. Direkte Links können vom Browser/CORS blockiert werden.",
+    mentionOutputLabel:"Fertige Discord-Mentions",
+    copyMentions:"Mentions kopieren",
+    mentionsCopied:"Mentions kopiert",
+    noPlayersFound:"Keine Spieler gefunden",
+    timestampCopied:"Timestamp kopiert",
+    copied:"Kopiert",
+    announcementCopied:"Announcement kopiert",
+    regCopied:"Registration-Timestamp kopiert",
+    gameCopied:"First-Game-Timestamp kopiert"
+  },
+  ru:{
+    title:"⚡ Noble Announcement Builder",
+    subtitle:"Выбери сервер, лобби и время — сообщение создаётся автоматически. Потом просто копируешь.",
+    language:"Язык страницы",
+    servers:"Серверы",
+    setup:"Настройки",
+    registrationOpens:"Открытие регистрации",
+    hostOfSession:"Хост сессии",
+    coHostOfSession:"Ко-хост сессии",
+    sessionNumber:"Номер сессии 24/7",
+    useCurrentTime:"Использовать текущее время",
+    quickHours:"Быстрые часы",
+    lobbyType:"Лобби / Тип",
+    generatedMessage:"Сгенерированное сообщение",
+    copyAnnouncement:"Копировать announcement",
+    copyRegTimestamp:"Копировать timestamp регистрации",
+    copyGameTimestamp:"Копировать timestamp первой игры",
+    firstGame:"Первая игра",
+    firstLobby:"Первое лобби",
+    secondLobby:"Второе лобби",
+    thirdLobby:"Третье лобби",
+    reloadLobby:"Перезагрузка",
+    reloadSecondLobby:"Перезагрузка 2-го лобби",
+    reloadThirdLobby:"Перезагрузка 3-го лобби",
+    ladderLobby:"Ладдер",
+    powerWeekend:"Power Weekend",
+    lateNightFirstLobby:"Ночное 1-е лобби",
+    lateNightSecondLobby:"Ночное 2-е лобби",
+    timestampHelper:"Помощник timestamp Discord",
+    format:"Формат",
+    preview:"Предпросмотр",
+    shortDate:"Короткая дата",
+    longDate:"Длинная дата",
+    shortTime:"Короткое время",
+    longTime:"Длинное время",
+    shortDateTime:"Короткая дата/время",
+    longDateTime:"Длинная дата/время",
+    relativeTime:"Относительное время",
+    unixTimestamp:"Unix timestamp",
+    mainHostPlaceholder:"Discord ID главного хоста",
+    coHostPlaceholder:"Необязательный Discord ID co-host",
+    plus15:"+15 мин",
+    plus20:"+20 мин",
+    madeBy:"Сделал",
+    now:"сейчас",
+    inMinutes:"через {n} мин",
+    minutesAgo:"{n} мин назад",
+    inHours:"через {n} ч",
+    hoursAgo:"{n} ч назад",
+    tomorrow:"завтра",
+    yesterday:"вчера",
+    inDays:"через {n} дн.",
+    daysAgo:"{n} дн. назад",
+    inMonths:"через {n} мес.",
+    monthsAgo:"{n} мес. назад",
+    inYears:"через {n} лет",
+    yearsAgo:"{n} лет назад",
+    at:"в",
+    yuniteExtractorTitle:"Экстрактор Top 5 Yunite",
+    yuniteInputLabel:"Вставь ссылку Yunite или текст таблицы",
+    yuniteInputPlaceholder:"Вставь строки leaderboard или ссылку Yunite",
+    extractTop5:"Извлечь Top 5",
+    clear:"Очистить",
+    yuniteHelp:"Лучше всего скопировать строки из leaderboard. Прямые ссылки могут блокироваться браузером/CORS.",
+    mentionOutputLabel:"Готовые упоминания Discord",
+    copyMentions:"Копировать упоминания",
+    mentionsCopied:"Упоминания скопированы",
+    noPlayersFound:"Игроки не найдены",
+    timestampCopied:"Timestamp скопирован",
+    copied:"Скопировано",
+    announcementCopied:"Announcement скопирован",
+    regCopied:"Timestamp регистрации скопирован",
+    gameCopied:"Timestamp первой игры скопирован"
+  }
+};
+
+let currentLanguage = localStorage.getItem("noble_language") || "en";
+
+function t(key){
+  return (translations[currentLanguage] && translations[currentLanguage][key]) || translations.en[key] || key;
+}
+
+function getLobbyName(lobby){
+  const names = {
+    "1":"firstLobby",
+    "2":"secondLobby",
+    "3":"thirdLobby",
+    "reload1":"reloadLobby",
+    "reload2":"reloadSecondLobby",
+    "reload3":"reloadThirdLobby",
+    "ladder":"ladderLobby",
+    "power":"powerWeekend",
+    "latenight1":"lateNightFirstLobby",
+    "latenight2":"lateNightSecondLobby"
+  };
+  return t(names[lobby]);
+}
+
+function changeLanguage(){
+  currentLanguage = document.getElementById("language").value;
+  localStorage.setItem("noble_language", currentLanguage);
+  applyLanguage();
+}
+
+function applyLanguage(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.dataset.i18n;
+    el.textContent = t(key);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+    const key = el.dataset.i18nPlaceholder;
+    el.placeholder = t(key);
+  });
+  const delayBadge = document.getElementById("delayBadge");
+  if(delayBadge) delayBadge.textContent = t("firstGame") + ": +" + getDelay() + " min";
+  renderLobby();
+  if(typeof updateDiscordTimestampPanel === "function") updateDiscordTimestampPanel();
+}
+
+
+function openDatePicker(){
+  const input = document.getElementById("time");
+  if(input && typeof input.showPicker === "function"){
+    try{
+      input.showPicker();
+    }catch(e){}
+  }
+}
+
+function pad(n){return String(n).padStart(2,"0")}
+
+function formatDateValue(date){
+  return date.getFullYear()+"-"+pad(date.getMonth()+1)+"-"+pad(date.getDate())+"T"+pad(date.getHours())+":"+pad(date.getMinutes());
+}
+
+function setCurrentDateTime(){
+  document.getElementById("time").value = formatDateValue(new Date());
+}
+
+function setNow(){
+  activeHour = null;
+  setCurrentDateTime();
+  renderTimes();
+  generate();
+}
+
+function setHour(hour){
+  activeHour = hour;
+  const now = new Date();
+  now.setHours(hour,0,0,0);
+  document.getElementById("time").value = formatDateValue(now);
+  renderTimes();
+  generate();
+}
+
+function clearActiveTime(){
+  activeHour = null;
+  renderTimes();
+}
+
+function addMinutes(min){
+  activeHour = null;
+  const input = document.getElementById("time");
+  const base = input.value ? new Date(input.value) : new Date();
+  base.setMinutes(base.getMinutes()+min);
+  input.value = formatDateValue(base);
+  renderTimes();
+  generate();
+}
+
+function unix(date){return Math.floor(new Date(date).getTime()/1000)}
+
+function saveUser(){
+  localStorage.setItem("noble_user", document.getElementById("userid").value);
+  localStorage.setItem("noble_cohost", document.getElementById("cohostid").value);
+}
+
+function getHostMention(){
+  const main = document.getElementById("userid").value.trim();
+  const cohost = document.getElementById("cohostid").value.trim();
+
+  if(main && cohost){
+    return `<@${main}> & <@${cohost}>`;
+  }
+  if(main){
+    return `<@${main}>`;
+  }
+  if(cohost){
+    return `<@${cohost}>`;
+  }
+  return `<@>`;
+}
+
+function getDelay(){
+  if(currentServer === "247" || currentServer === "solos" || currentServer === "solosclosed") return 20;
+  return 15;
+}
+
+function getLobbyOffset(){
+  if(currentServer === "247"){
+    if(currentLobby === "2") return 15;
+    if(currentLobby === "3") return 20;
+    return 0;
+  }
+
+  if(currentLobby === "2" || currentLobby === "reload2" || currentLobby === "latenight2") return 5;
+  if(currentLobby === "3" || currentLobby === "reload3") return 10;
+  return 0;
+}
+
+function isReloadLobby(){
+  return currentLobby === "reload1" || currentLobby === "reload2" || currentLobby === "reload3";
+}
+
+function reloadLobbyTitle(){
+  if(currentLobby === "reload2") return "Second Lobby";
+  if(currentLobby === "reload3") return "Third Lobby";
+  return "";
+}
+
+function applyTheme(){
+  if(currentServer === "div0" && (currentLobby === "latenight1" || currentLobby === "latenight2")){
+    document.body.setAttribute("data-theme", "latenight");
+  }else{
+    document.body.setAttribute("data-theme", currentServer);
+  }
+}
+
+function selectServer(server){
+  currentServer = server;
+  applyTheme();
+  localStorage.setItem("noble_server", server);
+
+  const availableReload = (server === "div0" || server === "div3");
+  const availableLadder = (server === "div3");
+  const availableLateNight = (server === "div0");
+  if(server !== "solos" && currentLobby === "power") currentLobby = "1";
+  if(!availableReload && isReloadLobby()) currentLobby = "1";
+  if(!availableLadder && currentLobby === "ladder") currentLobby = "1";
+  if(!availableLateNight && (currentLobby === "latenight1" || currentLobby === "latenight2")) currentLobby = "1";
+
+  localStorage.setItem("noble_lobby", currentLobby);
+  applyTheme();
+
+  document.querySelectorAll(".server-btn").forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.server === server);
+  });
+
+  document.getElementById("sessionBox").classList.toggle("hidden", server !== "247");
+  document.getElementById("delayBadge").textContent = t("firstGame") + ": +" + getDelay() + " min";
+
+  renderLobby();
+  generate();
+}
+
+function selectLobby(lobby){
+  currentLobby = lobby;
+  localStorage.setItem("noble_lobby", lobby);
+  applyTheme();
+  renderLobby();
+  generate();
+}
+
+function renderTimes(){
+  const grid = document.getElementById("timeGrid");
+  grid.innerHTML = "";
+  for(let h=13; h<=23; h++){
+    const btn = document.createElement("button");
+    btn.className = "time-btn" + (activeHour === h ? " active" : "");
+    btn.textContent = pad(h)+":00";
+    btn.onclick = () => setHour(h);
+    grid.appendChild(btn);
+  }
+}
+
+function renderLobby(){
+  const grid = document.getElementById("lobbyGrid");
+  grid.innerHTML = "";
+
+  let options = ["1","2","3"];
+
+  if(currentServer === "div0"){
+    options = ["1","2","3","reload1","reload2","reload3","latenight1","latenight2"];
+  }
+
+  if(currentServer === "div3"){
+    options = ["1","2","3","reload1","reload2","reload3","ladder"];
+  }
+
+  if(currentServer === "solos"){
+    options = ["1","2","3","power"];
+  }
+
+  if(!options.includes(currentLobby)){
+    currentLobby = options[0];
+    localStorage.setItem("noble_lobby", currentLobby);
+  }
+
+  options.forEach(lobby=>{
+    const btn = document.createElement("button");
+    const reloadClass = lobby.startsWith("reload") ? " reload" : "";
+    const ladderClass = lobby === "ladder" ? " ladder" : "";
+    const lateNightClass = lobby.startsWith("latenight") ? " latenight" : "";
+    btn.className = "lobby-btn" + reloadClass + ladderClass + lateNightClass + (currentLobby === lobby ? " active" : "");
+    btn.textContent = getLobbyName(lobby);
+    btn.onclick = () => selectLobby(lobby);
+    grid.appendChild(btn);
+  });
+}
+
+function generateReloadMessage(title, reg, firstGame, hostMention, server){
+  const arrow = "<:ArrowRight:1398422494817419385>";
+
+  if(server === "div0" && currentLobby === "reload1"){
+    return `@everyone 
+
+**Noble Division 0 Practice Session (Reload)**
+
+${arrow} Registration opens <t:${reg}:t>
+
+${arrow} First Game Commences <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}   Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read ⁠⁠<#1282840995846950962>, ⁠⁠<#1282841044521717761> & ⁠⁠<#1282841572336996372> before the games.
+
+Required at least **25+ Reacts** (1 per duo)
+**50+ Reacts** for a second lobby`;
+  }
+
+  if(currentLobby === "reload2"){
+    return `@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+Required at least **25+ Reacts** (1 per duo)`;
+  }
+
+  if(currentLobby === "reload3"){
+    return `@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+Required at least **25+ Reacts** (1 per duo)`;
+  }
+
+  return `@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#902656971801493545>, <#902656971801493547> & <#1383042801754968135> before the games.
+
+Required at least **25+ Reacts** (1 per duo)
+**50+ Reacts** for a second lobby ^`;
+}
+
+
+function generateLateNightMessage(reg, firstGame, hostMention){
+  const arrow = "<:ArrowRight:1398422494817419385>";
+
+  if(currentLobby === "latenight2"){
+    return `@everyone 
+
+**Noble Division 0 Practice Late Night Session ( 2 GAMES )**
+
+**Second Lobby**
+
+${arrow} Registration opens @ <t:${reg}:t>
+
+${arrow} First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: ${hostMention}, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+  }
+
+  return `@everyone 
+
+**Noble Division 0 Practice Late Night Session ( 2 GAMES )**
+
+${arrow} Registration opens @ <t:${reg}:t>
+
+${arrow} First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• Session lasts 2 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#1282840995846950962>, <#1282841044521717761> & <#1282841572336996372> before the games.
+
+Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
+}
+
+function generate(){
+  const time=document.getElementById("time").value;
+  const hostMention=getHostMention();
+  const sessionNumber=document.getElementById("sessionNumber").value || "1";
+
+  if(!time){return}
+
+  const baseReg = unix(time);
+  const reg = baseReg + getLobbyOffset() * 60;
+  const firstGame = reg + getDelay() * 60;
+  lastReg = reg;
+  lastGame = firstGame;
+
+  let title="";
+  let msg="";
+  const lobby = currentLobby;
+
+  if(currentServer==="div0" && (currentLobby === "latenight1" || currentLobby === "latenight2")){
+    msg = generateLateNightMessage(reg, firstGame, hostMention);
+  }
+
+  else if(currentServer==="div0" && isReloadLobby()){
+    msg = generateReloadMessage("Noble Division 0 Practice Session (Reload)", reg, firstGame, hostMention, currentServer);
+  }
+
+  else if(currentServer==="div3" && currentLobby==="ladder"){
+    msg=`@everyone 
+
+**Noble Division 3 Practice Session (5 Games)**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• **Session lasts 5 Games. -> Miss a single game and you will be banned.**
+• **Top 2 will get access to Division 2.** (Only the registered players)
+• Make sure to read <#902656971801493545>, <#902656971801493547> & <#1383042801754968135> before the games.
+
+Required at least **55+ Reacts** (1 per duo)`;
+  }
+
+  else if(currentServer==="div3" && isReloadLobby()){
+    msg = generateReloadMessage("Noble Division 3 Practice Session (Reload)", reg, firstGame, hostMention, currentServer);
+  }
+
+  else if(currentServer==="div0"){
+    title="Noble Division 0 Practice Session";
+    if(lobby==="1") msg=`@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#1282840995846950962>, <#1282841044521717761> & <#1282841572336996372> before the games.
+
+Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
+    if(lobby==="2") msg=`@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: ${hostMention}, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+    if(lobby==="3") msg=`@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: ${hostMention}, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+  }
+
+  else if(currentServer==="div2"){
+    title="Noble Division 2 Practice Session";
+    if(lobby==="1") msg=`@everyone 
+
+**${title}**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#757574098359550082>, <#860622870563520513> & <#912669854543269888> before the games.
+
+Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
+    if(lobby==="2") msg=`@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: ${hostMention}, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+    if(lobby==="3") msg=`@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: ${hostMention}, Direct Message them for help. 
+
+Required at least **55+ Reacts** (1 per duo).`;
+  }
+
+  else if(currentServer==="div3"){
+    title="Noble Division 3 Practice Session";
+    if(lobby==="1") msg=`@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, Direct Message them for help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#902656971801493545>, <#902656971801493547> & <#1383042801754968135> before the games.
+
+Required at least **55+ Reacts** (1 per duo)
+**110+ Reacts** for a second lobby ^`;
+    if(lobby==="2") msg=`@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: ${hostMention}, Direct Message them for help.
+
+Required at least **55+ Reacts** (1 per duo)
+**110+ Reacts** for a third lobby ^`;
+    if(lobby==="3") msg=`@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+• The host for this session is: ${hostMention}, Direct Message them for help.
+
+Required at least **55+ Reacts** (1 per duo)
+**110+ Reacts** for a third lobby ^`;
+  }
+
+  else if(currentServer==="247"){
+    title=`Noble 24/7 Session ${sessionNumber}`;
+    if(lobby==="1") msg=`@everyone 
+
+**${title}**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, if you need any help.
+
+3 Games,Required at least **55+ Reacts** for 1 lobby and **110+ Reacts** for a 2nd lobby (1 per duo).`;
+    if(lobby==="2") msg=`@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, if you need any help.
+
+3 Games, Required at least 55+ Reacts (1 per Duo).`;
+    if(lobby==="3") msg=`@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+:arrow: Registration opens @ <t:${reg}:t>
+
+:arrow: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is: ${hostMention}, if you need any help.
+
+3 Games, Required at least 55+ Reacts (1 per Duo).`;
+  }
+
+  else if(currentServer==="solos"){
+    title="Noble Solos Practice Session (3 Games)";
+    if(lobby==="1") msg=`@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is ${hostMention}. Direct message them if you need help.
+
+• Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+• Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
+• Top 20 = Noble Solos Closed <:solos_closed:1403796828239040534> 
+
+Required at least **110+ Reacts** and **200+** for a 2nd lobby
+-# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
+    if(lobby==="2") msg=`@everyone 
+
+**${title}**
+
+**Second Lobby**
+
+<:ArrowRight:1398336238448152717> Registration opens @ <t:${reg}:t>
+
+<:ArrowRight:1398336238448152717> First Game Commences @ <t:${firstGame}:t>
+
+Please DM ${hostMention}, if you are in need of any help.
+
+• Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+• Top 15 = Noble Solos Closed <:solos_closed:1403796828239040534> 
+• Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
+
+Required at least **90+ reacts**
+-# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
+    if(lobby==="3") msg=`@everyone 
+
+**${title}**
+
+**Third Lobby**
+
+<:ArrowRight:1398336238448152717> Registration opens @ <t:${reg}:t>
+
+<:ArrowRight:1398336238448152717> First Game Commences @ <t:${firstGame}:t>
+
+Please DM ${hostMention}, if you are in need of any help.
+
+• Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+• Top 15 = Noble Solos Closed <:solos_closed:1403796828239040534> 
+• Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
+
+Required at least **90+ reacts**
+-# This is an open server • No requirements • Everyone can play. Invite your friends, <https://discord.gg/solos>`;
+    if(lobby==="power") msg=`@everyone 
+
+**Noble Solos Practice Session**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is ${hostMention}. Direct message them if you need help.
+
+• Session lasts 3 Games. **Miss a single game and you will be banned.**
+• Make sure to read <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+**• Top 30!!! = Noble Solos Closed <:solos_closed:1403796828239040534> only this weekend 🔥 more info (top 50 for Whop) **https://discord.com/channels/1098721307077652630/1098919249055072327/1497249673642246226
+• Check out <#1252253168729985096> to see our sessions schedule for today if you're interested in playing sessions later today.
+
+Required at least 110+ reacts`;
+  }
+
+  else if(currentServer==="solosclosed"){
+    title="Noble Solos Closed Practice Session";
+    msg=`@everyone 
+
+**${title}**
+
+:ArrowRight: Registration opens @ <t:${reg}:t>
+
+:ArrowRight: First Game Commences @ <t:${firstGame}:t>
+
+The host for this session is ${hostMention}. Direct message them if you need help.
+
+• Session lasts 3 Games. **Miss a game and you will be perm banned.**
+• Make sure to **read** <#1098721307643875390>, <#1124136360522027179> & <#1098721307643875391> before the games.
+• Top 1 = Division 2 access :noble_division2_icon:  (Top 5 for Whop Supporters)
+• Top 5 = Division 3 Invite :noble_division3_icon:  (Top 20 for Whop Supporters)
+• Top 10 = @Early Register (only for the next session)
+
+Required at least 100+ Reacts`;
+  }
+
+  document.getElementById("output").value=msg;
+  updateDiscordTimestampPanel();
+}
 
 
 
+
+
+
+
+
+
+
+
+function showToast(text){
+  const toast=document.getElementById("toast");
+  toast.textContent=text;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),1200);
+}
+
+function copyText(text, label){
+  navigator.clipboard.writeText(text);
+  showToast(label || t("copied"));
+}
+
+function copyAnnouncement(){copyText(document.getElementById("output").value, t("announcementCopied"))}
+function copyRegTimestamp(){copyText(`<t:${lastReg}:t>`, t("regCopied"))}
+function copyGameTimestamp(){copyText(`<t:${lastGame}:t>`, t("gameCopied"))}
+
+
+
+
+window.onload=function(){
+  
+  const savedUser = localStorage.getItem("noble_user");
+  const savedCohost = localStorage.getItem("noble_cohost");
+  if(savedUser) document.getElementById("userid").value = savedUser;
+  if(savedCohost) document.getElementById("cohostid").value = savedCohost;
+  document.getElementById("language").value = currentLanguage;
+  setCurrentDateTime();
+  renderTimes();
+  selectServer(currentServer);
+  applyLanguage();
+  updateDiscordTimestampPanel();
+};
+</script>
 
 
 
 
 <section id="yuniteMentionExtractor" class="panel yunite-panel">
-  <div class="panel-title">Yunite Top / Bottom Mentions</div>
+  <div class="panel-title" data-i18n="yuniteExtractorTitle">Yunite Top / Bottom Mentions</div>
   <div class="yunite-box">
     <div class="yunite-card">
-      <label>Paste full Yunite leaderboard text</label>
-      <textarea id="yuniteInputClean" class="yunite-input" placeholder="CTRL+A → CTRL+C on Yunite leaderboard, then paste here"></textarea>
-
+      <label data-i18n="yuniteInputLabel">Paste full Yunite leaderboard text</label>
+      <textarea id="yuniteInput" class="yunite-input" data-i18n-placeholder="yuniteInputPlaceholder" placeholder="CTRL+A → CTRL+C on Yunite leaderboard, then paste here"></textarea>
       <div class="yunite-actions">
-        <button class="small-btn" type="button" id="yuniteExtractBtn">Extract Top / Bottom</button>
-        <button class="small-btn" type="button" id="yuniteClearBtn">Clear</button>
+        <button class="small-btn" type="button" id="extractTop5Btn">Top 5</button>
+        <button class="small-btn" type="button" id="extractBottom5Btn">Bottom 5</button>
+        <button class="small-btn" type="button" id="clearYuniteBtn">Clear</button>
       </div>
-
-      <div class="yunite-help">
-        Top 5 = ranks #1-#5. Bottom 5 = worst 5 teams from the bottom, but only teams with Games = 3.
-      </div>
+      <div class="yunite-help">Top 5 = first player from ranks #1-#5. Bottom 5 = worst 5 players from the end, but only teams with Games = 3.</div>
     </div>
 
     <div class="yunite-card">
       <label>Top 5 Command</label>
-      <textarea id="yuniteTopOutputClean" class="yunite-output" readonly placeholder="!gt @top1 @top2 @top3 @top4 @top5"></textarea>
+      <textarea id="yuniteOutputTop" class="yunite-output" readonly placeholder="!gt @top1 @top2 @top3 @top4 @top5"></textarea>
       <div class="yunite-actions">
-        <button class="copy-btn main" type="button" id="yuniteCopyTopBtn">Copy Top 5</button>
+        <button class="copy-btn main" type="button" id="copyTop5Btn">Copy Top 5</button>
       </div>
 
       <label style="margin-top:14px">Bottom 5 Command</label>
-      <textarea id="yuniteBottomOutputClean" class="yunite-output" readonly placeholder="!brole @bottom1 @bottom2 @bottom3 @bottom4 @bottom5"></textarea>
+      <textarea id="yuniteOutputBottom" class="yunite-output" readonly placeholder="!brole @bottom1 @bottom2 @bottom3 @bottom4 @bottom5"></textarea>
       <div class="yunite-actions">
-        <button class="copy-btn main" type="button" id="yuniteCopyBottomBtn">Copy Bottom 5</button>
+        <button class="copy-btn main" type="button" id="copyBottom5Btn">Copy Bottom 5</button>
       </div>
 
-      <div id="yuniteDebugListClean" class="yunite-result-list"></div>
+      <div id="yuniteResultList" class="yunite-result-list"></div>
     </div>
   </div>
 </section>
@@ -1909,11 +2914,144 @@ select{
 
 <div class="watermark"><span data-i18n="madeBy">Made by</span> <span>Focznik</span></div>
 
+<script>
+(function(){
+  function pad(n){ return String(n).padStart(2, "0"); }
 
+  function getUnix(){
+    const input = document.getElementById("time");
+    if(input && input.value){
+      const d = new Date(input.value);
+      if(!Number.isNaN(d.getTime())){
+        return Math.floor(d.getTime() / 1000);
+      }
+    }
+    return Math.floor(Date.now() / 1000);
+  }
+
+  function localeCode(){
+    const map = {en:"en-GB", pl:"pl-PL", it:"it-IT", de:"de-DE", ru:"ru-RU"};
+    return map[currentLanguage] || "en-GB";
+  }
+
+  function monthName(d){
+    return d.toLocaleDateString(localeCode(), {month:"long"});
+  }
+
+  function weekdayName(d){
+    return d.toLocaleDateString(localeCode(), {weekday:"long"});
+  }
+
+  function fill(key, n){
+    return t(key).replace("{n}", n);
+  }
+
+  function relativeText(d){
+    const diff = d.getTime() - Date.now();
+    const abs = Math.abs(diff);
+
+    const min = Math.round(abs / 60000);
+    const hour = Math.round(abs / 3600000);
+    const day = Math.round(abs / 86400000);
+    const month = Math.round(day / 30);
+    const year = Math.round(day / 365);
+
+    if(min < 1) return t("now");
+    if(min < 60) return diff >= 0 ? fill("inMinutes", min) : fill("minutesAgo", min);
+    if(hour < 24) return diff >= 0 ? fill("inHours", hour) : fill("hoursAgo", hour);
+    if(day === 1) return diff >= 0 ? t("tomorrow") : t("yesterday");
+    if(day < 30) return diff >= 0 ? fill("inDays", day) : fill("daysAgo", day);
+    if(month < 12) return diff >= 0 ? fill("inMonths", month) : fill("monthsAgo", month);
+    return diff >= 0 ? fill("inYears", year) : fill("yearsAgo", year);
+  }
+
+  function set(id, text){
+    const el = document.getElementById(id);
+    if(el) el.textContent = text;
+  }
+
+  window.updateDiscordTimestampPanel = function(){
+    const unix = getUnix();
+    const d = new Date(unix * 1000);
+
+    const shortDate = d.toLocaleDateString(localeCode(), {day:"2-digit", month:"2-digit", year:"numeric"});
+    const longDate = d.toLocaleDateString(localeCode(), {day:"numeric", month:"long", year:"numeric"});
+    const shortTime = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const longTime = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    const shortDateTime = `${longDate} ${t("at")} ${shortTime}`;
+    const longDateTime = `${weekdayName(d)}, ${longDate} ${t("at")} ${shortTime}`;
+    const relative = relativeText(d);
+
+    const formats = {
+      d: shortDate,
+      D: longDate,
+      t: shortTime,
+      T: longTime,
+      f: shortDateTime,
+      F: longDateTime,
+      R: relative,
+      unix: String(unix)
+    };
+
+    ["d","D","t","T","f","F","R"].forEach(type => {
+      set("dt-code-" + type, `<t:${unix}:${type}>`);
+      set("dt-prev-" + type, formats[type]);
+    });
+
+    set("dt-code-unix", String(unix));
+    set("dt-prev-unix", String(unix));
+  };
+
+  window.copyDiscordTs = function(type){
+    const unix = getUnix();
+    const text = type === "unix" ? String(unix) : `<t:${unix}:${type}>`;
+
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text);
+    }
+
+    if(typeof showToast === "function"){
+      showToast(t("timestampCopied"));
+     }else{
+      alert(t("copied") + ": " + text);
+    }
+  };
+
+  function hook(){
+    updateDiscordTimestampPanel();
+
+    const input = document.getElementById("time");
+    if(input){
+      input.addEventListener("input", updateDiscordTimestampPanel);
+      input.addEventListener("change", updateDiscordTimestampPanel);
+      input.addEventListener("blur", updateDiscordTimestampPanel);
+    }
+
+    document.querySelectorAll(".time-btn,.lobby-btn,.server-btn,.small-btn").forEach(btn=>{
+      btn.addEventListener("click", function(){
+        setTimeout(updateDiscordTimestampPanel, 30);
+        setTimeout(updateDiscordTimestampPanel, 200);
+      });
+    });
+
+    // refresh relative time sometimes
+    setInterval(updateDiscordTimestampPanel, 30000);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", hook);
+  }else{
+    hook();
+  }
+
+  window.addEventListener("load", updateDiscordTimestampPanel);
+})();
+</script>
 
 
 
 <script>
+/* CLEAN YUNITE TOP/BOTTOM PARSER */
 (function(){
   const BAD = new Set([
     "rank","players","player","games","eliminations","wins","score",
@@ -1925,7 +3063,7 @@ select{
     "paste","timestamp","helper","early"
   ]);
 
-  function byId(id){ return document.getElementById(id); }
+  function el(id){ return document.getElementById(id); }
 
   function clean(v){
     return String(v || "").replace(/^@+/, "").replace(/[|+]/g, "").trim();
@@ -1936,6 +3074,7 @@ select{
     if(!s) return false;
     if(BAD.has(s.toLowerCase())) return false;
     if(/^\d+$/.test(s)) return false;
+    if(/\s/.test(s)) return false;
     if(/^https?:\/\//i.test(s)) return false;
     if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
     return /^[A-Za-z0-9._-]{2,32}$/.test(s);
@@ -1948,21 +3087,22 @@ select{
       .map(x => x.trim())
       .filter(Boolean);
 
-    const ranks = [];
+    const rankPositions = [];
     for(let i = 0; i < lines.length; i++){
       const m = lines[i].match(/^#\s*(\d+)$/);
-      if(m) ranks.push({ rank:Number(m[1]), index:i });
+      if(m) rankPositions.push({ rank: Number(m[1]), index: i });
     }
 
     const teams = [];
 
-    for(let r = 0; r < ranks.length; r++){
-      const start = ranks[r].index;
-      const end = (r + 1 < ranks.length) ? ranks[r + 1].index : lines.length;
+    for(let r = 0; r < rankPositions.length; r++){
+      const start = rankPositions[r].index;
+      const end = (r + 1 < rankPositions.length) ? rankPositions[r + 1].index : lines.length;
       const block = lines.slice(start + 1, end);
 
       let p1 = "";
       let p1Index = -1;
+
       for(let i = 0; i < block.length; i++){
         if(isNick(block[i])){
           p1 = clean(block[i]);
@@ -1982,19 +3122,18 @@ select{
         }
       }
 
-      const statLines = block.slice(p2Index !== -1 ? p2Index + 1 : p1Index + 1);
+      const statStart = p2Index !== -1 ? p2Index + 1 : (p1Index !== -1 ? p1Index + 1 : 0);
       const nums = [];
-      for(const line of statLines){
-        if(/^#\s*\d+$/.test(line)) break;
-        const parts = line.match(/\b\d+\b/g);
-        if(parts){
-          for(const n of parts) nums.push(Number(n));
+
+      for(let i = statStart; i < block.length; i++){
+        const parts = block[i].split(/\s+/);
+        for(const part of parts){
+          if(/^\d+$/.test(part)) nums.push(Number(part));
         }
       }
 
       let games = null, elims = null, wins = null, score = null;
 
-      // In Yunite block after both player names: Games, Elims, Wins, Score.
       if(nums.length >= 4){
         games = nums[0];
         elims = nums[1];
@@ -2007,100 +3146,301 @@ select{
       }
 
       if(p1){
-        teams.push({ rank:ranks[r].rank, p1, games, elims, wins, score });
+        teams.push({
+          rank: rankPositions[r].rank,
+          p1,
+          games,
+          elims,
+          wins,
+          score
+        });
       }
     }
 
     return teams;
   }
 
-  function command(cmd, players){
-    return players.length ? cmd + " " + players.map(x => "@" + x).join(" ") : "";
+  function format(command, players){
+    return players.length ? command + " " + players.map(x => "@" + x).join(" ") : "";
   }
 
   function render(){
-    const raw = byId("yuniteInputClean") ? byId("yuniteInputClean").value : "";
+    const input = el("yuniteInput");
+    const raw = input ? input.value : "";
     const teams = parseTeams(raw);
 
-    const top = teams
+    const topPlayers = teams
       .filter(t => t.rank >= 1 && t.rank <= 5)
       .sort((a,b) => a.rank - b.rank)
       .slice(0,5)
       .map(t => t.p1);
 
-    const bottom = teams
+    const bottomPlayers = teams
       .filter(t => Number(t.games) === 3)
       .sort((a,b) => b.rank - a.rank)
       .slice(0,5)
       .map(t => t.p1);
 
-    const topText = command("!gt", top);
-    const bottomText = command("!brole", bottom);
+    const topText = format("!gt", topPlayers);
+    const bottomText = format("!brole", bottomPlayers);
 
-    if(byId("yuniteTopOutputClean")) byId("yuniteTopOutputClean").value = topText;
-    if(byId("yuniteBottomOutputClean")) byId("yuniteBottomOutputClean").value = bottomText;
+    if(el("yuniteOutputTop")) el("yuniteOutputTop").value = topText;
+    if(el("yuniteOutputBottom")) el("yuniteOutputBottom").value = bottomText;
 
-    const list = byId("yuniteDebugListClean");
+    const list = el("yuniteResultList");
     if(list){
       list.innerHTML = "";
 
-      top.forEach((nick,i)=>{
+      topPlayers.forEach((nick, i) => {
         const row = document.createElement("div");
         row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">TOP #' + (i+1) + '</span><span>@' + nick + '</span>';
+        row.innerHTML = '<span class="yunite-rank">TOP #' + (i + 1) + '</span><span>@' + nick + '</span>';
         list.appendChild(row);
       });
 
-      bottom.forEach((nick,i)=>{
+      bottomPlayers.forEach((nick, i) => {
         const row = document.createElement("div");
         row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">BOTTOM #' + (i+1) + '</span><span>@' + nick + '</span>';
+        row.innerHTML = '<span class="yunite-rank">BOTTOM #' + (i + 1) + '</span><span>@' + nick + '</span>';
         list.appendChild(row);
       });
-
-      if(!bottom.length && teams.length){
-        const row = document.createElement("div");
-        row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">INFO</span><span>No teams with Games = 3 found in pasted text</span>';
-        list.appendChild(row);
-      }
     }
 
-    return {topText,bottomText};
+    return { topText, bottomText };
   }
 
-  async function copyBox(id){
-    render();
-    const box = byId(id);
-    if(!box || !box.value) return;
+  async function copyValue(id){
+    const box = el(id);
+    const text = box ? box.value : "";
+    if(!text) return;
 
     try{
-      await navigator.clipboard.writeText(box.value);
+      await navigator.clipboard.writeText(text);
     }catch(e){
       box.focus();
       box.select();
       document.execCommand("copy");
     }
+
+    if(typeof showToast === "function") showToast("Copied");
   }
 
-  function clearAll(){
-    if(byId("yuniteInputClean")) byId("yuniteInputClean").value = "";
-    if(byId("yuniteTopOutputClean")) byId("yuniteTopOutputClean").value = "";
-    if(byId("yuniteBottomOutputClean")) byId("yuniteBottomOutputClean").value = "";
-    if(byId("yuniteDebugListClean")) byId("yuniteDebugListClean").innerHTML = "";
-  }
+  window.extractYuniteMentions = render;
+  window.clearYuniteMentions = function(){
+    if(el("yuniteInput")) el("yuniteInput").value = "";
+    if(el("yuniteOutputTop")) el("yuniteOutputTop").value = "";
+    if(el("yuniteOutputBottom")) el("yuniteOutputBottom").value = "";
+    if(el("yuniteResultList")) el("yuniteResultList").innerHTML = "";
+  };
+  window.copyYuniteMentions = function(){ render(); copyValue("yuniteOutputTop"); };
 
-  function bind(){
-    const input = byId("yuniteInputClean");
+  document.addEventListener("DOMContentLoaded", function(){
+    const input = el("yuniteInput");
     if(input){
       input.addEventListener("input", render);
       input.addEventListener("paste", () => setTimeout(render, 0));
     }
 
-    if(byId("yuniteExtractBtn")) byId("yuniteExtractBtn").onclick = e => { e.preventDefault(); render(); };
-    if(byId("yuniteClearBtn")) byId("yuniteClearBtn").onclick = e => { e.preventDefault(); clearAll(); };
-    if(byId("yuniteCopyTopBtn")) byId("yuniteCopyTopBtn").onclick = e => { e.preventDefault(); copyBox("yuniteTopOutputClean"); };
-    if(byId("yuniteCopyBottomBtn")) byId("yuniteCopyBottomBtn").onclick = e => { e.preventDefault(); copyBox("yuniteBottomOutputClean"); };
+    if(el("extractTop5Btn")) el("extractTop5Btn").onclick = function(e){ e.preventDefault(); render(); };
+    if(el("extractBottom5Btn")) el("extractBottom5Btn").onclick = function(e){ e.preventDefault(); render(); };
+    if(el("clearYuniteBtn")) el("clearYuniteBtn").onclick = function(e){ e.preventDefault(); window.clearYuniteMentions(); };
+    if(el("copyTop5Btn")) el("copyTop5Btn").onclick = function(e){ e.preventDefault(); render(); copyValue("yuniteOutputTop"); };
+    if(el("copyBottom5Btn")) el("copyBottom5Btn").onclick = function(e){ e.preventDefault(); render(); copyValue("yuniteOutputBottom"); };
+  });
+})();
+</script>
+
+
+<script>
+/* FIX: teammate nick with number cannot break Games detection */
+(function(){
+  const BAD = new Set([
+    "rank","players","player","games","eliminations","wins","score",
+    "yunite","logo","tournaments","practice","session","scrim","on",
+    "server","icon","noble","division","ended","since","hours","hour",
+    "minutes","minute","seconds","second","top","bottom","points","kick",
+    "twitter","discord","click","team","show","details","registration",
+    "opens","commences","leaderboard","live","format","preview","copy",
+    "paste","timestamp","helper","early"
+  ]);
+
+  function el(id){ return document.getElementById(id); }
+
+  function clean(v){
+    return String(v || "").replace(/^@+/, "").replace(/[|+]/g, "").trim();
+  }
+
+  function isNick(v){
+    const s = clean(v);
+    if(!s) return false;
+    if(BAD.has(s.toLowerCase())) return false;
+    if(/^\d+$/.test(s)) return false;
+    if(/\s/.test(s)) return false;
+    if(/^https?:\/\//i.test(s)) return false;
+    if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
+    return /^[A-Za-z0-9._-]{2,32}$/.test(s);
+  }
+
+  function parseTeams(raw){
+    const lines = String(raw || "")
+      .replace(/\r/g, "\n")
+      .split(/\n+/)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    const rankPositions = [];
+    for(let i = 0; i < lines.length; i++){
+      const m = lines[i].match(/^#\s*(\d+)$/);
+      if(m) rankPositions.push({ rank: Number(m[1]), index: i });
+    }
+
+    const teams = [];
+
+    for(let r = 0; r < rankPositions.length; r++){
+      const start = rankPositions[r].index;
+      const end = (r + 1 < rankPositions.length) ? rankPositions[r + 1].index : lines.length;
+      const block = lines.slice(start + 1, end);
+
+      let p1 = "";
+      for(const line of block){
+        if(isNick(line)){
+          p1 = clean(line);
+          break;
+        }
+      }
+
+      // IMPORTANT:
+      // Stats are the LAST 4 numeric-only lines in each rank block:
+      // Games, Eliminations, Wins, Score.
+      // This ignores numbers inside teammate names like "avoyache 2".
+      const numericOnly = block
+        .filter(x => /^\d+$/.test(x.trim()))
+        .map(Number);
+
+      const last4 = numericOnly.slice(-4);
+
+      let games = null, elims = null, wins = null, score = null;
+      if(last4.length === 4){
+        games = last4[0];
+        elims = last4[1];
+        wins = last4[2];
+        score = last4[3];
+      }
+
+      if(p1){
+        teams.push({
+          rank: rankPositions[r].rank,
+          p1,
+          games,
+          elims,
+          wins,
+          score
+        });
+      }
+    }
+
+    return teams;
+  }
+
+  function format(command, players){
+    return players.length ? command + " " + players.map(x => "@" + x).join(" ") : "";
+  }
+
+  function render(){
+    const input = el("yuniteInput");
+    const raw = input ? input.value : "";
+    const teams = parseTeams(raw);
+
+    const topPlayers = teams
+      .filter(t => t.rank >= 1 && t.rank <= 5)
+      .sort((a,b) => a.rank - b.rank)
+      .slice(0,5)
+      .map(t => t.p1);
+
+    const bottomPlayers = teams
+      .filter(t => Number(t.games) === 3)
+      .sort((a,b) => b.rank - a.rank)
+      .slice(0,5)
+      .map(t => t.p1);
+
+    const topText = format("!gt", topPlayers);
+    const bottomText = format("!brole", bottomPlayers);
+
+    if(el("yuniteOutputTop")) el("yuniteOutputTop").value = topText;
+    if(el("yuniteOutputBottom")) el("yuniteOutputBottom").value = bottomText;
+
+    const list = el("yuniteResultList");
+    if(list){
+      list.innerHTML = "";
+      topPlayers.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">TOP #' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+
+      bottomPlayers.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">BOTTOM #' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+    }
+
+    return { topText, bottomText };
+  }
+
+  async function copyText(text, box){
+    if(!text) return;
+    try{
+      await navigator.clipboard.writeText(text);
+    }catch(e){
+      if(box){
+        box.focus();
+        box.select();
+        document.execCommand("copy");
+      }
+    }
+  }
+
+  window.extractYuniteMentions = render;
+  window.generateYuniteMentions = render;
+
+  window.copyYuniteMentions = function(){
+    const result = render();
+    copyText(result.topText, el("yuniteOutputTop"));
+  };
+
+  window.copyTop5Mentions = function(){
+    const result = render();
+    copyText(result.topText, el("yuniteOutputTop"));
+  };
+
+  window.copyBottom5Mentions = function(){
+    const result = render();
+    copyText(result.bottomText, el("yuniteOutputBottom"));
+  };
+
+  window.clearYuniteMentions = function(){
+    if(el("yuniteInput")) el("yuniteInput").value = "";
+    if(el("yuniteOutputTop")) el("yuniteOutputTop").value = "";
+    if(el("yuniteOutputBottom")) el("yuniteOutputBottom").value = "";
+    if(el("yuniteResultList")) el("yuniteResultList").innerHTML = "";
+  };
+
+  function bind(){
+    const input = el("yuniteInput");
+    if(input){
+      input.addEventListener("input", render);
+      input.addEventListener("paste", () => setTimeout(render, 0));
+      render();
+    }
+
+    if(el("extractTop5Btn")) el("extractTop5Btn").onclick = e => { e.preventDefault(); render(); };
+    if(el("extractBottom5Btn")) el("extractBottom5Btn").onclick = e => { e.preventDefault(); render(); };
+    if(el("clearYuniteBtn")) el("clearYuniteBtn").onclick = e => { e.preventDefault(); window.clearYuniteMentions(); };
+    if(el("copyTop5Btn")) el("copyTop5Btn").onclick = e => { e.preventDefault(); window.copyTop5Mentions(); };
+    if(el("copyBottom5Btn")) el("copyBottom5Btn").onclick = e => { e.preventDefault(); window.copyBottom5Mentions(); };
   }
 
   if(document.readyState === "loading"){
