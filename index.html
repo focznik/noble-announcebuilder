@@ -126,14 +126,6 @@ select:focus{
   cursor:pointer;
   font-weight:800;
   transition:.12s ease;
-
-height:44px !important;
-min-height:44px !important;
-padding:0 12px !important;
-font-size:15px !important;
-display:flex;
-align-items:center;
-justify-content:center;
 }
 
 .server-btn{
@@ -1518,6 +1510,14 @@ select{
 
 
 
+
+.minute-btn{
+    height:44px !important;
+    min-height:44px !important;
+    padding:0 12px !important;
+    font-size:15px !important;
+}
+
 </style>
 </head>
 <body data-theme="div0">
@@ -1580,9 +1580,9 @@ select{
 
         <div class="help-row">
           <button class="small-btn" onclick="setNow()" data-i18n="useCurrentTime">Use current time</button>
-          <button class="small-btn" onclick="addMinutes(5)">+5 min</button>
-  <button class="small-btn" onclick="addMinutes(15)" data-i18n="plus15">+15 min</button>
-          <button class="small-btn" onclick="addMinutes(20)" data-i18n="plus20">+20 min</button>
+          <button class="small-btn" class="small-btn minute-btn" onclick="addMinutes(5)">+5 min</button>
+  <button class="small-btn" class="small-btn minute-btn" onclick="addMinutes(15)" data-i18n="plus15">+15 min</button>
+          <button class="small-btn" class="small-btn minute-btn" onclick="addMinutes(20)" data-i18n="plus20">+20 min</button>
         </div>
       </section>
 
