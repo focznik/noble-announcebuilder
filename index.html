@@ -3325,5 +3325,172 @@ window.onload=function(){
 })();
 </script>
 
+
+<script>
+/* FINAL BUTTON FIX FOR YUNITE PANEL */
+(function(){
+  const bad = new Set([
+    "rank","players","player","games","eliminations","wins","score",
+    "yunite","logo","tournaments","practice","session","scrim","on",
+    "server","icon","noble","division","ended","since","hours","hour",
+    "minutes","minute","seconds","second","top","bottom","points","kick",
+    "twitter","discord","click","team","show","details","registration",
+    "opens","commences","leaderboard","live","format","preview","copy",
+    "paste","timestamp","helper","early"
+  ]);
+
+  function getYuniteInput(){
+    return document.getElementById("yuniteInput") ||
+      document.querySelector(".yunite-input") ||
+      document.querySelector(".yunite-panel textarea") ||
+      document.querySelector("textarea[placeholder*='Yunite' i]");
+  }
+
+  function getYuniteOutput(){
+    return document.getElementById("yuniteOutput") ||
+      document.querySelector(".yunite-output") ||
+      document.querySelector(".yunite-panel textarea[readonly]") ||
+      document.querySelector(".yunite-card textarea:not(.yunite-input)");
+  }
+
+  function getYuniteList(){
+    return document.getElementById("yuniteResultList") ||
+      document.querySelector(".yunite-result-list");
+  }
+
+  function clean(s){
+    return String(s || "")
+      .replace(/^@+/, "")
+      .replace(/[|+]/g, "")
+      .trim();
+  }
+
+  function isNick(s){
+    s = clean(s);
+    if(!s) return false;
+    if(bad.has(s.toLowerCase())) return false;
+    if(/^https?:\/\//i.test(s)) return false;
+    if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
+    if(/^\d+$/.test(s)) return false;
+    if(/[ \t]/.test(s)) return false;
+    return /^[A-Za-z0-9._-]{2,32}$/.test(s);
+  }
+
+  window.yuniteTop5FromText = function(raw){
+    const lines = String(raw || "")
+      .replace(/\r/g, "\n")
+      .split(/\n+/)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    const result = [];
+
+    for(let rank = 1; rank <= 5; rank++){
+      const rankRe = new RegExp("^#\\s*" + rank + "$");
+      const idx = lines.findIndex(x => rankRe.test(x.trim()));
+
+      if(idx === -1) continue;
+
+      for(let j = idx + 1; j < Math.min(lines.length, idx + 16); j++){
+        const candidate = clean(lines[j]);
+        if(isNick(candidate)){
+          result.push(candidate);
+          break;
+        }
+      }
+    }
+
+    return result;
+  };
+
+  window.generateYuniteMentions = function(){
+    const input = getYuniteInput();
+    const output = getYuniteOutput();
+    const list = getYuniteList();
+
+    const players = window.yuniteTop5FromText(input ? input.value : "");
+    const finalText = players.length ? "!gt " + players.map(x => "@" + x).join(" ") : "";
+
+    if(output) output.value = finalText;
+
+    if(list){
+      list.innerHTML = "";
+      players.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">#' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+    }
+    return finalText;
+  };
+
+  window.clearYuniteMentions = function(){
+    const input = getYuniteInput();
+    const output = getYuniteOutput();
+    const list = getYuniteList();
+
+    if(input) input.value = "";
+    if(output) output.value = "";
+    if(list) list.innerHTML = "";
+  };
+
+  window.copyYuniteMentions = async function(){
+    const output = getYuniteOutput();
+    const text = output ? output.value : window.generateYuniteMentions();
+
+    if(!text) return;
+
+    try{
+      await navigator.clipboard.writeText(text);
+    }catch(e){
+      if(output){
+        output.focus();
+        output.select();
+        document.execCommand("copy");
+      }
+    }
+  };
+
+  function bindYuniteButtons(){
+    const buttons = Array.from(document.querySelectorAll("button"));
+    buttons.forEach(btn => {
+      const t = (btn.textContent || "").toLowerCase().trim();
+
+      if(t.includes("extract") || t.includes("top 5") || t.includes("generate")){
+        btn.onclick = function(e){
+          e.preventDefault();
+          window.generateYuniteMentions();
+        };
+      }
+
+      if(t === "clear" || t.includes("clear")){
+        btn.onclick = function(e){
+          e.preventDefault();
+          window.clearYuniteMentions();
+        };
+      }
+
+      if(t.includes("copy mentions") || t.includes("copy mention")){
+        btn.onclick = function(e){
+          e.preventDefault();
+          window.copyYuniteMentions();
+        };
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    bindYuniteButtons();
+
+    const input = getYuniteInput();
+    if(input){
+      input.addEventListener("input", window.generateYuniteMentions);
+      input.addEventListener("paste", () => setTimeout(window.generateYuniteMentions, 0));
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
