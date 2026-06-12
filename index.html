@@ -1514,94 +1514,6 @@ select{
 
 
 
-/* ================================
-   YUNITE TOP 5 MENTION EXTRACTOR
-   no animations, aligned premium panel
-   ================================ */
-.yunite-panel{
-  max-width:1400px;
-  margin:18px auto 0;
-  padding:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018)),rgba(10,16,28,.88);
-  border:1px solid rgba(255,255,255,.10);
-  overflow:hidden;
-  box-shadow:0 8px 18px rgba(0,0,0,.22);
-}
-.yunite-panel .panel-title{
-  padding:16px 16px 0;
-  margin-bottom:14px;
-}
-.yunite-box{
-  padding:16px;
-  display:grid;
-  grid-template-columns:1.15fr .85fr;
-  gap:14px;
-}
-.yunite-card{
-  border:1px solid rgba(255,255,255,.09);
-  background:rgba(5,10,19,.58);
-  padding:14px;
-}
-.yunite-input{
-  min-height:138px;
-  resize:vertical;
-  width:100%;
-  font-family:'JetBrains Mono', Consolas, monospace;
-  font-size:13px;
-  line-height:1.45;
-}
-.yunite-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-top:10px;
-}
-.yunite-output{
-  min-height:138px;
-  width:100%;
-  resize:vertical;
-  font-family:'JetBrains Mono', Consolas, monospace;
-  font-size:14px;
-  line-height:1.55;
-}
-.yunite-help{
-  margin-top:10px;
-  color:rgba(238,244,255,.62);
-  font-size:12px;
-  line-height:1.45;
-}
-.yunite-result-list{
-  display:grid;
-  gap:8px;
-  margin-top:10px;
-}
-.yunite-result-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  border:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(90deg,var(--theme-soft),rgba(255,255,255,.015));
-  padding:10px 11px;
-  min-height:42px;
-}
-.yunite-result-row span{
-  font-family:'JetBrains Mono', Consolas, monospace;
-  font-weight:800;
-  color:#fff;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.yunite-rank{
-  color:var(--theme)!important;
-  min-width:32px;
-}
-@media(max-width:900px){
-  .yunite-box{grid-template-columns:1fr}
-  .yunite-actions{grid-template-columns:1fr}
-}
-
 </style>
 </head>
 <body data-theme="div0">
@@ -2785,37 +2697,7 @@ window.onload=function(){
 
 
 
-<section id="yuniteMentionExtractor" class="panel yunite-panel">
-  <div class="panel-title" data-i18n="yuniteExtractorTitle">Yunite Top / Bottom Mentions</div>
-  <div class="yunite-box">
-    <div class="yunite-card">
-      <label data-i18n="yuniteInputLabel">Paste full Yunite leaderboard text</label>
-      <textarea id="yuniteInput" class="yunite-input" data-i18n-placeholder="yuniteInputPlaceholder" placeholder="CTRL+A → CTRL+C on Yunite leaderboard, then paste here"></textarea>
-      <div class="yunite-actions">
-        <button class="small-btn" type="button" id="extractTop5Btn">Top 5</button>
-        <button class="small-btn" type="button" id="extractBottom5Btn">Bottom 5</button>
-        <button class="small-btn" type="button" id="clearYuniteBtn">Clear</button>
-      </div>
-      <div class="yunite-help">Top 5 = first player from ranks #1-#5. Bottom 5 = worst 5 players from the end, but only teams with Games = 3.</div>
-    </div>
 
-    <div class="yunite-card">
-      <label>Top 5 Command</label>
-      <textarea id="yuniteOutputTop" class="yunite-output" readonly placeholder="!gt @top1 @top2 @top3 @top4 @top5"></textarea>
-      <div class="yunite-actions">
-        <button class="copy-btn main" type="button" id="copyTop5Btn">Copy Top 5</button>
-      </div>
-
-      <label style="margin-top:14px">Bottom 5 Command</label>
-      <textarea id="yuniteOutputBottom" class="yunite-output" readonly placeholder="!brole @bottom1 @bottom2 @bottom3 @bottom4 @bottom5"></textarea>
-      <div class="yunite-actions">
-        <button class="copy-btn main" type="button" id="copyBottom5Btn">Copy Bottom 5</button>
-      </div>
-
-      <div id="yuniteResultList" class="yunite-result-list"></div>
-    </div>
-  </div>
-</section>
 
 <section id="discordTimestampHelper" class="panel discord-ts-panel">
   <div class="panel-title" data-i18n="timestampHelper">Discord Timestamp Helper</div>
