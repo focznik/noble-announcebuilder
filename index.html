@@ -3214,5 +3214,116 @@ window.onload=function(){
 </script>
 
 
+
+<script>
+/* FINAL YUNITE CTRL+A PARSER FIX */
+(function(){
+  const bad = new Set([
+    "rank","players","player","games","eliminations","wins","score",
+    "yunite","logo","tournaments","practice","session","scrim","on",
+    "server","icon","noble","division","ended","since","hours","hour",
+    "minutes","minute","seconds","second","top","bottom","points","kick",
+    "twitter","discord","click","team","show","details","registration",
+    "opens","commences","leaderboard","live","format","preview","copy",
+    "paste","timestamp","helper","early"
+  ]);
+
+  function isNick(s){
+    s = String(s || "").trim().replace(/^@+/, "");
+    if(!s) return false;
+    if(bad.has(s.toLowerCase())) return false;
+    if(/^https?:\/\//i.test(s)) return false;
+    if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
+    if(/^\d+$/.test(s)) return false;
+    if(/[ \t]/.test(s)) return false;
+    return /^[A-Za-z0-9._-]{2,32}$/.test(s);
+  }
+
+  function clean(s){
+    return String(s || "")
+      .replace(/^@+/, "")
+      .replace(/[|+]/g, "")
+      .trim();
+  }
+
+  window.yuniteTop5FromText = function(raw){
+    const lines = String(raw || "")
+      .replace(/\r/g, "\n")
+      .split(/\n+/)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    const result = [];
+
+    for(let rank = 1; rank <= 5; rank++){
+      const rankRe = new RegExp("^#\\s*" + rank + "$");
+      const idx = lines.findIndex(x => rankRe.test(x.trim()));
+
+      if(idx === -1) continue;
+
+      for(let j = idx + 1; j < Math.min(lines.length, idx + 12); j++){
+        const candidate = clean(lines[j]);
+        if(isNick(candidate)){
+          result.push(candidate);
+          break;
+        }
+      }
+    }
+
+    return result;
+  };
+
+  window.generateYuniteMentions = function(){
+    const input =
+      document.getElementById("yuniteInput") ||
+      document.querySelector(".yunite-input") ||
+      document.querySelector("textarea[placeholder*='Yunite' i]");
+
+    const output =
+      document.getElementById("yuniteOutput") ||
+      document.querySelector(".yunite-output");
+
+    const list =
+      document.getElementById("yuniteResultList") ||
+      document.querySelector(".yunite-result-list");
+
+    const raw = input ? input.value : "";
+    const players = window.yuniteTop5FromText(raw);
+    const finalText = players.length ? "!gt " + players.map(x => "@" + x).join(" ") : "";
+
+    if(output) output.value = finalText;
+
+    if(list){
+      list.innerHTML = "";
+      players.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">#' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+    }
+  };
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const input =
+      document.getElementById("yuniteInput") ||
+      document.querySelector(".yunite-input") ||
+      document.querySelector("textarea[placeholder*='Yunite' i]");
+
+    if(input){
+      input.addEventListener("input", window.generateYuniteMentions);
+      input.addEventListener("paste", () => setTimeout(window.generateYuniteMentions, 0));
+    }
+
+    document.querySelectorAll("button").forEach(btn => {
+      const t = (btn.textContent || "").toLowerCase();
+      if(t.includes("extract") || t.includes("generate") || t.includes("mention") || t.includes("top 5")){
+        btn.addEventListener("click", window.generateYuniteMentions);
+      }
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
