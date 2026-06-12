@@ -3758,5 +3758,240 @@ window.onload=function(){
 })();
 </script>
 
+
+<script>
+/* ABSOLUTE FINAL YUNITE TOP/BOTTOM PARSER */
+(function(){
+  const BAD = new Set([
+    "rank","players","player","games","eliminations","wins","score",
+    "yunite","logo","tournaments","practice","session","scrim","on",
+    "server","icon","noble","division","ended","since","hours","hour",
+    "minutes","minute","seconds","second","top","bottom","points","kick",
+    "twitter","discord","click","team","show","details","registration",
+    "opens","commences","leaderboard","live","format","preview","copy",
+    "paste","timestamp","helper","early"
+  ]);
+
+  function clean(v){
+    return String(v || "").replace(/^@+/, "").replace(/[|+]/g, "").trim();
+  }
+
+  function isNick(v){
+    const s = clean(v);
+    if(!s) return false;
+    if(BAD.has(s.toLowerCase())) return false;
+    if(/^\d+$/.test(s)) return false;
+    if(/\s/.test(s)) return false;
+    if(/^https?:\/\//i.test(s)) return false;
+    if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
+    return /^[A-Za-z0-9._-]{2,32}$/.test(s);
+  }
+
+  function inputEl(){
+    return document.getElementById("yuniteInput") ||
+      document.querySelector(".yunite-input") ||
+      document.querySelector(".yunite-panel textarea");
+  }
+
+  function topEl(){
+    return document.getElementById("yuniteOutput") ||
+      document.querySelector(".yunite-output");
+  }
+
+  function bottomEl(){
+    return document.getElementById("yuniteBottomOutput");
+  }
+
+  function listEl(){
+    return document.getElementById("yuniteResultList") ||
+      document.querySelector(".yunite-result-list");
+  }
+
+  function parseTeams(raw){
+    const lines = String(raw || "")
+      .replace(/\r/g, "\n")
+      .split(/\n+/)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    const rankPositions = [];
+    for(let i = 0; i < lines.length; i++){
+      const m = lines[i].match(/^#\s*(\d+)$/);
+      if(m) rankPositions.push({rank:Number(m[1]), index:i});
+    }
+
+    const teams = [];
+
+    for(let r = 0; r < rankPositions.length; r++){
+      const start = rankPositions[r].index;
+      const end = r + 1 < rankPositions.length ? rankPositions[r + 1].index : lines.length;
+      const block = lines.slice(start + 1, end);
+
+      let p1 = "";
+      for(const line of block){
+        if(isNick(line)){
+          p1 = clean(line);
+          break;
+        }
+      }
+
+      // Read stats ONLY from numeric-only lines at the end of the block.
+      // Yunite copy usually gives: games, eliminations, wins, score.
+      const tailNums = [];
+      for(let i = block.length - 1; i >= 0; i--){
+        const line = block[i].trim();
+        if(/^\d+$/.test(line)){
+          tailNums.unshift(Number(line));
+          if(tailNums.length === 4) break;
+        }else if(tailNums.length > 0){
+          // keep scanning because blank/score formatting can be weird,
+          // but ignore non-numeric nickname lines above stats
+          continue;
+        }
+      }
+
+      let games = null, eliminations = null, wins = null, score = null;
+      if(tailNums.length >= 4){
+        games = tailNums[0];
+        eliminations = tailNums[1];
+        wins = tailNums[2];
+        score = tailNums[3];
+      }else if(tailNums.length >= 3){
+        games = tailNums[0];
+        eliminations = tailNums[1];
+        wins = tailNums[2];
+      }
+
+      if(p1){
+        teams.push({
+          rank: rankPositions[r].rank,
+          p1,
+          games,
+          eliminations,
+          wins,
+          score
+        });
+      }
+    }
+
+    return teams;
+  }
+
+  function make(command, arr){
+    return arr.length ? command + " " + arr.map(x => "@" + x).join(" ") : "";
+  }
+
+  function render(){
+    const inp = inputEl();
+    const raw = inp ? inp.value : "";
+    const teams = parseTeams(raw);
+
+    const top = teams.slice(0,5).map(t => t.p1);
+
+    const bottom = teams
+      .filter(t => Number(t.games) === 3)
+      .sort((a,b) => b.rank - a.rank)
+      .slice(0,5)
+      .map(t => t.p1);
+
+    const topBox = topEl();
+    const bottomBox = bottomEl();
+
+    if(topBox) topBox.value = make("!gt", top);
+    if(bottomBox) bottomBox.value = make("!brole", bottom);
+
+    const list = listEl();
+    if(list){
+      list.innerHTML = "";
+      top.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">TOP #' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+      bottom.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">BOTTOM #' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+    }
+
+    return {top: make("!gt", top), bottom: make("!brole", bottom)};
+  }
+
+  window.generateYuniteMentions = function(mode){
+    const result = render();
+    return mode === "bottom" ? result.bottom : result.top;
+  };
+
+  window.copyTop5Mentions = async function(){
+    const result = render();
+    if(!result.top) return;
+    try{ await navigator.clipboard.writeText(result.top); }
+    catch(e){
+      const el = topEl();
+      if(el){ el.focus(); el.select(); document.execCommand("copy"); }
+    }
+  };
+
+  window.copyBottom5Mentions = async function(){
+    const result = render();
+    if(!result.bottom) return;
+    try{ await navigator.clipboard.writeText(result.bottom); }
+    catch(e){
+      const el = bottomEl();
+      if(el){ el.focus(); el.select(); document.execCommand("copy"); }
+    }
+  };
+
+  window.clearYuniteMentions = function(){
+    const inp = inputEl();
+    const topBox = topEl();
+    const bottomBox = bottomEl();
+    const list = listEl();
+    if(inp) inp.value = "";
+    if(topBox) topBox.value = "";
+    if(bottomBox) bottomBox.value = "";
+    if(list) list.innerHTML = "";
+  };
+
+  function bind(){
+    const inp = inputEl();
+    if(inp){
+      inp.addEventListener("input", render);
+      inp.addEventListener("paste", () => setTimeout(render, 0));
+      render();
+    }
+
+    document.querySelectorAll("button").forEach(btn => {
+      const t = (btn.textContent || "").toLowerCase();
+
+      if(t.includes("extract") || t.includes("top 5")){
+        btn.onclick = e => { e.preventDefault(); render(); };
+      }
+
+      if(t.includes("copy mentions") || t.includes("copy top 5")){
+        btn.onclick = e => { e.preventDefault(); window.copyTop5Mentions(); };
+      }
+
+      if(t.includes("copy bottom 5")){
+        btn.onclick = e => { e.preventDefault(); window.copyBottom5Mentions(); };
+      }
+
+      if(t.includes("clear")){
+        btn.onclick = e => { e.preventDefault(); window.clearYuniteMentions(); };
+      }
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bind);
+  }else{
+    bind();
+  }
+})();
+</script>
+
 </body>
 </html>
