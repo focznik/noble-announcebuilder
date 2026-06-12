@@ -3250,5 +3250,206 @@ window.onload=function(){
 })();
 </script>
 
+
+<script>
+/* FIX: teammate nick with number cannot break Games detection */
+(function(){
+  const BAD = new Set([
+    "rank","players","player","games","eliminations","wins","score",
+    "yunite","logo","tournaments","practice","session","scrim","on",
+    "server","icon","noble","division","ended","since","hours","hour",
+    "minutes","minute","seconds","second","top","bottom","points","kick",
+    "twitter","discord","click","team","show","details","registration",
+    "opens","commences","leaderboard","live","format","preview","copy",
+    "paste","timestamp","helper","early"
+  ]);
+
+  function el(id){ return document.getElementById(id); }
+
+  function clean(v){
+    return String(v || "").replace(/^@+/, "").replace(/[|+]/g, "").trim();
+  }
+
+  function isNick(v){
+    const s = clean(v);
+    if(!s) return false;
+    if(BAD.has(s.toLowerCase())) return false;
+    if(/^\d+$/.test(s)) return false;
+    if(/\s/.test(s)) return false;
+    if(/^https?:\/\//i.test(s)) return false;
+    if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
+    return /^[A-Za-z0-9._-]{2,32}$/.test(s);
+  }
+
+  function parseTeams(raw){
+    const lines = String(raw || "")
+      .replace(/\r/g, "\n")
+      .split(/\n+/)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    const rankPositions = [];
+    for(let i = 0; i < lines.length; i++){
+      const m = lines[i].match(/^#\s*(\d+)$/);
+      if(m) rankPositions.push({ rank: Number(m[1]), index: i });
+    }
+
+    const teams = [];
+
+    for(let r = 0; r < rankPositions.length; r++){
+      const start = rankPositions[r].index;
+      const end = (r + 1 < rankPositions.length) ? rankPositions[r + 1].index : lines.length;
+      const block = lines.slice(start + 1, end);
+
+      let p1 = "";
+      for(const line of block){
+        if(isNick(line)){
+          p1 = clean(line);
+          break;
+        }
+      }
+
+      // IMPORTANT:
+      // Stats are the LAST 4 numeric-only lines in each rank block:
+      // Games, Eliminations, Wins, Score.
+      // This ignores numbers inside teammate names like "avoyache 2".
+      const numericOnly = block
+        .filter(x => /^\d+$/.test(x.trim()))
+        .map(Number);
+
+      const last4 = numericOnly.slice(-4);
+
+      let games = null, elims = null, wins = null, score = null;
+      if(last4.length === 4){
+        games = last4[0];
+        elims = last4[1];
+        wins = last4[2];
+        score = last4[3];
+      }
+
+      if(p1){
+        teams.push({
+          rank: rankPositions[r].rank,
+          p1,
+          games,
+          elims,
+          wins,
+          score
+        });
+      }
+    }
+
+    return teams;
+  }
+
+  function format(command, players){
+    return players.length ? command + " " + players.map(x => "@" + x).join(" ") : "";
+  }
+
+  function render(){
+    const input = el("yuniteInput");
+    const raw = input ? input.value : "";
+    const teams = parseTeams(raw);
+
+    const topPlayers = teams
+      .filter(t => t.rank >= 1 && t.rank <= 5)
+      .sort((a,b) => a.rank - b.rank)
+      .slice(0,5)
+      .map(t => t.p1);
+
+    const bottomPlayers = teams
+      .filter(t => Number(t.games) === 3)
+      .sort((a,b) => b.rank - a.rank)
+      .slice(0,5)
+      .map(t => t.p1);
+
+    const topText = format("!gt", topPlayers);
+    const bottomText = format("!brole", bottomPlayers);
+
+    if(el("yuniteOutputTop")) el("yuniteOutputTop").value = topText;
+    if(el("yuniteOutputBottom")) el("yuniteOutputBottom").value = bottomText;
+
+    const list = el("yuniteResultList");
+    if(list){
+      list.innerHTML = "";
+      topPlayers.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">TOP #' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+
+      bottomPlayers.forEach((nick, i) => {
+        const row = document.createElement("div");
+        row.className = "yunite-result-row";
+        row.innerHTML = '<span class="yunite-rank">BOTTOM #' + (i + 1) + '</span><span>@' + nick + '</span>';
+        list.appendChild(row);
+      });
+    }
+
+    return { topText, bottomText };
+  }
+
+  async function copyText(text, box){
+    if(!text) return;
+    try{
+      await navigator.clipboard.writeText(text);
+    }catch(e){
+      if(box){
+        box.focus();
+        box.select();
+        document.execCommand("copy");
+      }
+    }
+  }
+
+  window.extractYuniteMentions = render;
+  window.generateYuniteMentions = render;
+
+  window.copyYuniteMentions = function(){
+    const result = render();
+    copyText(result.topText, el("yuniteOutputTop"));
+  };
+
+  window.copyTop5Mentions = function(){
+    const result = render();
+    copyText(result.topText, el("yuniteOutputTop"));
+  };
+
+  window.copyBottom5Mentions = function(){
+    const result = render();
+    copyText(result.bottomText, el("yuniteOutputBottom"));
+  };
+
+  window.clearYuniteMentions = function(){
+    if(el("yuniteInput")) el("yuniteInput").value = "";
+    if(el("yuniteOutputTop")) el("yuniteOutputTop").value = "";
+    if(el("yuniteOutputBottom")) el("yuniteOutputBottom").value = "";
+    if(el("yuniteResultList")) el("yuniteResultList").innerHTML = "";
+  };
+
+  function bind(){
+    const input = el("yuniteInput");
+    if(input){
+      input.addEventListener("input", render);
+      input.addEventListener("paste", () => setTimeout(render, 0));
+      render();
+    }
+
+    if(el("extractTop5Btn")) el("extractTop5Btn").onclick = e => { e.preventDefault(); render(); };
+    if(el("extractBottom5Btn")) el("extractBottom5Btn").onclick = e => { e.preventDefault(); render(); };
+    if(el("clearYuniteBtn")) el("clearYuniteBtn").onclick = e => { e.preventDefault(); window.clearYuniteMentions(); };
+    if(el("copyTop5Btn")) el("copyTop5Btn").onclick = e => { e.preventDefault(); window.copyTop5Mentions(); };
+    if(el("copyBottom5Btn")) el("copyBottom5Btn").onclick = e => { e.preventDefault(); window.copyBottom5Mentions(); };
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bind);
+  }else{
+    bind();
+  }
+})();
+</script>
+
 </body>
 </html>
