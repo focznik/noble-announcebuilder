@@ -1603,24 +1603,6 @@ select{
 }
 
 </style>
-
-<style>
-/* TOP/BOTTOM YUNITE OUTPUT FIX */
-.yunite-output-stack{display:grid;gap:10px}
-.yunite-output-label{
-  display:block;color:rgba(238,244,255,.66);font-size:12px;font-weight:900;
-  letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px
-}
-.yunite-output-mini{
-  min-height:72px!important;width:100%;resize:vertical;
-  font-family:'JetBrains Mono', Consolas, monospace!important;
-  font-size:14px!important;line-height:1.55!important
-}
-.yunite-extra-actions{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px
-}
-</style>
-
 </head>
 <body data-theme="div0">
 
@@ -2802,24 +2784,34 @@ window.onload=function(){
 
 
 
+
 <section id="yuniteMentionExtractor" class="panel yunite-panel">
-  <div class="panel-title" data-i18n="yuniteExtractorTitle">Yunite Top 5 Mention Extractor</div>
+  <div class="panel-title" data-i18n="yuniteExtractorTitle">Yunite Top / Bottom Mentions</div>
   <div class="yunite-box">
     <div class="yunite-card">
-      <label data-i18n="yuniteInputLabel">Paste Yunite link or table text</label>
-      <textarea id="yuniteInput" class="yunite-input" data-i18n-placeholder="yuniteInputPlaceholder" placeholder="Paste leaderboard text here, e.g. #1 sweatytate ... or a Yunite leaderboard link"></textarea>
+      <label data-i18n="yuniteInputLabel">Paste full Yunite leaderboard text</label>
+      <textarea id="yuniteInput" class="yunite-input" data-i18n-placeholder="yuniteInputPlaceholder" placeholder="CTRL+A → CTRL+C on Yunite leaderboard, then paste here"></textarea>
       <div class="yunite-actions">
-        <button class="small-btn" onclick="extractYuniteMentions()" data-i18n="extractTop5">Extract Top 5</button>
-        <button class="small-btn" onclick="clearYuniteMentions()" data-i18n="clear">Clear</button>
+        <button class="small-btn" type="button" id="extractTop5Btn">Top 5</button>
+        <button class="small-btn" type="button" id="extractBottom5Btn">Bottom 5</button>
+        <button class="small-btn" type="button" id="clearYuniteBtn">Clear</button>
       </div>
-      <div class="yunite-help" data-i18n="yuniteHelp">Best result: copy rows from the leaderboard or paste a screenshot text/table. Direct links can be blocked by browser/CORS, so pasted table text is the safest.</div>
+      <div class="yunite-help">Top 5 = first player from ranks #1-#5. Bottom 5 = worst 5 players from the end, but only teams with Games = 3.</div>
     </div>
+
     <div class="yunite-card">
-      <label data-i18n="mentionOutputLabel">Ready Discord mentions</label>
-      <textarea id="yuniteOutput" class="yunite-output" readonly placeholder="@sweatytate&#10;@statiii&#10;@midjy._&#10;@destyggs&#10;@therealolko"></textarea>
+      <label>Top 5 Command</label>
+      <textarea id="yuniteOutputTop" class="yunite-output" readonly placeholder="!gt @top1 @top2 @top3 @top4 @top5"></textarea>
       <div class="yunite-actions">
-        <button class="copy-btn main" onclick="copyYuniteMentions()" data-i18n="copyMentions">Copy Mentions</button>
+        <button class="copy-btn main" type="button" id="copyTop5Btn">Copy Top 5</button>
       </div>
+
+      <label style="margin-top:14px">Bottom 5 Command</label>
+      <textarea id="yuniteOutputBottom" class="yunite-output" readonly placeholder="!brole @bottom1 @bottom2 @bottom3 @bottom4 @bottom5"></textarea>
+      <div class="yunite-actions">
+        <button class="copy-btn main" type="button" id="copyBottom5Btn">Copy Bottom 5</button>
+      </div>
+
       <div id="yuniteResultList" class="yunite-result-list"></div>
     </div>
   </div>
@@ -3057,710 +3049,9 @@ window.onload=function(){
 </script>
 
 
-<script>
-(function(){
-  function safeT(key){
-    try{
-      if(typeof t === "function") return t(key);
-    }catch(e){}
-    const fallback = {
-      mentionsCopied:"Mentions copied",
-      noPlayersFound:"No players found"
-    };
-    return fallback[key] || key;
-  }
-
-  function cleanName(name){
-    return String(name || "")
-      .replace(/[\u200B-\u200D\uFEFF]/g, "")
-      .replace(/^@+/, "")
-      .replace(/[,:;]+$/g, "")
-      .trim();
-  }
-
-  function isBadToken(token){
-    const bad = new Set([
-      "rank","players","games","eliminations","wins","score","points",
-      "game","win","player","team","total","place","#","+"
-    ]);
-    return bad.has(String(token || "").toLowerCase());
-  }
-
-  function parseLeaderboardText(text){
-    const raw = String(text || "").replace(/\r/g, "\n");
-
-    // Do not parse random webpage/header text from URLs as player names.
-    if(/^https?:\/\//i.test(raw.trim())){
-      return [];
-    }
-
-    const banned = new Set([
-      "rank","players","player","games","eliminations","wins","score","points",
-      "game","win","team","total","place","minutes","minute","mins","seconds","second","secs","sec",
-      "yunite","tournaments","scrim","live","leaderboard","session","noble",
-      "division","practice","format","preview","discord","timestamp","helper",
-      "ready","mentions","copy","paste","first","second","third","lobby"
-    ]);
-
-    function validNick(v){
-      const n = String(v || "")
-        .replace(/^@+/,"")
-        .replace(/[|+]/g,"")
-        .trim();
-
-      if(!n) return false;
-      if(banned.has(n.toLowerCase())) return false;
-      if(/^\d+$/.test(n)) return false;
-      if(/^(seconds?|secs?|sec|minutes?|mins?|hours?|hrs?)$/i.test(n)) return false;\n      if(/\d+\s*(seconds?|secs?|sec|minutes?|mins?|hours?|hrs?)/i.test(n)) return false;
-      return /^[A-Za-z0-9._-]{3,32}$/.test(n);
-    }
-
-    function cleanNick(v){
-      return String(v || "")
-        .replace(/^#?\d+\s*/,"")
-        .replace(/^@+/,"")
-        .replace(/[|+]/g,"")
-        .trim();
-    }
-
-    const players = [];
-    function add(v){
-      const n = cleanNick(v);
-      if(validNick(n) && !players.includes(n)){
-        players.push(n);
-      }
-    }
-
-    const lines = raw
-      .split(/\n+/)
-      .map(x => x.trim())
-      .filter(Boolean);
-
-    // BEST: copied table where rank and player are on separate lines:
-    // #1
-    // sweatytate
-    for(let i = 0; i < lines.length; i++){
-      if(/^#?\s*[1-5]\s*$/.test(lines[i])){
-        for(let j = i + 1; j < Math.min(lines.length, i + 8); j++){
-          const candidate = cleanNick(lines[j]);
-          if(validNick(candidate)){
-            add(candidate);
-            break;
-          }
-        }
-      }
-      if(players.length >= 5) break;
-    }
-
-    // SECOND: row text like "#1 sweatytate + xenkru_ 3 20 1 145"
-    if(players.length < 5){
-      const rowRegex = /#\s*[1-5]\s+([A-Za-z0-9._-]{3,32})/g;
-      let m;
-      const flat = raw.replace(/\s+/g, " ");
-      while((m = rowRegex.exec(flat)) !== null){
-        add(m[1]);
-        if(players.length >= 5) break;
-      }
-    }
-
-    // THIRD: plain pasted left column:
-    // sweatytate
-    // statiii
-    if(players.length < 5){
-      const pure = [];
-      for(const line of lines){
-        const candidate = cleanNick(line);
-        if(validNick(candidate) && !pure.includes(candidate)){
-          pure.push(candidate);
-        }
-      }
-
-      if(pure.length >= 5){
-        for(const n of pure){
-          add(n);
-          if(players.length >= 5) break;
-        }
-      }
-    }
-
-    return players.slice(0,5);
-  }
-
-  function render(players){
-    const out = document.getElementById("yuniteOutput");
-    const list = document.getElementById("yuniteResultList");
-    const mentions = "!gt " + players.map(n => "@" + n).join(" ");
-    if(out) out.value = mentions;
-    if(list){
-      list.innerHTML = players.map((n,i)=>
-        `<div class="yunite-result-row"><span class="yunite-rank">#${i+1}</span><span>@${n}</span></div>`
-      ).join("");
-    }
-  }
-
-  async function tryFetchLink(value){
-    return value;
-  }
-
-  window.extractYuniteMentions = async function(){
-    const input = document.getElementById("yuniteInput");
-    if(!input) return;
-    let text = input.value || "";
-    text = await tryFetchLink(text);
-    const players = parseLeaderboardText(text);
-    render(players);
-    if(!players.length && typeof showToast === "function") showToast(safeT("noPlayersFound"));
-  };
-
-  window.clearYuniteMentions = function(){
-    const input = document.getElementById("yuniteInput");
-    const out = document.getElementById("yuniteOutput");
-    const list = document.getElementById("yuniteResultList");
-    if(input) input.value = "";
-    if(out) out.value = "";
-    if(list) list.innerHTML = "";
-  };
-
-  window.copyYuniteMentions = function(){
-    const out = document.getElementById("yuniteOutput");
-    const text = out ? out.value : "";
-    if(!text) return;
-    if(navigator.clipboard) navigator.clipboard.writeText(text);
-    if(typeof showToast === "function") showToast(safeT("mentionsCopied"));
-  };
-})();
-</script>
-
-
 
 <script>
-/* FINAL TOP 5 / BOTTOM 5 YUNITE PARSER */
-(function(){
-  const bad = new Set([
-    "rank","players","player","games","eliminations","wins","score",
-    "yunite","logo","tournaments","practice","session","scrim","on",
-    "server","icon","noble","division","ended","since","hours","hour",
-    "minutes","minute","seconds","second","top","bottom","points","kick",
-    "twitter","discord","click","team","show","details","registration",
-    "opens","commences","leaderboard","live","format","preview","copy",
-    "paste","timestamp","helper","early"
-  ]);
-
-  function q(sel){ return document.querySelector(sel); }
-
-  function getInput(){
-    return document.getElementById("yuniteInput") ||
-      q(".yunite-input") ||
-      q(".yunite-panel textarea");
-  }
-
-  function getTopOutput(){
-    return document.getElementById("yuniteOutput") ||
-      q(".yunite-output");
-  }
-
-  function getBottomOutput(){
-    return document.getElementById("yuniteBottomOutput");
-  }
-
-  function getList(){
-    return document.getElementById("yuniteResultList") ||
-      q(".yunite-result-list");
-  }
-
-  function clean(s){
-    return String(s || "").replace(/^@+/, "").replace(/[|+]/g, "").trim();
-  }
-
-  function isNick(s){
-    s = clean(s);
-    if(!s) return false;
-    if(bad.has(s.toLowerCase())) return false;
-    if(/^https?:\/\//i.test(s)) return false;
-    if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
-    if(/^\d+$/.test(s)) return false;
-    if(/[ \t]/.test(s)) return false;
-    return /^[A-Za-z0-9._-]{2,32}$/.test(s);
-  }
-
-  function parseTeams(raw){
-    const lines = String(raw || "")
-      .replace(/\r/g, "\n")
-      .split(/\n+/)
-      .map(x => x.trim())
-      .filter(Boolean);
-
-    const teams = [];
-
-    for(let i = 0; i < lines.length; i++){
-      const rankMatch = lines[i].match(/^#\s*(\d+)$/);
-      if(!rankMatch) continue;
-
-      const rank = Number(rankMatch[1]);
-      let p1 = "";
-      let p2 = "";
-      let games = null;
-      let eliminations = null;
-      let wins = null;
-      let score = null;
-
-      for(let j = i + 1; j < Math.min(lines.length, i + 10); j++){
-        if(isNick(lines[j])){
-          p1 = clean(lines[j]);
-          break;
-        }
-      }
-
-      const plusRelative = lines.slice(i + 1, Math.min(lines.length, i + 14)).findIndex(x => x.trim() === "+");
-      if(plusRelative !== -1){
-        const plusIndex = i + 1 + plusRelative;
-        for(let j = plusIndex + 1; j < Math.min(lines.length, plusIndex + 7); j++){
-          if(isNick(lines[j])){
-            p2 = clean(lines[j]);
-            break;
-          }
-        }
-      }
-
-      let startStats = i + 1;
-      if(p2){
-        for(let j = i + 1; j < Math.min(lines.length, i + 16); j++){
-          if(clean(lines[j]) === p2){
-            startStats = j + 1;
-            break;
-          }
-        }
-      }else if(p1){
-        for(let j = i + 1; j < Math.min(lines.length, i + 12); j++){
-          if(clean(lines[j]) === p1){
-            startStats = j + 1;
-            break;
-          }
-        }
-      }
-
-      const nums = [];
-      for(let j = startStats; j < Math.min(lines.length, startStats + 14); j++){
-        if(/^#\s*\d+$/.test(lines[j])) break;
-        if(/^\d+$/.test(lines[j])) nums.push(Number(lines[j]));
-      }
-
-      if(nums.length >= 3){
-        games = nums[0];
-        eliminations = nums[1];
-        wins = nums[2];
-        score = nums.length >= 4 ? nums[3] : null;
-      }
-
-      if(p1){
-        teams.push({rank, p1, p2, games, eliminations, wins, score});
-      }
-    }
-
-    return teams;
-  }
-
-  function getTop5(raw){
-    return parseTeams(raw).slice(0,5).map(t => t.p1);
-  }
-
-  function getBottom5(raw){
-    return parseTeams(raw)
-      .filter(t => Number(t.games) === 3)
-      .sort((a,b) => b.rank - a.rank)
-      .slice(0,5)
-      .map(t => t.p1);
-  }
-
-  function format(command, players){
-    return players.length ? command + " " + players.map(x => "@" + x).join(" ") : "";
-  }
-
-  function ensureBottomUI(){
-    const topOutput = getTopOutput();
-    if(!topOutput || document.getElementById("yuniteBottomOutput")) return;
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "yunite-output-stack";
-
-    const topWrap = document.createElement("div");
-    topWrap.innerHTML = '<label class="yunite-output-label">Top 5 Command</label>';
-    topOutput.parentNode.insertBefore(wrapper, topOutput);
-    wrapper.appendChild(topWrap);
-    topWrap.appendChild(topOutput);
-    topOutput.classList.add("yunite-output-mini");
-    topOutput.placeholder = "!gt @top1 @top2 @top3 @top4 @top5";
-
-    const bottomWrap = document.createElement("div");
-    bottomWrap.innerHTML = `
-      <label class="yunite-output-label">Bottom 5 Command</label>
-      <textarea id="yuniteBottomOutput" class="yunite-output yunite-output-mini" readonly placeholder="!brole @bottom1 @bottom2 @bottom3 @bottom4 @bottom5"></textarea>
-      <div class="yunite-extra-actions">
-        <button class="copy-btn" type="button" id="copyTop5Btn">Copy Top 5</button>
-        <button class="copy-btn" type="button" id="copyBottom5Btn">Copy Bottom 5</button>
-      </div>
-    `;
-    wrapper.appendChild(bottomWrap);
-  }
-
-  window.generateYuniteMentions = function(mode){
-    ensureBottomUI();
-
-    const input = getInput();
-    const raw = input ? input.value : "";
-
-    const topPlayers = getTop5(raw);
-    const bottomPlayers = getBottom5(raw);
-
-    const topText = format("!gt", topPlayers);
-    const bottomText = format("!brole", bottomPlayers);
-
-    const topOutput = getTopOutput();
-    const bottomOutput = getBottomOutput();
-
-    if(topOutput) topOutput.value = topText;
-    if(bottomOutput) bottomOutput.value = bottomText;
-
-    const list = getList();
-    if(list){
-      list.innerHTML = "";
-      topPlayers.forEach((nick, i) => {
-        const row = document.createElement("div");
-        row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">TOP #' + (i + 1) + '</span><span>@' + nick + '</span>';
-        list.appendChild(row);
-      });
-      bottomPlayers.forEach((nick, i) => {
-        const row = document.createElement("div");
-        row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">BOT #' + (i + 1) + '</span><span>@' + nick + '</span>';
-        list.appendChild(row);
-      });
-    }
-
-    return mode === "bottom" ? bottomText : topText;
-  };
-
-  window.clearYuniteMentions = function(){
-    const input = getInput();
-    const topOutput = getTopOutput();
-    const bottomOutput = getBottomOutput();
-    const list = getList();
-
-    if(input) input.value = "";
-    if(topOutput) topOutput.value = "";
-    if(bottomOutput) bottomOutput.value = "";
-    if(list) list.innerHTML = "";
-  };
-
-  async function copyText(text, fallbackEl){
-    if(!text) return;
-    try{
-      await navigator.clipboard.writeText(text);
-    }catch(e){
-      if(fallbackEl){
-        fallbackEl.focus();
-        fallbackEl.select();
-        document.execCommand("copy");
-      }
-    }
-  }
-
-  window.copyTop5Mentions = function(){
-    const value = window.generateYuniteMentions("top");
-    copyText(value, getTopOutput());
-  };
-
-  window.copyBottom5Mentions = function(){
-    const value = window.generateYuniteMentions("bottom");
-    copyText(value, getBottomOutput());
-  };
-
-  function bindButtons(){
-    ensureBottomUI();
-
-    document.querySelectorAll("button").forEach(btn => {
-      const t = (btn.textContent || "").toLowerCase().trim();
-
-      if(t.includes("extract") || t.includes("top 5") || t.includes("generate")){
-        btn.onclick = function(e){
-          e.preventDefault();
-          window.generateYuniteMentions("top");
-        };
-      }
-
-      if(t === "clear" || t.includes("clear")){
-        btn.onclick = function(e){
-          e.preventDefault();
-          window.clearYuniteMentions();
-        };
-      }
-
-      if(t.includes("copy mentions")){
-        btn.onclick = function(e){
-          e.preventDefault();
-          window.copyTop5Mentions();
-        };
-      }
-
-      if(btn.id === "copyTop5Btn" || t.includes("copy top 5")){
-        btn.onclick = function(e){
-          e.preventDefault();
-          window.copyTop5Mentions();
-        };
-      }
-
-      if(btn.id === "copyBottom5Btn" || t.includes("copy bottom 5")){
-        btn.onclick = function(e){
-          e.preventDefault();
-          window.copyBottom5Mentions();
-        };
-      }
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", function(){
-    ensureBottomUI();
-    bindButtons();
-
-    const input = getInput();
-    if(input){
-      input.addEventListener("input", () => window.generateYuniteMentions());
-      input.addEventListener("paste", () => setTimeout(() => window.generateYuniteMentions(), 0));
-    }
-  });
-})();
-</script>
-
-
-<script>
-/* BOTTOM 5 GAMES=3 HARD FIX */
-(function(){
-  const bad = new Set([
-    "rank","players","player","games","eliminations","wins","score",
-    "yunite","logo","tournaments","practice","session","scrim","on",
-    "server","icon","noble","division","ended","since","hours","hour",
-    "minutes","minute","seconds","second","top","bottom","points","kick",
-    "twitter","discord","click","team","show","details","registration",
-    "opens","commences","leaderboard","live","format","preview","copy",
-    "paste","timestamp","helper","early"
-  ]);
-
-  function clean(v){
-    return String(v || "").replace(/^@+/, "").replace(/[|+]/g, "").trim();
-  }
-
-  function isNick(v){
-    const s = clean(v);
-    if(!s) return false;
-    if(bad.has(s.toLowerCase())) return false;
-    if(/^\d+$/.test(s)) return false;
-    if(/^https?:\/\//i.test(s)) return false;
-    if(/^(twitter\.com|discord\.gg)/i.test(s)) return false;
-    if(/[ \t]/.test(s)) return false;
-    return /^[A-Za-z0-9._-]{2,32}$/.test(s);
-  }
-
-  function getInput(){
-    return document.getElementById("yuniteInput") ||
-      document.querySelector(".yunite-input") ||
-      document.querySelector(".yunite-panel textarea");
-  }
-
-  function getTopOutput(){
-    return document.getElementById("yuniteOutput") ||
-      document.querySelector(".yunite-output");
-  }
-
-  function getBottomOutput(){
-    return document.getElementById("yuniteBottomOutput");
-  }
-
-  function getList(){
-    return document.getElementById("yuniteResultList") ||
-      document.querySelector(".yunite-result-list");
-  }
-
-  function parseTeamsFixed(raw){
-    const lines = String(raw || "")
-      .replace(/\r/g, "\n")
-      .split(/\n+/)
-      .map(x => x.trim())
-      .filter(Boolean);
-
-    const ranks = [];
-    for(let i = 0; i < lines.length; i++){
-      const m = lines[i].match(/^#\s*(\d+)$/);
-      if(m) ranks.push({rank:Number(m[1]), index:i});
-    }
-
-    const teams = [];
-
-    for(let r = 0; r < ranks.length; r++){
-      const start = ranks[r].index;
-      const end = r + 1 < ranks.length ? ranks[r + 1].index : lines.length;
-      const block = lines.slice(start + 1, end);
-
-      let p1 = "";
-      for(const line of block){
-        if(isNick(line)){
-          p1 = clean(line);
-          break;
-        }
-      }
-
-      const nums = block
-        .filter(x => /^\d+$/.test(x))
-        .map(Number);
-
-      let games = null, eliminations = null, wins = null, score = null;
-
-      if(nums.length >= 4){
-        games = nums[nums.length - 4];
-        eliminations = nums[nums.length - 3];
-        wins = nums[nums.length - 2];
-        score = nums[nums.length - 1];
-      }else if(nums.length >= 3){
-        games = nums[nums.length - 3];
-        eliminations = nums[nums.length - 2];
-        wins = nums[nums.length - 1];
-      }
-
-      if(p1){
-        teams.push({
-          rank:ranks[r].rank,
-          p1,
-          games,
-          eliminations,
-          wins,
-          score
-        });
-      }
-    }
-
-    return teams;
-  }
-
-  function format(command, players){
-    return players.length ? command + " " + players.map(x => "@" + x).join(" ") : "";
-  }
-
-  window.generateYuniteMentions = function(mode){
-    const input = getInput();
-    const raw = input ? input.value : "";
-    const teams = parseTeamsFixed(raw);
-
-    const topPlayers = teams.slice(0,5).map(t => t.p1);
-
-    const bottomPlayers = teams
-      .filter(t => Number(t.games) === 3)
-      .sort((a,b) => b.rank - a.rank)
-      .slice(0,5)
-      .map(t => t.p1);
-
-    const topText = format("!gt", topPlayers);
-    const bottomText = format("!brole", bottomPlayers);
-
-    const topOutput = getTopOutput();
-    const bottomOutput = getBottomOutput();
-
-    if(topOutput) topOutput.value = topText;
-    if(bottomOutput) bottomOutput.value = bottomText;
-
-    const list = getList();
-    if(list){
-      list.innerHTML = "";
-      topPlayers.forEach((nick, i) => {
-        const row = document.createElement("div");
-        row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">TOP #' + (i + 1) + '</span><span>@' + nick + '</span>';
-        list.appendChild(row);
-      });
-      bottomPlayers.forEach((nick, i) => {
-        const row = document.createElement("div");
-        row.className = "yunite-result-row";
-        row.innerHTML = '<span class="yunite-rank">BOT #' + (i + 1) + '</span><span>@' + nick + '</span>';
-        list.appendChild(row);
-      });
-    }
-
-    return mode === "bottom" ? bottomText : topText;
-  };
-
-  window.copyTop5Mentions = async function(){
-    const text = window.generateYuniteMentions("top");
-    const out = getTopOutput();
-    if(!text) return;
-    try{ await navigator.clipboard.writeText(text); }
-    catch(e){ if(out){ out.focus(); out.select(); document.execCommand("copy"); } }
-  };
-
-  window.copyBottom5Mentions = async function(){
-    const text = window.generateYuniteMentions("bottom");
-    const out = getBottomOutput();
-    if(!text) return;
-    try{ await navigator.clipboard.writeText(text); }
-    catch(e){ if(out){ out.focus(); out.select(); document.execCommand("copy"); } }
-  };
-
-  window.clearYuniteMentions = function(){
-    const input = getInput();
-    const top = getTopOutput();
-    const bottom = getBottomOutput();
-    const list = getList();
-    if(input) input.value = "";
-    if(top) top.value = "";
-    if(bottom) bottom.value = "";
-    if(list) list.innerHTML = "";
-  };
-
-  function bind(){
-    document.querySelectorAll("button").forEach(btn => {
-      const t = (btn.textContent || "").toLowerCase();
-
-      if(t.includes("extract") || t.includes("top 5")){
-        btn.onclick = e => {
-          e.preventDefault();
-          window.generateYuniteMentions("top");
-        };
-      }
-
-      if(t.includes("copy mentions") || t.includes("copy top 5")){
-        btn.onclick = e => {
-          e.preventDefault();
-          window.copyTop5Mentions();
-        };
-      }
-
-      if(t.includes("copy bottom 5")){
-        btn.onclick = e => {
-          e.preventDefault();
-          window.copyBottom5Mentions();
-        };
-      }
-
-      if(t.includes("clear")){
-        btn.onclick = e => {
-          e.preventDefault();
-          window.clearYuniteMentions();
-        };
-      }
-    });
-
-    const input = getInput();
-    if(input){
-      input.addEventListener("input", () => window.generateYuniteMentions());
-      input.addEventListener("paste", () => setTimeout(() => window.generateYuniteMentions(), 0));
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", bind);
-})();
-</script>
-
-
-<script>
-/* ABSOLUTE FINAL YUNITE TOP/BOTTOM PARSER */
+/* CLEAN YUNITE TOP/BOTTOM PARSER */
 (function(){
   const BAD = new Set([
     "rank","players","player","games","eliminations","wins","score",
@@ -3771,6 +3062,8 @@ window.onload=function(){
     "opens","commences","leaderboard","live","format","preview","copy",
     "paste","timestamp","helper","early"
   ]);
+
+  function el(id){ return document.getElementById(id); }
 
   function clean(v){
     return String(v || "").replace(/^@+/, "").replace(/[|+]/g, "").trim();
@@ -3787,26 +3080,6 @@ window.onload=function(){
     return /^[A-Za-z0-9._-]{2,32}$/.test(s);
   }
 
-  function inputEl(){
-    return document.getElementById("yuniteInput") ||
-      document.querySelector(".yunite-input") ||
-      document.querySelector(".yunite-panel textarea");
-  }
-
-  function topEl(){
-    return document.getElementById("yuniteOutput") ||
-      document.querySelector(".yunite-output");
-  }
-
-  function bottomEl(){
-    return document.getElementById("yuniteBottomOutput");
-  }
-
-  function listEl(){
-    return document.getElementById("yuniteResultList") ||
-      document.querySelector(".yunite-result-list");
-  }
-
   function parseTeams(raw){
     const lines = String(raw || "")
       .replace(/\r/g, "\n")
@@ -3817,49 +3090,59 @@ window.onload=function(){
     const rankPositions = [];
     for(let i = 0; i < lines.length; i++){
       const m = lines[i].match(/^#\s*(\d+)$/);
-      if(m) rankPositions.push({rank:Number(m[1]), index:i});
+      if(m) rankPositions.push({ rank: Number(m[1]), index: i });
     }
 
     const teams = [];
 
     for(let r = 0; r < rankPositions.length; r++){
       const start = rankPositions[r].index;
-      const end = r + 1 < rankPositions.length ? rankPositions[r + 1].index : lines.length;
+      const end = (r + 1 < rankPositions.length) ? rankPositions[r + 1].index : lines.length;
       const block = lines.slice(start + 1, end);
 
       let p1 = "";
-      for(const line of block){
-        if(isNick(line)){
-          p1 = clean(line);
+      let p1Index = -1;
+
+      for(let i = 0; i < block.length; i++){
+        if(isNick(block[i])){
+          p1 = clean(block[i]);
+          p1Index = i;
           break;
         }
       }
 
-      // Read stats ONLY from numeric-only lines at the end of the block.
-      // Yunite copy usually gives: games, eliminations, wins, score.
-      const tailNums = [];
-      for(let i = block.length - 1; i >= 0; i--){
-        const line = block[i].trim();
-        if(/^\d+$/.test(line)){
-          tailNums.unshift(Number(line));
-          if(tailNums.length === 4) break;
-        }else if(tailNums.length > 0){
-          // keep scanning because blank/score formatting can be weird,
-          // but ignore non-numeric nickname lines above stats
-          continue;
+      let p2Index = -1;
+      const plusIndex = block.findIndex(x => x.trim() === "+");
+      if(plusIndex !== -1){
+        for(let i = plusIndex + 1; i < block.length; i++){
+          if(isNick(block[i])){
+            p2Index = i;
+            break;
+          }
         }
       }
 
-      let games = null, eliminations = null, wins = null, score = null;
-      if(tailNums.length >= 4){
-        games = tailNums[0];
-        eliminations = tailNums[1];
-        wins = tailNums[2];
-        score = tailNums[3];
-      }else if(tailNums.length >= 3){
-        games = tailNums[0];
-        eliminations = tailNums[1];
-        wins = tailNums[2];
+      const statStart = p2Index !== -1 ? p2Index + 1 : (p1Index !== -1 ? p1Index + 1 : 0);
+      const nums = [];
+
+      for(let i = statStart; i < block.length; i++){
+        const parts = block[i].split(/\s+/);
+        for(const part of parts){
+          if(/^\d+$/.test(part)) nums.push(Number(part));
+        }
+      }
+
+      let games = null, elims = null, wins = null, score = null;
+
+      if(nums.length >= 4){
+        games = nums[0];
+        elims = nums[1];
+        wins = nums[2];
+        score = nums[3];
+      }else if(nums.length >= 3){
+        games = nums[0];
+        elims = nums[1];
+        wins = nums[2];
       }
 
       if(p1){
@@ -3867,7 +3150,7 @@ window.onload=function(){
           rank: rankPositions[r].rank,
           p1,
           games,
-          eliminations,
+          elims,
           wins,
           score
         });
@@ -3877,39 +3160,45 @@ window.onload=function(){
     return teams;
   }
 
-  function make(command, arr){
-    return arr.length ? command + " " + arr.map(x => "@" + x).join(" ") : "";
+  function format(command, players){
+    return players.length ? command + " " + players.map(x => "@" + x).join(" ") : "";
   }
 
   function render(){
-    const inp = inputEl();
-    const raw = inp ? inp.value : "";
+    const input = el("yuniteInput");
+    const raw = input ? input.value : "";
     const teams = parseTeams(raw);
 
-    const top = teams.slice(0,5).map(t => t.p1);
+    const topPlayers = teams
+      .filter(t => t.rank >= 1 && t.rank <= 5)
+      .sort((a,b) => a.rank - b.rank)
+      .slice(0,5)
+      .map(t => t.p1);
 
-    const bottom = teams
+    const bottomPlayers = teams
       .filter(t => Number(t.games) === 3)
       .sort((a,b) => b.rank - a.rank)
       .slice(0,5)
       .map(t => t.p1);
 
-    const topBox = topEl();
-    const bottomBox = bottomEl();
+    const topText = format("!gt", topPlayers);
+    const bottomText = format("!brole", bottomPlayers);
 
-    if(topBox) topBox.value = make("!gt", top);
-    if(bottomBox) bottomBox.value = make("!brole", bottom);
+    if(el("yuniteOutputTop")) el("yuniteOutputTop").value = topText;
+    if(el("yuniteOutputBottom")) el("yuniteOutputBottom").value = bottomText;
 
-    const list = listEl();
+    const list = el("yuniteResultList");
     if(list){
       list.innerHTML = "";
-      top.forEach((nick, i) => {
+
+      topPlayers.forEach((nick, i) => {
         const row = document.createElement("div");
         row.className = "yunite-result-row";
         row.innerHTML = '<span class="yunite-rank">TOP #' + (i + 1) + '</span><span>@' + nick + '</span>';
         list.appendChild(row);
       });
-      bottom.forEach((nick, i) => {
+
+      bottomPlayers.forEach((nick, i) => {
         const row = document.createElement("div");
         row.className = "yunite-result-row";
         row.innerHTML = '<span class="yunite-rank">BOTTOM #' + (i + 1) + '</span><span>@' + nick + '</span>';
@@ -3917,79 +3206,47 @@ window.onload=function(){
       });
     }
 
-    return {top: make("!gt", top), bottom: make("!brole", bottom)};
+    return { topText, bottomText };
   }
 
-  window.generateYuniteMentions = function(mode){
-    const result = render();
-    return mode === "bottom" ? result.bottom : result.top;
-  };
+  async function copyValue(id){
+    const box = el(id);
+    const text = box ? box.value : "";
+    if(!text) return;
 
-  window.copyTop5Mentions = async function(){
-    const result = render();
-    if(!result.top) return;
-    try{ await navigator.clipboard.writeText(result.top); }
-    catch(e){
-      const el = topEl();
-      if(el){ el.focus(); el.select(); document.execCommand("copy"); }
+    try{
+      await navigator.clipboard.writeText(text);
+    }catch(e){
+      box.focus();
+      box.select();
+      document.execCommand("copy");
     }
-  };
 
-  window.copyBottom5Mentions = async function(){
-    const result = render();
-    if(!result.bottom) return;
-    try{ await navigator.clipboard.writeText(result.bottom); }
-    catch(e){
-      const el = bottomEl();
-      if(el){ el.focus(); el.select(); document.execCommand("copy"); }
-    }
-  };
+    if(typeof showToast === "function") showToast("Copied");
+  }
 
+  window.extractYuniteMentions = render;
   window.clearYuniteMentions = function(){
-    const inp = inputEl();
-    const topBox = topEl();
-    const bottomBox = bottomEl();
-    const list = listEl();
-    if(inp) inp.value = "";
-    if(topBox) topBox.value = "";
-    if(bottomBox) bottomBox.value = "";
-    if(list) list.innerHTML = "";
+    if(el("yuniteInput")) el("yuniteInput").value = "";
+    if(el("yuniteOutputTop")) el("yuniteOutputTop").value = "";
+    if(el("yuniteOutputBottom")) el("yuniteOutputBottom").value = "";
+    if(el("yuniteResultList")) el("yuniteResultList").innerHTML = "";
   };
+  window.copyYuniteMentions = function(){ render(); copyValue("yuniteOutputTop"); };
 
-  function bind(){
-    const inp = inputEl();
-    if(inp){
-      inp.addEventListener("input", render);
-      inp.addEventListener("paste", () => setTimeout(render, 0));
-      render();
+  document.addEventListener("DOMContentLoaded", function(){
+    const input = el("yuniteInput");
+    if(input){
+      input.addEventListener("input", render);
+      input.addEventListener("paste", () => setTimeout(render, 0));
     }
 
-    document.querySelectorAll("button").forEach(btn => {
-      const t = (btn.textContent || "").toLowerCase();
-
-      if(t.includes("extract") || t.includes("top 5")){
-        btn.onclick = e => { e.preventDefault(); render(); };
-      }
-
-      if(t.includes("copy mentions") || t.includes("copy top 5")){
-        btn.onclick = e => { e.preventDefault(); window.copyTop5Mentions(); };
-      }
-
-      if(t.includes("copy bottom 5")){
-        btn.onclick = e => { e.preventDefault(); window.copyBottom5Mentions(); };
-      }
-
-      if(t.includes("clear")){
-        btn.onclick = e => { e.preventDefault(); window.clearYuniteMentions(); };
-      }
-    });
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", bind);
-  }else{
-    bind();
-  }
+    if(el("extractTop5Btn")) el("extractTop5Btn").onclick = function(e){ e.preventDefault(); render(); };
+    if(el("extractBottom5Btn")) el("extractBottom5Btn").onclick = function(e){ e.preventDefault(); render(); };
+    if(el("clearYuniteBtn")) el("clearYuniteBtn").onclick = function(e){ e.preventDefault(); window.clearYuniteMentions(); };
+    if(el("copyTop5Btn")) el("copyTop5Btn").onclick = function(e){ e.preventDefault(); render(); copyValue("yuniteOutputTop"); };
+    if(el("copyBottom5Btn")) el("copyBottom5Btn").onclick = function(e){ e.preventDefault(); render(); copyValue("yuniteOutputBottom"); };
+  });
 })();
 </script>
 
