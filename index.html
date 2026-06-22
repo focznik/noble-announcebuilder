@@ -1814,6 +1814,159 @@ textarea{
   background:rgba(255,214,90,.15);
 }
 
+
+
+/* ================================
+   SCHEDULE CREATOR
+   automatic + manual presets
+   ================================ */
+.schedule-panel{
+  max-width:1400px;
+  margin:18px auto 0;
+  border-radius:22px!important;
+}
+.schedule-layout{
+  display:grid;
+  grid-template-columns:420px 1fr;
+  gap:14px;
+}
+.schedule-controls{
+  display:grid;
+  gap:12px;
+}
+.schedule-mode-grid,
+.schedule-small-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.schedule-manual-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+.schedule-mode-btn{
+  min-height:44px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.035)),rgba(18,6,27,.72);
+  color:#fff;
+  cursor:pointer;
+  font-weight:900;
+}
+.schedule-mode-btn.active{
+  border-color:var(--summer-sun);
+  background:linear-gradient(90deg,rgba(255,214,90,.22),rgba(255,31,191,.22)),rgba(20,6,29,.88);
+  box-shadow:inset 0 -3px 0 var(--summer-sun)!important;
+}
+.schedule-output{
+  min-height:520px;
+}
+.schedule-note{
+  color:rgba(255,255,255,.62);
+  font-size:12px;
+  line-height:1.45;
+  margin-top:2px;
+}
+.schedule-copy{
+  width:100%;
+  min-height:48px;
+  border:1px solid var(--summer-sun);
+  border-radius:16px;
+  background:linear-gradient(90deg,rgba(255,214,90,.25),rgba(255,31,191,.24)),rgba(19,7,28,.88);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+@media(max-width:1000px){
+  .schedule-layout{grid-template-columns:1fr;}
+  .schedule-output{min-height:420px;}
+}
+@media(max-width:650px){
+  .schedule-small-grid,.schedule-manual-grid{grid-template-columns:1fr;}
+}
+
+
+.manual-session-field label{
+  margin-top:0;
+}
+.schedule-manual-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+@media(max-width:700px){
+  .schedule-manual-grid{grid-template-columns:1fr;}
+}
+
+
+/* Schedule automatic session controls */
+.schedule-auto-list{
+  display:grid;
+  gap:8px;
+  margin-bottom:8px;
+}
+.schedule-auto-row{
+  display:grid;
+  grid-template-columns:1fr 74px 38px;
+  gap:8px;
+  align-items:center;
+  min-height:44px;
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  background:rgba(18,6,27,.62);
+}
+.schedule-auto-name{
+  font-size:13px;
+  font-weight:900;
+  color:#fff;
+}
+
+.schedule-auto-clock{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:13px;
+  font-weight:900;
+  color:#fff7d6;
+  padding:7px 9px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  background:rgba(0,0,0,.18);
+  text-align:center;
+}
+.schedule-auto-time{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:12px;
+  color:#fff7d6;
+  padding:6px 8px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  background:rgba(0,0,0,.18);
+}
+.schedule-remove-session,
+.schedule-add-session{
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;
+  background:rgba(255,255,255,.055);
+  color:#fff;
+  cursor:pointer;
+  font-weight:900;
+}
+.schedule-remove-session{
+  width:34px;
+  height:32px;
+  color:#ffd6de;
+}
+.schedule-remove-session:hover,
+.schedule-add-session:hover{
+  border-color:rgba(255,214,90,.85);
+  background:rgba(255,214,90,.16);
+}
+.schedule-add-session{
+  width:100%;
+  min-height:38px;
+}
+
 </style>
 </head>
 <body data-theme="div0">
@@ -3213,6 +3366,86 @@ window.onload=function(){
 
 
 
+
+
+<section id="scheduleCreator" class="panel schedule-panel">
+  <div class="panel-title">Schedule Creator</div>
+  <div class="schedule-layout">
+    <div class="schedule-controls">
+      <div>
+        <label>Schedule Server</label>
+        <select id="scheduleServer" onchange="renderScheduleCreator()">
+          <option value="247">Noble 24/7</option>
+          <option value="div0">Noble Division 0</option>
+          <option value="div3">Noble Division 3</option>
+          <option value="div2">Noble Division 2</option>
+          <option value="solos">Noble Solos</option>
+          <option value="solosclosed">Noble Solos Closed</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Mode</label>
+        <div class="schedule-mode-grid">
+          <button type="button" id="scheduleAutoBtn" class="schedule-mode-btn active" onclick="setScheduleMode('auto')">Automatic</button>
+          <button type="button" id="scheduleManualBtn" class="schedule-mode-btn" onclick="setScheduleMode('manual')">Manual</button>
+        </div>
+      </div>
+
+      <div class="schedule-small-grid">
+        <div>
+          <label>Date</label>
+          <input id="scheduleDate" type="date" onchange="renderScheduleCreator()">
+        </div>
+        <div>
+          <label>First Session</label>
+          <input id="scheduleFirstTime" type="time" step="300" value="15:00" oninput="renderScheduleCreator()" onchange="renderScheduleCreator()">
+        </div>
+      </div>
+
+      <div id="scheduleAutoBox">
+        <label>Automatic Sessions</label>
+        <div id="scheduleAutoList" class="schedule-auto-list"></div>
+        <button type="button" id="scheduleAddAutoBtn" class="schedule-add-session" onclick="addAutoScheduleSession()">+ Add Session</button>
+      </div>
+
+      <div id="scheduleManualBox" class="hidden">
+        <label>Manual Session Times</label>
+        <div class="schedule-manual-grid">
+          <div class="manual-session-field" id="scheduleM1Wrap">
+            <label>First Session</label>
+            <input id="scheduleM1" type="time" step="300" value="" oninput="renderScheduleCreator()" onchange="renderScheduleCreator()">
+          </div>
+          <div class="manual-session-field hidden" id="scheduleM2Wrap">
+            <label>Second Session</label>
+            <input id="scheduleM2" type="time" step="300" value="" oninput="renderScheduleCreator()" onchange="renderScheduleCreator()">
+          </div>
+          <div class="manual-session-field hidden" id="scheduleM3Wrap">
+            <label>Third Session</label>
+            <input id="scheduleM3" type="time" step="300" value="" oninput="renderScheduleCreator()" onchange="renderScheduleCreator()">
+          </div>
+          <div class="manual-session-field hidden" id="scheduleM4Wrap">
+            <label>Fourth Session</label>
+            <input id="scheduleM4" type="time" step="300" value="" oninput="renderScheduleCreator()" onchange="renderScheduleCreator()">
+          </div>
+          <div class="manual-session-field hidden" id="scheduleM5Wrap">
+            <label>Fifth Session</label>
+            <input id="scheduleM5" type="time" step="300" value="" oninput="renderScheduleCreator()" onchange="renderScheduleCreator()">
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="schedule-copy" onclick="copyScheduleCreator()">Copy Schedule ✦</button>
+      <div class="schedule-note">Automatic robi +2h, ale po sesji <b>(2 games)</b> kolejne dodane sesje lecą co <b>+80 min</b>. W preview godziny są kodami Discorda <b>&lt;t:...:t&gt;</b>.</div>
+    </div>
+
+    <div>
+      <label>Preview</label>
+      <textarea id="scheduleOutput" class="schedule-output" readonly></textarea>
+    </div>
+  </div>
+</section>
+
 <section id="discordTimestampHelper" class="panel discord-ts-panel">
   <div class="panel-title" data-i18n="timestampHelper">Discord Timestamp Helper</div>
   <div class="discord-ts-top">
@@ -3844,6 +4077,222 @@ window.onload=function(){
   }else{
     bind();
   }
+})();
+</script>
+
+
+<script>
+/* ================================
+   SCHEDULE CREATOR LOGIC
+   Discord timestamp codes + progressive manual sessions
+   Automatic rows show normal hour, output uses <t:...:t>
+   After a 2-games session, added sessions jump +80 min
+   ================================ */
+(function(){
+  let scheduleMode = "auto";
+  let autoSessionTimes = [];
+  let lastAutoFirst = "";
+
+  const schedulePresets = {
+    "247": { emoji:":247~3:", title:"Noble 24/7 Schedule", channel:"<#797443678447599646>" },
+    div0: { emoji:":div0:", title:"Noble Division 0 Schedule", channel:"<#1282842243157196840>" },
+    div3: { emoji:":div3:", title:"Noble Division 3 Schedule", channel:"<#902683351691968513>" },
+    div2: { emoji:":div2:", title:"Noble Division 2 Schedule", channel:"<#757574098984501259>" },
+    solos: { emoji:":noble_solos:", title:"Noble Solos Schedule", channel:"<#1098919249055072327>" },
+    solosclosed: { emoji:":Solos_Closed:", title:"Noble Solos Closed Schedule", channel:"<#1403403385146704052>" }
+  };
+
+  const sessionNames = ["First Session", "Second Session", "Third Session", "Fourth Session", "Fifth Session", "Sixth Session", "Seventh Session", "Eighth Session", "Ninth Session", "Tenth Session"];
+  const manualIds = ["scheduleM1", "scheduleM2", "scheduleM3", "scheduleM4", "scheduleM5"];
+
+  function el(id){ return document.getElementById(id); }
+  function pad(n){ return String(n).padStart(2,"0"); }
+
+  function todayValue(){
+    const d = new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+
+  function formatDate(value){
+    const parts = String(value || todayValue()).split("-");
+    if(parts.length !== 3) return value;
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+
+  function addMinutes(time, minutes){
+    const [h,m] = String(time || "15:00").split(":").map(Number);
+    const total = ((h * 60 + (m || 0) + minutes) % 1440 + 1440) % 1440;
+    return `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
+  }
+
+  function sessionIsTwoGames(time){
+    const hour = Number(String(time || "00:00").split(":")[0]);
+    return hour >= 22 || hour < 6;
+  }
+
+  function nextAutoTime(previousTime){
+    return addMinutes(previousTime, sessionIsTwoGames(previousTime) ? 80 : 120);
+  }
+
+  function unixFor(dateValue, time){
+    const date = dateValue || todayValue();
+    const t = time || "00:00";
+    const d = new Date(`${date}T${t}:00`);
+    if(Number.isNaN(d.getTime())) return Math.floor(Date.now() / 1000);
+    return Math.floor(d.getTime() / 1000);
+  }
+
+  function discordTimeCode(dateValue, time){
+    return `<t:${unixFor(dateValue, time)}:t>`;
+  }
+
+  function getFirstAutoTime(){
+    return (el("scheduleFirstTime") && el("scheduleFirstTime").value) || "15:00";
+  }
+
+  function resetAutoTimes(){
+    const first = getFirstAutoTime();
+    autoSessionTimes = [first];
+    while(autoSessionTimes.length < 5){
+      autoSessionTimes.push(nextAutoTime(autoSessionTimes[autoSessionTimes.length - 1]));
+    }
+    lastAutoFirst = first;
+  }
+
+  function ensureAutoTimes(){
+    const first = getFirstAutoTime();
+    if(!autoSessionTimes.length || first !== lastAutoFirst){
+      resetAutoTimes();
+    }
+  }
+
+  function updateManualVisibility(){
+    for(let i = 0; i < manualIds.length; i++){
+      const wrap = el(manualIds[i] + "Wrap");
+      if(!wrap) continue;
+      const shouldShow = i === 0 || Boolean(el(manualIds[i - 1]) && el(manualIds[i - 1]).value);
+      wrap.classList.toggle("hidden", !shouldShow);
+      if(!shouldShow && el(manualIds[i])) el(manualIds[i]).value = "";
+    }
+  }
+
+  function getTimes(){
+    if(scheduleMode === "manual"){
+      updateManualVisibility();
+      return manualIds.map(id => (el(id) && el(id).value) || "").filter(Boolean);
+    }
+    ensureAutoTimes();
+    return autoSessionTimes.slice();
+  }
+
+  function renderAutoControls(){
+    const box = el("scheduleAutoList");
+    if(!box) return;
+    ensureAutoTimes();
+    box.innerHTML = "";
+
+    autoSessionTimes.forEach((time, i) => {
+      const row = document.createElement("div");
+      row.className = "schedule-auto-row";
+      row.innerHTML = `
+        <div class="schedule-auto-name">${sessionNames[i] || (i + 1) + " Session"}${sessionIsTwoGames(time) ? " (2 games)" : ""}</div>
+        <div class="schedule-auto-clock">${time}</div>
+        <button type="button" class="schedule-remove-session" title="Remove this session" onclick="removeAutoScheduleSession(${i})">×</button>
+      `;
+      box.appendChild(row);
+    });
+
+    const addBtn = el("scheduleAddAutoBtn");
+    if(addBtn) addBtn.classList.toggle("hidden", autoSessionTimes.length >= 10);
+  }
+
+  window.removeAutoScheduleSession = function(index){
+    ensureAutoTimes();
+    if(autoSessionTimes.length <= 1) return;
+    autoSessionTimes.splice(index, 1);
+    renderScheduleCreator();
+  };
+
+  window.addAutoScheduleSession = function(){
+    ensureAutoTimes();
+    if(autoSessionTimes.length >= 10) return;
+    const last = autoSessionTimes[autoSessionTimes.length - 1] || getFirstAutoTime();
+    autoSessionTimes.push(nextAutoTime(last));
+    renderScheduleCreator();
+  };
+
+  function buildSchedule(){
+    const server = (el("scheduleServer") && el("scheduleServer").value) || "247";
+    const preset = schedulePresets[server] || schedulePresets["247"];
+    const dateValue = (el("scheduleDate") && el("scheduleDate").value) || todayValue();
+    const date = formatDate(dateValue);
+    const times = getTimes();
+
+    let text = `@everyone\n\n  ${preset.emoji} **${preset.title} (${date})** ${preset.emoji} \n\n`;
+
+    if(times.length === 0){
+      text += `First Session:\n:ArrowRight~1: \n\n`;
+    }else{
+      times.forEach((time, index) => {
+        const baseName = sessionNames[index] || `${index + 1}th Session`;
+        const label = baseName + (sessionIsTwoGames(time) ? ": (2 games)" : ":");
+        text += `${label}\n:ArrowRight~1: ${index === 0 ? " " : ""}${discordTimeCode(dateValue, time)}\n\n`;
+      });
+    }
+
+    text += `\nMore details are available in ${preset.channel}\n\n-# Please note that session times may shift depending on how earlier sessions progress.`;
+    return text;
+  }
+
+  window.renderScheduleCreator = function(){
+    updateManualVisibility();
+
+    const out = el("scheduleOutput");
+    if(out) out.value = buildSchedule();
+
+    const autoBtn = el("scheduleAutoBtn");
+    const manualBtn = el("scheduleManualBtn");
+    const manualBox = el("scheduleManualBox");
+    const autoBox = el("scheduleAutoBox");
+    const firstAuto = el("scheduleFirstTime");
+
+    renderAutoControls();
+
+    if(autoBtn) autoBtn.classList.toggle("active", scheduleMode === "auto");
+    if(manualBtn) manualBtn.classList.toggle("active", scheduleMode === "manual");
+    if(manualBox) manualBox.classList.toggle("hidden", scheduleMode !== "manual");
+    if(autoBox) autoBox.classList.toggle("hidden", scheduleMode !== "auto");
+    if(firstAuto) firstAuto.closest("div").classList.toggle("hidden", scheduleMode === "manual");
+  };
+
+  window.setScheduleMode = function(mode){
+    scheduleMode = mode === "manual" ? "manual" : "auto";
+    renderScheduleCreator();
+  };
+
+  window.copyScheduleCreator = function(){
+    const text = buildSchedule();
+    const out = el("scheduleOutput");
+    if(out) out.value = text;
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text);
+    }else if(out){
+      out.focus();
+      out.select();
+      document.execCommand("copy");
+    }
+    if(typeof showToast === "function") showToast("Schedule copied");
+  };
+
+  function init(){
+    if(el("scheduleDate") && !el("scheduleDate").value) el("scheduleDate").value = todayValue();
+    resetAutoTimes();
+    renderScheduleCreator();
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+  window.addEventListener("load", init);
 })();
 </script>
 
