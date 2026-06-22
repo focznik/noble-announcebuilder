@@ -1934,6 +1934,14 @@ textarea{
   background:rgba(0,0,0,.18);
   text-align:center;
 }
+
+input.schedule-auto-clock{
+  width:74px!important;
+  height:34px!important;
+  padding:0 6px!important;
+  color:#fff7d6!important;
+}
+
 .schedule-auto-time{
   font-family:'JetBrains Mono',Consolas,monospace;
   font-size:12px;
@@ -1965,6 +1973,46 @@ textarea{
 .schedule-add-session{
   width:100%;
   min-height:38px;
+}
+
+
+/* Schedule Creator final fix: readable names + full time input */
+.schedule-auto-row{
+  grid-template-columns:minmax(0,1fr) 112px 38px!important;
+  gap:8px!important;
+}
+.schedule-auto-name{
+  font-size:14px!important;
+  font-weight:900!important;
+  color:#ffffff!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  text-transform:none!important;
+}
+input.schedule-auto-clock{
+  width:112px!important;
+  min-width:112px!important;
+  height:38px!important;
+  padding:0 10px!important;
+  text-align:center!important;
+  font-family:'JetBrains Mono',Consolas,monospace!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  color:#fff7d6!important;
+  line-height:38px!important;
+}
+input.schedule-auto-clock::-webkit-calendar-picker-indicator{
+  display:none!important;
+  opacity:0!important;
+}
+.schedule-panel label,
+.schedule-panel .panel-title,
+.schedule-mode-btn,
+.schedule-add-session,
+.schedule-copy,
+.schedule-note{
+  text-transform:none!important;
 }
 
 </style>
@@ -2158,31 +2206,7 @@ const translations = {
     copied:"Copied",
     announcementCopied:"Announcement copied",
     regCopied:"Registration timestamp copied",
-    gameCopied:"First game timestamp copied",
-    scheduleCreator:"Schedule Creator",
-    scheduleServer:"Schedule Server",
-    mode:"Mode",
-    automatic:"Automatic",
-    manual:"Manual",
-    date:"Date",
-    firstSessionInput:"First Session",
-    automaticSessions:"Automatic Sessions",
-    manualSessionTimes:"Manual Session Times",
-    addSession:"+ Add Session",
-    copySchedule:"Copy Schedule ✦",
-    scheduleNote:"Automatic does +2h, but after a (2 games) session, new added sessions go every +80 min. Preview uses Discord codes <t:...:t>.",
-    scheduleCopied:"Schedule copied",
-    firstSession:"First Session",
-    secondSession:"Second Session",
-    thirdSession:"Third Session",
-    fourthSession:"Fourth Session",
-    fifthSession:"Fifth Session",
-    sixthSession:"Sixth Session",
-    seventhSession:"Seventh Session",
-    eighthSession:"Eighth Session",
-    ninthSession:"Ninth Session",
-    tenthSession:"Tenth Session",
-    twoGames:"2 games"
+    gameCopied:"First game timestamp copied"
   },
   pl:{
     title:"⚡ Noble Announcement Builder",
@@ -2262,31 +2286,7 @@ const translations = {
     copied:"Skopiowano",
     announcementCopied:"Wiadomość skopiowana",
     regCopied:"Timestamp zapisów skopiowany",
-    gameCopied:"Timestamp pierwszej gry skopiowany",
-    scheduleCreator:"Schedule Creator",
-    scheduleServer:"Serwer schedule",
-    mode:"Tryb",
-    automatic:"Automatyczny",
-    manual:"Manualny",
-    date:"Data",
-    firstSessionInput:"Pierwsza sesja",
-    automaticSessions:"Sesje automatyczne",
-    manualSessionTimes:"Godziny sesji manualnie",
-    addSession:"+ Dodaj sesję",
-    copySchedule:"Kopiuj schedule ✦",
-    scheduleNote:"Automatycznie robi +2h, ale po sesji (2 games) kolejne dodane sesje lecą co +80 min. Preview używa kodów Discorda <t:...:t>.",
-    scheduleCopied:"Schedule skopiowany",
-    firstSession:"Pierwsza sesja",
-    secondSession:"Druga sesja",
-    thirdSession:"Trzecia sesja",
-    fourthSession:"Czwarta sesja",
-    fifthSession:"Piąta sesja",
-    sixthSession:"Szósta sesja",
-    seventhSession:"Siódma sesja",
-    eighthSession:"Ósma sesja",
-    ninthSession:"Dziewiąta sesja",
-    tenthSession:"Dziesiąta sesja",
-    twoGames:"2 gry"
+    gameCopied:"Timestamp pierwszej gry skopiowany"
   },
   it:{
     title:"⚡ Noble Announcement Builder",
@@ -2366,31 +2366,7 @@ const translations = {
     copied:"Copiato",
     announcementCopied:"Announcement copiato",
     regCopied:"Timestamp registrazione copiato",
-    gameCopied:"Timestamp prima partita copiato",
-    scheduleCreator:"Creatore schedule",
-    scheduleServer:"Server schedule",
-    mode:"Modalità",
-    automatic:"Automatico",
-    manual:"Manuale",
-    date:"Data",
-    firstSessionInput:"Prima sessione",
-    automaticSessions:"Sessioni automatiche",
-    manualSessionTimes:"Orari manuali sessioni",
-    addSession:"+ Aggiungi sessione",
-    copySchedule:"Copia schedule ✦",
-    scheduleNote:"Automatico fa +2h, ma dopo una sessione (2 games), le nuove sessioni vanno ogni +80 min. L’anteprima usa codici Discord <t:...:t>.",
-    scheduleCopied:"Schedule copiato",
-    firstSession:"Prima sessione",
-    secondSession:"Seconda sessione",
-    thirdSession:"Terza sessione",
-    fourthSession:"Quarta sessione",
-    fifthSession:"Quinta sessione",
-    sixthSession:"Sesta sessione",
-    seventhSession:"Settima sessione",
-    eighthSession:"Ottava sessione",
-    ninthSession:"Nona sessione",
-    tenthSession:"Decima sessione",
-    twoGames:"2 partite"
+    gameCopied:"Timestamp prima partita copiato"
   },
   de:{
     title:"⚡ Noble Announcement Builder",
@@ -2470,31 +2446,7 @@ const translations = {
     copied:"Kopiert",
     announcementCopied:"Announcement kopiert",
     regCopied:"Registration-Timestamp kopiert",
-    gameCopied:"First-Game-Timestamp kopiert",
-    scheduleCreator:"Schedule Creator",
-    scheduleServer:"Schedule-Server",
-    mode:"Modus",
-    automatic:"Automatisch",
-    manual:"Manuell",
-    date:"Datum",
-    firstSessionInput:"Erste Session",
-    automaticSessions:"Automatische Sessions",
-    manualSessionTimes:"Manuelle Session-Zeiten",
-    addSession:"+ Session hinzufügen",
-    copySchedule:"Schedule kopieren ✦",
-    scheduleNote:"Automatisch macht +2h, aber nach einer (2 games) Session laufen neu hinzugefügte Sessions alle +80 Min. Die Vorschau nutzt Discord-Codes <t:...:t>.",
-    scheduleCopied:"Schedule kopiert",
-    firstSession:"Erste Session",
-    secondSession:"Zweite Session",
-    thirdSession:"Dritte Session",
-    fourthSession:"Vierte Session",
-    fifthSession:"Fünfte Session",
-    sixthSession:"Sechste Session",
-    seventhSession:"Siebte Session",
-    eighthSession:"Achte Session",
-    ninthSession:"Neunte Session",
-    tenthSession:"Zehnte Session",
-    twoGames:"2 Games"
+    gameCopied:"First-Game-Timestamp kopiert"
   },
   ru:{
     title:"⚡ Noble Announcement Builder",
@@ -2574,33 +2526,137 @@ const translations = {
     copied:"Скопировано",
     announcementCopied:"Announcement скопирован",
     regCopied:"Timestamp регистрации скопирован",
-    gameCopied:"Timestamp первой игры скопирован",
-    scheduleCreator:"Создатель schedule",
-    scheduleServer:"Сервер schedule",
-    mode:"Режим",
-    automatic:"Автоматически",
-    manual:"Вручную",
-    date:"Дата",
-    firstSessionInput:"Первая сессия",
-    automaticSessions:"Автоматические сессии",
-    manualSessionTimes:"Ручное время сессий",
-    addSession:"+ Добавить сессию",
-    copySchedule:"Копировать schedule ✦",
-    scheduleNote:"Автоматически делает +2ч, но после сессии (2 games) новые добавленные сессии идут каждые +80 мин. Preview использует Discord-коды <t:...:t>.",
-    scheduleCopied:"Schedule скопирован",
-    firstSession:"Первая сессия",
-    secondSession:"Вторая сессия",
-    thirdSession:"Третья сессия",
-    fourthSession:"Четвёртая сессия",
-    fifthSession:"Пятая сессия",
-    sixthSession:"Шестая сессия",
-    seventhSession:"Седьмая сессия",
-    eighthSession:"Восьмая сессия",
-    ninthSession:"Девятая сессия",
-    tenthSession:"Десятая сессия",
-    twoGames:"2 игры"
+    gameCopied:"Timestamp первой игры скопирован"
   }
 };
+
+
+/* Schedule Creator translation patch */
+Object.assign(translations.en, {
+  scheduleCreator:"Schedule Creator",
+  scheduleServer:"Schedule Server",
+  automatic:"Automatic",
+  manual:"Manual",
+  date:"Date",
+  firstSessionInput:"First Session",
+  automaticSessions:"Automatic Sessions",
+  manualSessions:"Manual Sessions",
+  addSession:"+ Add Session",
+  copySchedule:"Copy Schedule ✦",
+  scheduleCopied:"Schedule copied",
+  scheduleNote:"Automatic does +2h, but after a (2 games) session, new added sessions go every +80 min. Preview uses Discord codes <t:...:t>.",
+  twoGames:"2 games",
+  firstSession:"First Session",
+  secondSession:"Second Session",
+  thirdSession:"Third Session",
+  fourthSession:"Fourth Session",
+  fifthSession:"Fifth Session",
+  sixthSession:"Sixth Session",
+  seventhSession:"Seventh Session",
+  eighthSession:"Eighth Session",
+  ninthSession:"Ninth Session",
+  tenthSession:"Tenth Session"
+});
+Object.assign(translations.pl, {
+  scheduleCreator:"Kreator harmonogramu",
+  scheduleServer:"Serwer harmonogramu",
+  automatic:"Automatycznie",
+  manual:"Ręcznie",
+  date:"Data",
+  firstSessionInput:"Pierwsza sesja",
+  automaticSessions:"Sesje automatyczne",
+  manualSessions:"Sesje ręczne",
+  addSession:"+ Dodaj sesję",
+  copySchedule:"Kopiuj harmonogram ✦",
+  scheduleCopied:"Harmonogram skopiowany",
+  scheduleNote:"Automatic robi +2h, ale po sesji (2 games) kolejne dodane sesje lecą co +80 min. W preview godziny są kodami Discorda <t:...:t>.",
+  twoGames:"2 games",
+  firstSession:"First Session",
+  secondSession:"Second Session",
+  thirdSession:"Third Session",
+  fourthSession:"Fourth Session",
+  fifthSession:"Fifth Session",
+  sixthSession:"Sixth Session",
+  seventhSession:"Seventh Session",
+  eighthSession:"Eighth Session",
+  ninthSession:"Ninth Session",
+  tenthSession:"Tenth Session"
+});
+Object.assign(translations.it, {
+  scheduleCreator:"Creatore schedule",
+  scheduleServer:"Server schedule",
+  automatic:"Automatico",
+  manual:"Manuale",
+  date:"Data",
+  firstSessionInput:"Prima sessione",
+  automaticSessions:"Sessioni automatiche",
+  manualSessions:"Sessioni manuali",
+  addSession:"+ Aggiungi sessione",
+  copySchedule:"Copia schedule ✦",
+  scheduleCopied:"Schedule copiato",
+  scheduleNote:"Automatic fa +2h, ma dopo una sessione (2 games) le sessioni aggiunte vanno ogni +80 min. La preview usa codici Discord <t:...:t>.",
+  twoGames:"2 games",
+  firstSession:"First Session",
+  secondSession:"Second Session",
+  thirdSession:"Third Session",
+  fourthSession:"Fourth Session",
+  fifthSession:"Fifth Session",
+  sixthSession:"Sixth Session",
+  seventhSession:"Seventh Session",
+  eighthSession:"Eighth Session",
+  ninthSession:"Ninth Session",
+  tenthSession:"Tenth Session"
+});
+Object.assign(translations.de, {
+  scheduleCreator:"Schedule Creator",
+  scheduleServer:"Schedule-Server",
+  automatic:"Automatisch",
+  manual:"Manuell",
+  date:"Datum",
+  firstSessionInput:"Erste Session",
+  automaticSessions:"Automatische Sessions",
+  manualSessions:"Manuelle Sessions",
+  addSession:"+ Session hinzufügen",
+  copySchedule:"Schedule kopieren ✦",
+  scheduleCopied:"Schedule kopiert",
+  scheduleNote:"Automatic macht +2h, aber nach einer (2 games) Session laufen neue Sessions alle +80 Min. Preview nutzt Discord-Codes <t:...:t>.",
+  twoGames:"2 games",
+  firstSession:"First Session",
+  secondSession:"Second Session",
+  thirdSession:"Third Session",
+  fourthSession:"Fourth Session",
+  fifthSession:"Fifth Session",
+  sixthSession:"Sixth Session",
+  seventhSession:"Seventh Session",
+  eighthSession:"Eighth Session",
+  ninthSession:"Ninth Session",
+  tenthSession:"Tenth Session"
+});
+Object.assign(translations.ru, {
+  scheduleCreator:"Создатель расписания",
+  scheduleServer:"Сервер расписания",
+  automatic:"Автоматически",
+  manual:"Вручную",
+  date:"Дата",
+  firstSessionInput:"Первая сессия",
+  automaticSessions:"Автоматические сессии",
+  manualSessions:"Ручные сессии",
+  addSession:"+ Добавить сессию",
+  copySchedule:"Копировать расписание ✦",
+  scheduleCopied:"Расписание скопировано",
+  scheduleNote:"Automatic делает +2ч, но после сессии (2 games) новые сессии идут каждые +80 мин. Preview использует Discord-коды <t:...:t>.",
+  twoGames:"2 games",
+  firstSession:"First Session",
+  secondSession:"Second Session",
+  thirdSession:"Third Session",
+  fourthSession:"Fourth Session",
+  fifthSession:"Fifth Session",
+  sixthSession:"Sixth Session",
+  seventhSession:"Seventh Session",
+  eighthSession:"Eighth Session",
+  ninthSession:"Ninth Session",
+  tenthSession:"Tenth Session"
+});
 
 let currentLanguage = localStorage.getItem("noble_language") || "en";
 
@@ -4342,7 +4398,7 @@ window.onload=function(){
       row.className = "schedule-auto-row";
       row.innerHTML = `
         <div class="schedule-auto-name">${scheduleSessionName(i)}${sessionIsTwoGames(time) ? " (" + t("twoGames") + ")" : ""}</div>
-        <div class="schedule-auto-clock">${time}</div>
+        <input class="schedule-auto-clock" type="time" step="300" value="${time}" oninput="updateAutoScheduleTime(${i}, this.value)" onchange="updateAutoScheduleTime(${i}, this.value)">
         <button type="button" class="schedule-remove-session" title="Remove this session" onclick="removeAutoScheduleSession(${i})">×</button>
       `;
       box.appendChild(row);
@@ -4351,6 +4407,24 @@ window.onload=function(){
     const addBtn = el("scheduleAddAutoBtn");
     if(addBtn) addBtn.classList.toggle("hidden", autoSessionTimes.length >= 10);
   }
+
+  window.updateAutoScheduleTime = function(index, value){
+    ensureAutoTimes();
+    if(!value) return;
+    autoSessionTimes[index] = value;
+
+    if(index === 0){
+      const firstInput = el("scheduleFirstTime");
+      if(firstInput) firstInput.value = value;
+      lastAutoFirst = value;
+    }
+
+    for(let i = index + 1; i < autoSessionTimes.length; i++){
+      autoSessionTimes[i] = nextAutoTime(autoSessionTimes[i - 1]);
+    }
+
+    renderScheduleCreator();
+  };
 
   window.removeAutoScheduleSession = function(index){
     ensureAutoTimes();
